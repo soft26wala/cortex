@@ -5,15 +5,22 @@ const nextConfig = {
 	// build static export output
 	output: "export",
 	// ensure exported pages end up as folders (helps GitHub Pages routing)
-	trailingSlash: true,
 	basePath: basePath || undefined,
 	assetPrefix: basePath || undefined,
-    images:{
-        unoptimized:true
-    },
     env:{
         NEXT_PUBLIC_BASE_PATH:basePath
-    }
+    },
+    reactStrictMode: true,
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "cortex-api-htc8.onrender.com",
+        pathname: "/uploads/**"
+      }
+    ]
+  }
 };
 
-export default nextConfig;
+module.exports = nextConfig;
+// export default nextConfig;

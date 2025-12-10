@@ -60,6 +60,7 @@ console.log("API ENV =>", process.env.NEXT_PUBLIC_API);
                   layout="responsive"
                   sizes="100vh"
                   className=" object-cover w-full h-full transition-all duration-0.4s group-hover:scale-110"
+                  priority={true}
                 />
               </div>
               <div className="pt-6">
