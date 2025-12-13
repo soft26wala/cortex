@@ -47,7 +47,7 @@ const Callback = ({ signUpOpen }: { signUpOpen?: any }) => {
 
   try {
     // Backend call
-    const res = await fetch("http://localhost:4000/callback", {
+    const res = await fetch("https://cortex-api-htc8.onrender.com/callback", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(finalData),
@@ -109,7 +109,8 @@ const Callback = ({ signUpOpen }: { signUpOpen?: any }) => {
                         className="w-full rounded-md border border-border dark:border-dark_border border-solid bg-transparent px-5 py-3 text-base text-dark outline-none transition placeholder:text-gray-300 focus:border-primary focus-visible:shadow-none dark:text-white dark:focus:border-primary"
                     />
                 </div>
-                <div className="mb-[22px]">
+              
+                                <div className="mb-[22px]">
                     <select
                         name="course"
                         value={formData.course}
@@ -117,7 +118,7 @@ const Callback = ({ signUpOpen }: { signUpOpen?: any }) => {
                         required
                         className="w-full rounded-md border border-border dark:border-dark_border bg-white dark:bg-darklight px-4 py-3 text-base text-dark dark:text-white outline-none transition focus:border-primary dark:focus:border-primary"
                     >
-                        <option value="" disabled selected>
+                        <option value="">
                             Select Technology
                         </option>
                         <option value="mern">MERN</option>
@@ -150,3 +151,5 @@ const Callback = ({ signUpOpen }: { signUpOpen?: any }) => {
 };
 
 export default Callback;
+
+

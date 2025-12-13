@@ -7,16 +7,16 @@ const Hero = () => {
             <div className="container">
                 <div className="grid lg:grid-cols-12 grid-cols-1 items-center gap-30">
                     <div className="col-span-6">
-                        <p
+                        {/* <p
                             data-aos="fade-up"
                             data-aos-delay="200"
                             data-aos-duration="1000"
                             className="relative z-0  inline-block text-primary text-lg font-bold before:absolute before:content-[''] before:bg-primary/20  before:w-full before:h-2 before:-z-1 dark:before:-z-1 before:bottom-0"
                         >
                             Starts on 16 June 2020
-                        </p>
+                        </p> */}
                         <h1
-                            className="py-4"
+                            className="py-8"
                             data-aos="fade-up"
                             data-aos-delay="300"
                             data-aos-duration="1000"
@@ -35,7 +35,7 @@ const Hero = () => {
                         </p>
                         <div className="flex items-center md:justify-normal lg:justify-center justify-start flex-wrap gap-4">
                             <Link
-                                href="/"
+                                href="/courses"
                                 data-aos="fade-up"
                                 data-aos-delay="500"
                                 data-aos-duration="1000"
@@ -43,7 +43,7 @@ const Hero = () => {
                             >
                                 <span className="!flex !items-center gap-14">
                                     <i className="bg-[url('/images/hero/tickets.svg')] bg-no-repeat bg-contain w-6 h-6 inline-block"></i>
-                                    Buy access pass
+                                    Courses
                                 </span>
                             </Link>
                             <Link
@@ -55,7 +55,7 @@ const Hero = () => {
                             >
                                 <span className="!flex !items-center gap-14">
                                     <i className="bg-[url('/images/hero/calander.svg')] bg-no-repeat bg-contain w-6 h-6 inline-block group-hover:bg-[url('/images/hero/calander-hover-white.svg')]"></i>
-                                    Add to calendar
+                                    Request Callback
                                 </span>
                             </Link>
                         </div>

@@ -125,49 +125,24 @@ const Footer: FC = () => {
                         </ul>
                     </div>
                 </div>
-                <div className="grid md:grid-cols-12 grid-cols-1 items-center py-8">
+                <div className="flex items-center justify-center py-8" >
                     <div className="col-span-5">
                         <p className="text-base font-normal text-PaleCerulean">
-                            © All rights reserved. Made by{" "}
+                           Copyright © 2025 {" "}
                             <Link
                                 href="https://nextjs-templates.com/"
                                 className="hover:text-white"
                                 target="_blank"
                             >
-                                NextJs Templates
+                               Cortex Web Solutions   Pvt.ltd
                             </Link>
                         </p>
-                        <p className="text-base font-normal text-PaleCerulean">
-                            Distributed by {" "}
-                            <Link
-                                href="https://themewagon.com/"
-                                className="hover:text-white"
-                                target="_blank"
-                            >
-                                ThemeWagon
-                            </Link>
+                        <p className="flex justify-center text-base font-normal text-PaleCerulean">
+                          
+                            All Rights Reserved.
                         </p>
                     </div>
-                    <div className="col-span-7 grid md:grid-cols-12 grid-cols-1 items-center gap-6">
-                        <p className="text-xl text-PaleCerulean font-normal col-span-4">
-                            Subscribe Newsletter
-                        </p>
-                        <div className="w-full col-span-8">
-                            <form className="newsletter-form bg-white dark:bg-transparent flex rounded-md justify-end overflow-hidden rounded-tl-lg rounded-bl-lg">
-                                <input
-                                    type="email"
-                                    placeholder="Email address*"
-                                    className="p-4 text-base border-0 rounded-md outline-0 w-[calc(100%_-_137px)] flex dark:bg-midnight_text dark:text-white dark:rounded-none dark:w-full dark:bg-darkmode"
-                                />
-                                <button
-                                    type="submit"
-                                    className="btn btn-1 hover-filled-slide-down bg-RegalBlue"
-                                >
-                                    <span className="!border-0 !text-white">Subscribe</span>
-                                </button>
-                            </form>
-                        </div>
-                    </div>
+                
                 </div>
             </div>
         </footer>
