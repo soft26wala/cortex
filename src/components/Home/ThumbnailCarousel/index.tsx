@@ -128,7 +128,7 @@ const ThumbnailCarousel: React.FC = () => {
                     </div>
                     <div>
                         <Image
-                            src="/images/ThumbnailSlider/Slider_4.jpg"
+                            src="/images/anmol3.jpeg"
                             alt="Conference"
                             width={0}
                             height={0}
@@ -178,7 +178,7 @@ const ThumbnailCarousel: React.FC = () => {
                     </div>
                     <div>
                         <Image
-                            src="/images/ThumbnailSlider/Slider_4.jpg"
+                            src="/images/anmol3.jpeg"
                             alt="Thumbnail"
                             width={0}
                             height={0}

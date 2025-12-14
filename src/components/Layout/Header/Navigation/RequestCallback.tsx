@@ -31,9 +31,9 @@ function RequestCallback() {
 
         <button
           onClick={() => setIsSignUpOpen(true)}
-          className="px-4 py-2 rounded-lg"
+          className="py-2 rounded-lg"
         >
-          RequestCallback
+        RequestCallback
         </button>
      
 
