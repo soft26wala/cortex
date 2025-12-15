@@ -2,7 +2,6 @@ import WorkSpeakers from "@/components/Home/WorkSpeakers";
 import React from "react";
 import { Metadata } from "next";
 import Aboutcom from "@/components/SharedComponent/Aboutcom";
-import Aboutimg from "@/components/SharedComponent/Aboutimg";
 import AboutTum from "@/components/Home/AboutTum";
 import Testimonials from "@/components/Home/Testimonials";
 

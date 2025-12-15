@@ -31,7 +31,7 @@ const Hero = () => {
                             data-aos-duration="1000"
                             className="text-xl text-SlateBlueText dark:text-opacity-80 font-normal md:pb-14 pb-6"
                         >
-                            We ready to accelerate your career with customized courese and leave your mark in the tech industy
+                            We ready to accelerate your career with customized courese and leave your mark in the tech industry.
                         </p>
                         <div className="flex items-center md:justify-normal lg:justify-center justify-start flex-wrap gap-4">
                             <Link

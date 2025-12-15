@@ -21,17 +21,16 @@ const Conferences = () => {
               data-aos-delay="200"
               data-aos-duration="1000"
             >
-              <h2>Best Online and Offline Conferences</h2>
+              <h2>Smart Digital Solutions for Modern Businesses</h2>
               <p className="text-lg font-normal text-SlateBlueText dark:text-opacity-80 max-w-506 md:pt-9 pt-5 md:pb-14 pb-6">
-                Sometimes by accident, sometimes chunks as necessary making this
-                the first true generator on the Internet. recently with desktop
-                publishing software like Aldus PageMaker
+                We help startups, SMEs, and enterprises build powerful digital products through intelligent design, scalable development, and result-driven strategies.
+From websites to full-scale applications, we turn ideas into high-impact digital experiences.
               </p>
               <Link
-                href="/"
+                href="/Service"
                 className="btn_outline btn-2 hover-outline-slide-down"
               >
-                <span>Upcoming conferences</span>
+                <span>Explore Our Services</span>
               </Link>
             </div>
           </div>

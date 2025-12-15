@@ -31,7 +31,7 @@ const Footer: FC = () => {
                                 <Link href="/">Speakers</Link>
                             </li>
                             <li className="text-PaleCerulean sm:text-xl text-lg font-normal transition-all duration-0.4s hover:text-primary">
-                                <Link href="/">Schedule</Link>
+                                <Link href="/Service">Service</Link>
                             </li>
                             <li className="text-PaleCerulean sm:text-xl text-lg font-normal transition-all duration-0.4s hover:text-primary">
                                 <Link href="/">About</Link>

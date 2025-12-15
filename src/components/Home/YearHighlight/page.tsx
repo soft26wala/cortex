@@ -57,27 +57,26 @@ const Highlight = () => {
                         >
                             <h2>Previous Year Highlights</h2>
                             <p className="text-lg font-normal text-SlateBlueText dark:text-opacity-80 max-w-404 pt-7 pb-11">
-                                Many variations of passages of Lorem Ipsum available but the
-                                majority have suffered alteration in some form injected humour,
-                                or randomised words
+                                Over the past year, Cortex Web Solutions has helped businesses transform digitally through innovative IT services and reliable technology solutions. Our commitment to quality, performance, and client success has enabled us to deliver measurable results across multiple industries
+                                <br />From startups to enterprises, we’ve built scalable digital products that drive growth and long-term value.
                             </p>
                             <div className="flex items-center flex-wrap gap-30">
                                 <div className="text-start sm:pb-0 pb-5">
-                                    <h2 className="text-primary">10k+</h2>
-                                    <p className="text-lg font-medium text-secondary dark:text-darktext">
-                                        Ticket confirmed
+                                    <h2 className="text-primary">1k+</h2>
+                                    <p className="text-sm font-medium text-secondary dark:text-darktext">
+                                       Successful Deployments
                                     </p>
                                 </div>
                                 <div className="text-start sm:pb-0 pb-5">
-                                    <h2 className="text-primary">16</h2>
-                                    <p className="text-lg font-medium text-secondary dark:text-darktext">
-                                        Partners
+                                    <h2 className="text-primary">30+</h2>
+                                    <p className="text-sm font-medium text-secondary dark:text-darktext">
+                                        Industry Collaborations
                                     </p>
                                 </div>
                                 <div className="text-start sm:pb-0 pb-5">
-                                    <h2 className="text-primary">150k+</h2>
-                                    <p className="text-lg font-medium text-secondary dark:text-darktext">
-                                        Participants
+                                    <h2 className="text-primary">99%</h2>
+                                    <p className="text-sm font-medium text-secondary dark:text-darktext">
+                                        Client Satisfaction Rate
                                     </p>
                                 </div>
                             </div>
