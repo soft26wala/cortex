@@ -23,14 +23,14 @@ const TicketSection = () => {
                             </div>
                             <div className="md:w-2/5 w-full ml-auto lg:text-start text-center">
                                 <p className="sm:text-4xl text-[28px] leading-[2.25rem] font-bold text-white lg:max-w-364 max-w-full pb-9">
-                                    Become a Part of the Digital Evolution!
+                                   Learn Coding. Build Your Future
                                 </p>
                                 <Link
-                                    href="/"
+                                    href="/courses"
                                     className="btn btn-1 hover-filled-slide-down rounded-lg overflow-hidden before:bg-ElectricAqua"
                                 >
                                     <span className="sm:!px-20 px-10 !border-ElectricAqua !text-white">
-                                        Book ticket
+                                        Buy Courses
                                     </span>
                                 </Link>
                             </div>

@@ -1,9 +1,11 @@
 import Testimonials from "@/components/Home/Testimonials";
-import TicketSection from "@/components/Home/TicketSection";
 import WorkSpeakers from "@/components/Home/WorkSpeakers";
 import HeroSub from "@/components/SharedComponent/HeroSub";
 import React from "react";
+
 import { Metadata } from "next";
+import AboutTum from "@/components/Home/AboutTum";
+
 export const metadata: Metadata = {
   title: "courses | Cortex Web Solutions",
 };
@@ -15,14 +17,16 @@ const page = () => {
       ];
   return (
     <>
+      
       <HeroSub
-        title="Our Visionary Speakers"
-        description="Discover a wealth of insightful materials meticulously crafted to provide you with a comprehensive."
+        title="Learn Coding with Industry Experts"
+        description="Hands-on courses designed to make you job-ready with real projects and modern technologies."
         breadcrumbLinks={breadcrumbLinks}
       />
-      <WorkSpeakers showTitle={false} />
+      <WorkSpeakers showTitle={true} />
       <Testimonials/>
-      <TicketSection/>
+      <AboutTum />
+     
     </>
   );
 };

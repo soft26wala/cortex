@@ -37,24 +37,24 @@ const EventTicket = () => {
                                 <div className="space-y-4">
                                     <div className="flex flex-wrap items-center md:gap-30 gap-2">
                                         <span className="text-[22px] leading-[2rem] font-bold text-secondary dark:text-white">
-                                            $100
+                                            Rs 999
                                         </span>
                                         <p className="text-xl font-normal text-secondary dark:text-darktext">
                                             Early birds
                                         </p>
                                         <p className="text-sm font-normal text-SlateBlueText">
-                                            Until May 20, 2022
+                                            Until Jan 20, 2026
                                         </p>
                                     </div>
                                     <div className="flex flex-wrap items-center md:gap-30 gap-2">
                                         <span className="text-[22px] leading-[2rem] font-bold text-secondary dark:text-white">
-                                            $150
+                                            Rs 1999
                                         </span>
                                         <p className="text-xl font-normal text-secondary dark:text-darktext">
                                             Late birds
                                         </p>
                                         <p className="text-sm font-normal text-SlateBlueText">
-                                            After May 20, 2022
+                                            After Jan 20, 2026
                                         </p>
                                     </div>
                                     <Link
