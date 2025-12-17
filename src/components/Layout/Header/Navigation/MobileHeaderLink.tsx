@@ -1,9 +1,15 @@
-import { useState } from 'react';
-import Link from 'next/link';
+import { useState, Dispatch, SetStateAction } from 'react'; // ⬅️ Dispatch, SetStateAction import किया
 import { HeaderItem } from '../../../../types/menu';
 import { usePathname, useRouter } from 'next/navigation';
 
-const MobileHeaderLink: React.FC<{ item: HeaderItem }> = ({ item }) => {
+// Header.tsx से पास किए गए नए prop को स्वीकार करने के लिए interface को परिभाषित करें
+interface MobileHeaderLinkProps {
+  item: HeaderItem;
+  setNavbarOpen: Dispatch<SetStateAction<boolean>>; // ⬅️ नया prop जोड़ा गया
+}
+
+// कंपोनेंट में props को स्वीकार करें
+const MobileHeaderLink: React.FC<MobileHeaderLinkProps> = ({ item, setNavbarOpen }) => {
   const [submenuOpen, setSubmenuOpen] = useState(false);
 
   const handleToggle = () => {
@@ -14,6 +20,12 @@ const MobileHeaderLink: React.FC<{ item: HeaderItem }> = ({ item }) => {
 
   const handleNavigate = () => {
     router.push(item.href);
+    setNavbarOpen(false); // ⬅️ नेविगेट करने के बाद मेनू बंद करें
+  }
+
+  const handleSubmenuNavigate = (href: string) => {
+    router.push(href);
+    setNavbarOpen(false); // ⬅️ सबमेनू लिंक पर क्लिक के बाद मेनू बंद करें
   }
 
   const path = usePathname();
@@ -26,7 +38,13 @@ const MobileHeaderLink: React.FC<{ item: HeaderItem }> = ({ item }) => {
       >
         {item.label}
         {item.submenu && (
-          <svg xmlns="http://www.w3.org/2000/svg" width="1.5em" height="1.5em" viewBox="0 0 24 24">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="1.5em"
+            height="1.5em"
+            viewBox="0 0 24 24"
+            className={`${submenuOpen ? 'transform rotate-180' : ''}`} // सबमेनू खुले होने पर rotate करें
+          >
             <path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="m7 10l5 5l5-5" />
           </svg>
         )}
@@ -34,9 +52,13 @@ const MobileHeaderLink: React.FC<{ item: HeaderItem }> = ({ item }) => {
       {submenuOpen && item.submenu && (
         <div className="bg-white p-2 w-full">
           {item.submenu.map((subItem, index) => (
-            <Link key={index} href={subItem.href} className="block py-2 text-gray-500 hover:bg-gray-200">
+            <button // Link की जगह button का प्रयोग, router.push और setNavbarOpen के लिए
+              key={index}
+              onClick={() => handleSubmenuNavigate(subItem.href)}
+              className="block w-full text-left py-2 text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-700"
+            >
               {subItem.label}
-            </Link>
+            </button>
           ))}
         </div>
       )}

@@ -134,7 +134,7 @@ const Footer: FC = () => {
                                 className="hover:text-white"
                                 target="_blank"
                             >
-                               Cortex Web Solutions   Pvt.ltd
+                               Cortex Web Solutions   Pvt.Ltd
                             </Link>
                         </p>
                         <p className="flex justify-center text-base font-normal text-PaleCerulean">

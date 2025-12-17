@@ -11,26 +11,28 @@ export interface typeofCourse {
   course_desc: string;
   course_image: string;
   course_price: string;      // "10983.00" aa raha hai isliye string
-  created_at: string;        // ISO date string
+  created_at: string;
+  total_price: string       // ISO date string
 }
 
 
 const WorkSpeakers = ({ showTitle = true }) => {
-const [courses, setCourses] = useState<typeofCourse[]>([]);
-const Api = process.env.NEXT_PUBLIC_API;
-console.log("API ENV =>", process.env.NEXT_PUBLIC_API);
+  const [courses, setCourses] = useState<typeofCourse[]>([]);
+  const Api = process.env.NEXT_PUBLIC_API;
+  console.log("API ENV2 =>", process.env.NEXT_PUBLIC_API);
 
   useEffect(() => {
     axios
-      .get(`${Api}/add-course/all`)
-      // .get("http://localhost:4000/add-course/all")
+      // .get(`${Api}/add-course/all`)
+      .get("https://cortex-api-htc8.onrender.com/add-course/all")
       .then((res) => {
         setCourses(res.data);
       })
       .catch((err) => console.log(err));
   }, []);
 
-  // console.log("courses :" , courses)
+
+  console.log("courses :", courses)
 
   const pathname = usePathname();
   return (
@@ -46,13 +48,17 @@ console.log("API ENV =>", process.env.NEXT_PUBLIC_API);
               data-aos="fade-up"
               data-aos-delay={`${index * 300}`}
               data-aos-duration="1000"
-              className={`col-span-1 group overflow-hidden ${
-                index % 2 === 1 ? "lg:mt-28 mt-0" : ""
-              }`}
+              className={`col-span-1 group overflow-hidden ${index % 2 === 1 ? "lg:mt-28 mt-0" : ""
+                }`}
             >
               <div className="overflow-hidden rounded-lg">
                 <Image
-                  src={`${Api}/uploads/${course.course_image}`}
+                  src={
+                    course.course_image?.startsWith("http")
+                      ? course.course_image
+                      : `/${course.course_image}`
+                  }
+
                   alt={course.course_name}
                   width={0}
                   height={0}
@@ -73,20 +79,31 @@ console.log("API ENV =>", process.env.NEXT_PUBLIC_API);
                 <span className="text-lg font-normal text-SlateBlueText dark:text-opacity-80">
                   {course.course_price}
                 </span>
+                <br />
+                <span className="text-green-600 font-semibold">
+                  {Math.round(
+                    ((Number(course.total_price) - Number(course.course_price)) /
+                      Number(course.total_price)) * 100
+                  )}% OFF
+                </span>
+                <br />
+
+
+                <span className="text-gray-500 line-through">{course.total_price}</span>
               </div>
 
-                 <Link
-                                href="/buycourse"
-                                data-aos="fade-up"
-                                data-aos-delay="500"
-                                data-aos-duration="1000"
-                                className="btn btn-1 hover-filled-slide-down rounded-lg overflow-hidden my-5"
-                            >
-                                <span className="!flex !items-center gap-14">
-                                    <i className="bg-[url('/images/hero/tickets.svg')] bg-no-repeat bg-contain w-6 h-6 inline-block"></i>
-                                    Buy Coures
-                                </span>
-                            </Link>
+              <Link
+                href="/buycourse"
+                data-aos="fade-up"
+                data-aos-delay="500"
+                data-aos-duration="1000"
+                className="btn btn-1 hover-filled-slide-down rounded-lg overflow-hidden my-5"
+              >
+                <span className="!flex !items-center gap-14">
+                  <i className="bg-[url('/images/hero/tickets.svg')] bg-no-repeat bg-contain w-6 h-6 inline-block"></i>
+                  Buy Coures
+                </span>
+              </Link>
             </div>
           ))}
         </div>
