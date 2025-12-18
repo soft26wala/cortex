@@ -64,20 +64,28 @@ const WorkSpeakers = ({ showTitle = true }) => {
                    </div>
 
               {/* बटन को वैसा ही रखा है जैसा आपका था */}
-              <Link href="/buycourse" className="btn btn-1 hover-filled-slide-down rounded-lg overflow-hidden my-5">
+              <div className="space-x-4">
+<Link href="/buycourse" className="btn btn-1 hover-filled-slide-down rounded-lg overflow-hidden my-5">
                 <span className="!flex !items-center gap-14">Enroll Now</span>
               </Link>
 
               {/* Know More बटन - इसमें से RequestCallback हटा दिया ताकि डिज़ाइन न बिगड़े */}
-              <div
+              {/* <div
                 className="btn btn-1 hover-filled-slide-down rounded-lg mx-5 overflow-hidden my-5 cursor-pointer"
                 onClick={() => setIsCbUpOpen(true)} // यहाँ से ओपन होगा
               >
-                <span className="!flex !items-center gap-14">
+                
+              </div> */}
+
+                <Link href='#' onClick={() => setIsCbUpOpen(true)} className="btn btn-1 hover-filled-slide-down rounded-lg overflow-hidden my-5">
+                 <span className="!flex !items-center gap-14">
                   <Icon icon="solar:phone-calling-linear" className="text-xl" />
                   Know More
                 </span>
+              </Link>
               </div>
+              
+             
             </div>
           ))}
         </div>

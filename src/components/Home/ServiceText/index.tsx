@@ -1,103 +1,72 @@
 import React from "react";
 
-
 const ServiceText = () => {
   return (
-    <>
+    <div className="bg-white dark:bg-gray-900 text-gray-900 dark:text-white transition-colors duration-300">
+      
+      {/* Services Section */}
+      <section className="px-6 py-16">
+        <div className="max-w-7xl mx-auto grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          
+          {/* Service Card Component - Repeated for each service */}
+          {[
+            { title: "🌐 Website Development", desc: "High-performance, responsive websites.", list: ["Custom Web Dev", "E-commerce", "Web Apps", "API Integration"] },
+            { title: "🎨 UI/UX & Branding", desc: "Visually appealing digital experiences.", list: ["UI/UX Design", "Prototyping", "Brand Identity", "Layouts"] },
+            { title: "📱 Mobile App Dev", desc: "Scalable apps for Android and iOS.", list: ["Android & iOS", "Cross-platform", "App Maintenance"] },
+            { title: "📊 Digital Marketing", desc: "Data-driven marketing strategies.", list: ["SEO Optimization", "Social Media", "Google Ads", "Content"] }
+          ].map((service, index) => (
+            <div key={index} className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-6 shadow-sm hover:shadow-md transition">
+              <h3 className="text-xl font-bold mb-3">{service.title}</h3>
+              <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">{service.desc}</p>
+              <ul className="text-sm text-gray-500 dark:text-gray-400 space-y-2">
+                {service.list.map((item, i) => <li key={i}>• {item}</li>)}
+              </ul>
+            </div>
+          ))}
 
-      <section className="bg-gray-800 px-6 py-16">
-
-        <div className="flex items-center flex-wrap  w-full border border-solid border-border dark:border-dark_border md:px-14 px-6 md:mt-14 mt-6 rounded-22">
-          <div className="bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-xl transition">
-            <h3 className="text-xl font-semibold mb-3">🌐 Website & Web Application Development</h3>
-            <p className="text-gray-300 text-sm mb-4">
-              We build high-performance, responsive, and secure websites and web applications tailored to your business needs.
-            </p>
-            <ul className="text-sm text-gray-400 space-y-2">
-              <li>• Custom Website Development </li>
-              <li>• E-commerce Solutions</li>
-              <li>• Web Applications</li>
-              <li>• API Integration</li>
-            </ul>
-          </div>
-
-
-
-          <div className="bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-xl transition">
-            <h3 className="text-xl font-semibold mb-3">🎨 UI/UX Design & Branding</h3>
-            <p className="text-gray-300 text-sm mb-4">
-              Create visually appealing and user-friendly digital experiences that connect with your audience.
-            </p>
-            <ul className="text-sm text-gray-400 space-y-2">
-              <li>• UI/UX Design</li>
-              <li>• Product Prototypings</li>
-              <li>• Brand Identity Design</li>
-              <li>• Conversion-Focused Layouts</li>
-            </ul>
-          </div>
-
-
-          <div className="bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-xl transition">
-            <h3 className="text-xl font-semibold mb-3">📱 Mobile App Development</h3>
-            <p className="text-gray-300 text-sm mb-4">
-              Scalable and secure mobile applications for Android and iOS platforms.
-            </p>
-            <ul className="text-sm text-gray-400 space-y-2">
-              <li>• Android & iOS Apps</li>
-              <li>• Cross-platform Apps</li>
-              <li>• App Maintenance</li>
-            </ul>
-          </div>
-
-          <div className="bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-xl transition">
-            <h3 className="text-xl font-semibold mb-3">📊 Digital Marketing & SEO</h3>
-            <p className="text-gray-300 text-sm mb-4">
-              Data-driven marketing strategies that improve visibility and lead generation.
-            </p>
-            <ul className="text-sm text-gray-400 space-y-2">
-              <li>• SEO Optimization</li>
-              <li>• Social Media Marketing</li>
-              <li>• Google Ads</li>
-              <li>• Content Marketing</li>
-            </ul>
-          </div>
         </div>
       </section>
 
       {/* Pricing Section */}
-      <section className="bg-gray-800 px-6 py-16">
+      <section className="px-6 py-16 bg-gray-100 dark:bg-gray-800/50">
         <div className="max-w-5xl mx-auto grid md:grid-cols-3 gap-6 text-center">
-          <div className="bg-gray-900 rounded-2xl p-6">
+          
+          <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-gray-700">
             <h4 className="text-lg font-semibold mb-2">Starter Plan</h4>
-            <p className="text-indigo-400 text-2xl font-bold mb-2">₹14,999+</p>
-            <p className="text-sm text-gray-400">For startups & small businesses</p>
+            <p className="text-indigo-600 dark:text-indigo-400 text-2xl font-bold mb-2">₹14,999+</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">For startups</p>
           </div>
 
-          <div className="bg-gray-900 rounded-2xl p-6 border-2 border-indigo-500">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 border-2 border-indigo-500 shadow-lg scale-105">
             <h4 className="text-lg font-semibold mb-2">Business Plan</h4>
-            <p className="text-indigo-400 text-2xl font-bold mb-2">₹29,999+</p>
-            <p className="text-sm text-gray-400">For growing companies</p>
+            <p className="text-indigo-600 dark:text-indigo-400 text-2xl font-bold mb-2">₹29,999+</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">For growing companies</p>
           </div>
 
-          <div className="bg-gray-900 rounded-2xl p-6">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-gray-700">
             <h4 className="text-lg font-semibold mb-2">Enterprise</h4>
-            <p className="text-indigo-400 text-2xl font-bold mb-2">Custom</p>
-            <p className="text-sm text-gray-400">Tailored enterprise solutions</p>
+            <p className="text-indigo-600 dark:text-indigo-400 text-2xl font-bold mb-2">Custom</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">Tailored solutions</p>
           </div>
+
         </div>
-         <div className="bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-xl transition">
-            <h3 className="text-xl font-semibold mb-3">Why Choose Cortex Web Solutions?</h3>
-            <p className="text-gray-300 text-sm mb-4">
-            </p>
-            <ul className="text-sm text-gray-400 space-y-2">
+
+        {/* Why Choose Us */}
+        <div className="max-w-5xl mx-auto mt-12 bg-white dark:bg-gray-900 rounded-2xl p-8 border border-gray-200 dark:border-gray-700">
+          <h3 className="text-2xl font-bold mb-4 text-center">Why Choose Cortex Web Solutions?</h3>
+          <div className="grid md:grid-cols-2 gap-4">
+            <ul className="text-gray-600 dark:text-gray-400 space-y-2">
               <li>✔ Experienced IT professionals</li>
               <li>✔ Custom & scalable solutions</li>
+            </ul>
+            <ul className="text-gray-600 dark:text-gray-400 space-y-2">
               <li>✔ On-time project delivery</li>
               <li>✔ Dedicated support & maintenance</li>
             </ul>
           </div>
+        </div>
       </section>
-    </>
+    </div>
   );
 };
 
