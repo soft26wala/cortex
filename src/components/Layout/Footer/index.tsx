@@ -18,7 +18,7 @@ const Footer: FC = () => {
                                 layout="responsive"
                                 sizes="100vh"
                                 className="imglogo"
-                                // className="w-full h-full"
+                            // className="w-full h-full"
                             />
                         </Link>
                     </div>
@@ -39,7 +39,7 @@ const Footer: FC = () => {
                             <li className="text-PaleCerulean sm:text-xl text-lg font-normal transition-all duration-0.4s hover:text-primary">
                                 <Link href="/">Sponsors</Link>
                             </li>
-                             <li className="text-PaleCerulean sm:text-xl text-lg font-normal transition-all duration-0.4s hover:text-primary">
+                            <li className="text-PaleCerulean sm:text-xl text-lg font-normal transition-all duration-0.4s hover:text-primary">
                                 <Link href="/contact">Contact Us</Link>
                             </li>
                             <li className="text-PaleCerulean sm:text-xl text-lg font-normal transition-all duration-0.4s hover:text-primary">
@@ -50,7 +50,7 @@ const Footer: FC = () => {
                     <div>
                         <ul className="flex items-center gap-5">
                             <li>
-                                <Link href="/" className="group">
+                                <Link href="https://www.instagram.com/cortestack?igsh=NjVnYm1hN3doNmI3" className="group" target="_blank">
                                     <svg
                                         width="26"
                                         height="27"
@@ -60,7 +60,7 @@ const Footer: FC = () => {
                                         xmlns="http://www.w3.org/2000/svg"
                                     >
                                         <g clipPath="url(#clip0_7_993)">
-                                            <path d="M23.8293 1.63855H2.14412C1.40159 1.639 0.799656 2.24123 0.799805 2.98405V24.6692C0.800251 25.4118 1.40248 26.0137 2.14531 26.0135H13.8204V16.5873H10.6545V12.8977H13.8204V10.1824C13.8204 7.03366 15.7427 5.31979 18.5516 5.31979C19.8969 5.31979 21.053 5.42007 21.39 5.46485V8.75586H19.4531C17.9249 8.75586 17.629 9.48202 17.629 10.5478V12.8977H21.2829L20.8068 16.5873H17.629V26.0135H23.8293C24.5723 26.0137 25.1747 25.4116 25.1748 24.6686C25.1748 24.6685 25.1748 24.6683 25.1748 24.668V2.98286C25.1745 2.24034 24.5721 1.6384 23.8293 1.63855Z" />
+                                            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
                                         </g>
                                         <defs>
                                             <clipPath id="clip0_7_993">
@@ -75,7 +75,7 @@ const Footer: FC = () => {
                                     </svg>
                                 </Link>
                             </li>
-                            <li>
+                            {/* <li>
                                 <Link href="/" className="group">
                                     <svg
                                         width="26"
@@ -100,9 +100,9 @@ const Footer: FC = () => {
                                         </defs>
                                     </svg>
                                 </Link>
-                            </li>
+                            </li> */}
                             <li>
-                                <Link href="/" className="group">
+                                <Link href="www.linkedin.com/in/cortex-web-solutions-349459399" className="group" target="_blank">
                                     <svg
                                         width="26"
                                         height="28"
@@ -128,21 +128,21 @@ const Footer: FC = () => {
                 <div className="flex items-center justify-center py-8" >
                     <div className="col-span-5">
                         <p className="text-base font-normal text-PaleCerulean">
-                           Copyright © 2025 {" "}
+                            Copyright © 2025 {" "}
                             <Link
                                 href="https://nextjs-templates.com/"
                                 className="hover:text-white"
                                 target="_blank"
                             >
-                               Cortex Web Solutions   Pvt.Ltd
+                                Cortex Web Solutions   Pvt.Ltd
                             </Link>
                         </p>
                         <p className="flex justify-center text-base font-normal text-PaleCerulean">
-                          
+
                             All Rights Reserved.
                         </p>
                     </div>
-                
+
                 </div>
             </div>
         </footer>

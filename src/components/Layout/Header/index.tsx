@@ -15,7 +15,7 @@ import { FailedLogin } from "@/components/Auth/AuthDialog/FailedLogin";
 import { UserRegistered } from "@/components/Auth/AuthDialog/UserRegistered";
 import AuthDialogContext from "@/app/context/AuthDialogContext";
 import RequestCallback from "./Navigation/RequestCallback";
-import RequestCallbackPc from "./Navigation/RequestCallbackPc";
+import Callback from "@/components/Auth/Callback";
 
 const Header: React.FC = () => {
   const pathUrl = usePathname();
@@ -96,7 +96,7 @@ const Header: React.FC = () => {
                 <HeaderLink key={index} item={item} />
               ))}
               {/* <RequestCallback isCbUpOpen={iscbUpOpen} setIsCbUpOpen={setIsCbUpOpen} /> */}
-              <RequestCallbackPc />
+              <RequestCallback />
             </ul>
             <div className="flex items-center space-x-4">
               <button
@@ -281,7 +281,8 @@ const Header: React.FC = () => {
                 <Icon icon="ic:round-close" className="text-2xl dark:text-white" />
               </button>
               {/* Assuming RequestCallback can take a prop to handle its closing */}
-              <RequestCallback setIsCbUpOpen={setIsCbUpOpen} />
+              
+              <Callback />
             </div>
           </div>
         )

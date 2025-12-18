@@ -6,6 +6,7 @@ import Slider from "react-slick";
 
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import "./st.css";
 
 const Star = () => (
     <svg
@@ -26,7 +27,6 @@ const Testimonials = () => {
         slidesToShow: 1,
         slidesToScroll: 1,
         arrows: false,
-
         autoplay: true,        // ✅ auto slide ON
         autoplaySpeed: 2500,   // ✅ 2.5 sec per slide
         pauseOnHover: true,    // hover par ruk jaaye
@@ -49,7 +49,7 @@ const Testimonials = () => {
                                         alt="testimonial"
                                         width={300}
                                         height={300}
-                                        className="w-full h-auto object-cover rounded-lg"
+                                        className="myimg"
                                     />
                                 </div>
                             </div>
@@ -70,7 +70,7 @@ const Testimonials = () => {
 
                                 <div className="flex items-center gap-6 justify-center md:justify-start">
                                     <Image
-                                        src="/images/testimonials/testimonials-profile.png"
+                                        src="/images/testimonials/ravi.png"
                                         alt="profile"
                                         width={64}
                                         height={64}
@@ -79,7 +79,7 @@ const Testimonials = () => {
 
                                     <div>
                                         <p className="text-lg font-medium text-secondary dark:text-white">
-                                            Jordhan Daniyel
+                                            Ravi Kashyap
                                         </p>
                                         <div className="flex items-center">
                                             <Star />
@@ -100,11 +100,11 @@ const Testimonials = () => {
                             <div className="md:col-span-4 flex justify-center mb-8 md:mb-0">
                                 <div className="bg-LightSkyBlue rounded-br-[180px] rounded-tl-[180px] p-6 max-w-[260px] md:max-w-full">
                                     <Image
-                                        src="/images/hero/john.png"
+                                        src="/images/about/gav.png"
                                         alt="testimonial"
                                         width={300}
                                         height={300}
-                                        className="w-full h-auto object-cover rounded-lg"
+                                        className="myimg"
                                     />
                                 </div>
                             </div>
@@ -124,7 +124,7 @@ const Testimonials = () => {
 
                                 <div className="flex items-center gap-6 justify-center md:justify-start">
                                     <Image
-                                        src="/images/testimonials/testimonials-profile.png"
+                                        src="/images/testimonials/kasish.png"
                                         alt="profile"
                                         width={64}
                                         height={64}
@@ -133,7 +133,7 @@ const Testimonials = () => {
 
                                     <div>
                                         <p className="text-lg font-medium text-secondary dark:text-white">
-                                            Jordhan Daniyel
+                                            Kasish Sharma
                                         </p>
                                         <div className="flex items-center">
                                             <Star />
@@ -159,7 +159,7 @@ const Testimonials = () => {
                                         alt="testimonial"
                                         width={300}
                                         height={300}
-                                        className="w-full h-auto object-cover rounded-lg"
+                                        className="myimg"
                                     />
                                 </div>
                             </div>
@@ -180,7 +180,7 @@ const Testimonials = () => {
 
                                 <div className="flex items-center gap-6 justify-center md:justify-start">
                                     <Image
-                                        src="/images/testimonials/testimonials-profile.png"
+                                        src="/images/testimonials/anjli.jfif"
                                         alt="profile"
                                         width={64}
                                         height={64}
@@ -189,7 +189,7 @@ const Testimonials = () => {
 
                                     <div>
                                         <p className="text-lg font-medium text-secondary dark:text-white">
-                                            Jordhan Daniyel
+                                            Anjali Verma
                                         </p>
                                         <div className="flex items-center">
                                             <Star />
@@ -236,7 +236,7 @@ const Testimonials = () => {
 
                                 <div className="flex items-center gap-6 justify-center md:justify-start">
                                     <Image
-                                        src="/images/testimonials/testimonials-profile.png"
+                                        src="/images/testimonials/anil.png"
                                         alt="profile"
                                         width={64}
                                         height={64}
@@ -245,7 +245,7 @@ const Testimonials = () => {
 
                                     <div>
                                         <p className="text-lg font-medium text-secondary dark:text-white">
-                                            Jordhan Daniyel
+                                            Anil Shirvastav
                                         </p>
                                         <div className="flex items-center">
                                             <Star />
@@ -272,7 +272,7 @@ const Testimonials = () => {
                                         alt="testimonial"
                                         width={300}
                                         height={300}
-                                        className="w-full h-auto object-cover rounded-lg"
+                                        className="myimg"
                                     />
                                 </div>
                             </div>
@@ -293,7 +293,7 @@ const Testimonials = () => {
 
                                 <div className="flex items-center gap-6 justify-center md:justify-start">
                                     <Image
-                                        src="/images/testimonials/testimonials-profile.png"
+                                        src="/images/testimonials/sandeep.png"
                                         alt="profile"
                                         width={64}
                                         height={64}
@@ -302,7 +302,7 @@ const Testimonials = () => {
 
                                     <div>
                                         <p className="text-lg font-medium text-secondary dark:text-white">
-                                            Jordhan Daniyel
+                                            Sandeep Singh
                                         </p>
                                         <div className="flex items-center">
                                             <Star />

@@ -1,16 +1,13 @@
 "use client";
 
-import { useState, useEffect, useRef, Dispatch, SetStateAction } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Icon } from "@iconify/react";
 import Callback from "@/components/Auth/Callback";
 
-interface RequestCallbackProps {
-  // यह सुनिश्चित करता है कि TypeScript इन props को पहचान सके
-  setIsCbUpOpen: Dispatch<SetStateAction<boolean>>;
-}
 
-function RequestCallback({ setIsCbUpOpen }: RequestCallbackProps) {
-   const [isSignUpOpen, setIsSignUpOpen] = useState(false);
+
+function RequestCallbackOpen() {
+   const [isSignUpOpen, setIsSignUpOpen] = useState(true);
   const signUpRef = useRef<HTMLDivElement>(null);
 
 
@@ -30,14 +27,6 @@ function RequestCallback({ setIsCbUpOpen }: RequestCallbackProps) {
 
   return (
     <>
-      {/* HEADER */}
-
-        <button
-          onClick={() => setIsSignUpOpen(true)}
-          className="py-2 rounded-lg"
-        >
-        RequestCallback
-        </button>
      
 
       {/* Callback POPUP */}
@@ -65,4 +54,4 @@ function RequestCallback({ setIsCbUpOpen }: RequestCallbackProps) {
 };
 
 
-export default RequestCallback
+export default RequestCallbackOpen

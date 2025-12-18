@@ -28,16 +28,6 @@ const ServiceText = () => {
             <p className="text-gray-300 text-sm mb-4">
               Create visually appealing and user-friendly digital experiences that connect with your audience.
             </p>
-            
-
-
-            
-
-            
-
-            
-
-            
             <ul className="text-sm text-gray-400 space-y-2">
               <li>• UI/UX Design</li>
               <li>• Product Prototypings</li>
@@ -95,6 +85,17 @@ const ServiceText = () => {
             <p className="text-sm text-gray-400">Tailored enterprise solutions</p>
           </div>
         </div>
+         <div className="bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-xl transition">
+            <h3 className="text-xl font-semibold mb-3">Why Choose Cortex Web Solutions?</h3>
+            <p className="text-gray-300 text-sm mb-4">
+            </p>
+            <ul className="text-sm text-gray-400 space-y-2">
+              <li>✔ Experienced IT professionals</li>
+              <li>✔ Custom & scalable solutions</li>
+              <li>✔ On-time project delivery</li>
+              <li>✔ Dedicated support & maintenance</li>
+            </ul>
+          </div>
       </section>
     </>
   );
