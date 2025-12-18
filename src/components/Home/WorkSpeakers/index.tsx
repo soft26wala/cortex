@@ -59,33 +59,50 @@ const WorkSpeakers = ({ showTitle = true }) => {
                       Number(course.total_price)) * 100
                   )}% OFF
                 </span>
-                <br />           
-                  <span className="text-gray-500 line-through">{course.total_price}</span>
-                   </div>
+                <br />
+                <span className="text-gray-500 line-through">{course.total_price}</span>
+              </div>
 
               {/* बटन को वैसा ही रखा है जैसा आपका था */}
-              <div className="space-x-4">
-<Link href="/buycourse" className="btn btn-1 hover-filled-slide-down rounded-lg overflow-hidden my-5">
+              {/* <Link href="/buycourse" className="btn btn-1 hover-filled-slide-down rounded-lg overflow-hidden my-5">
                 <span className="!flex !items-center gap-14">Enroll Now</span>
               </Link>
 
               {/* Know More बटन - इसमें से RequestCallback हटा दिया ताकि डिज़ाइन न बिगड़े */}
-              {/* <div
+              {/* <div 
                 className="btn btn-1 hover-filled-slide-down rounded-lg mx-5 overflow-hidden my-5 cursor-pointer"
                 onClick={() => setIsCbUpOpen(true)} // यहाँ से ओपन होगा
               >
-                
-              </div> */}
-
-                <Link href='#' onClick={() => setIsCbUpOpen(true)} className="btn btn-1 hover-filled-slide-down rounded-lg overflow-hidden my-5">
-                 <span className="!flex !items-center gap-14">
+                <span className="!flex !items-center gap-14">
                   <Icon icon="solar:phone-calling-linear" className="text-xl" />
                   Know More
                 </span>
-              </Link>
+              </div> */}
+              <div className="flex flex-col sm:flex-row gap-4 mt-6">
+
+                {/* Enroll Now */}
+                <Link
+                  href="/buycourse"
+                  className="btn btn-1 hover-filled-slide-down rounded-lg w-full sm:w-auto overflow-hidden my-5"
+                >
+                  <span className="flex items-center justify-center gap-3">
+                    Enroll Now
+                  </span>
+                </Link>
+
+                {/* Know More */}
+                <button
+                  onClick={() => setIsCbUpOpen(true)}
+                  className="btn btn-1 hover-filled-slide-down rounded-lg w-full sm:w-auto overflow-hidden my-5"
+                >
+                  <span className="flex items-center justify-center gap-3">
+                    <Icon icon="solar:phone-calling-linear" className="text-xl" />
+                    Know More
+                  </span>
+                </button>
+
               </div>
-              
-             
+
             </div>
           ))}
         </div>
