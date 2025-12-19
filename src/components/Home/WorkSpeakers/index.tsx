@@ -18,7 +18,14 @@ type typeofCourse = {
 };
 
 const WorkSpeakers = ({ showTitle = true }) => {
-  const [courses, setCourses] = useState<typeofCourse[]>([]);
+  const [courses, setCourses] = useState<typeofCourse[]>([
+    {course_id: "555",
+    course_name: "mern",
+    course_desc: "lkdjf jflk jdfkjsdf",  
+    course_price: 232,
+    course_image: "kldlksd.png",
+    total_price: "666"}
+  ]);
   const [iscbUpOpen, setIsCbUpOpen] = useState(false);
   const callbackRef = useRef<HTMLDivElement>(null);
 
@@ -104,13 +111,15 @@ const WorkSpeakers = ({ showTitle = true }) => {
 
 
               {/* बटन को वैसा ही रखा है जैसा आपका था */}
-              <Link href="/buycourse" className="btn btn-1 hover-filled-slide-down rounded-lg overflow-hidden my-5">
-                <span className="!flex !items-center gap-14">Enroll Now</span>
+              <Link href="/buycourse" className="btn btn-1 hover-filled-slide-down rounded-lg overflow-hidden">
+                <span className="!flex !items-center gap-14">
+                  <i className="bg-[url('/images/hero/tickets.svg')] bg-no-repeat bg-contain w-6 h-6 inline-block"></i>
+                  Enroll Now</span>
               </Link>
 
               {/* Know More बटन - इसमें से RequestCallback हटा दिया ताकि डिज़ाइन न बिगड़े */}
               <div 
-                className="btn btn-1 hover-filled-slide-down rounded-lg mx-5 overflow-hidden my-5 cursor-pointer"
+                className="btn btn-1 hover-filled-slide-down rounded-lg overflow-hidden lg:mx-3"
                 onClick={() => setIsCbUpOpen(true)} // यहाँ से ओपन होगा
               >
                 <span className="!flex !items-center gap-14">
