@@ -22,6 +22,44 @@ const WorkSpeakers = ({ showTitle = true }) => {
   const [iscbUpOpen, setIsCbUpOpen] = useState(false);
   const callbackRef = useRef<HTMLDivElement>(null);
 
+
+  const handleClickOutside = (event: MouseEvent) => {
+
+
+    // Close Callback Modal
+    if (
+      callbackRef.current &&
+      !callbackRef.current.contains(event.target as Node)
+    ) {
+      setIsCbUpOpen(false);
+    }
+
+  };
+
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [iscbUpOpen]);
+
+  // close popup on outside click
+  const handleOutsideClick = (e: MouseEvent) => {
+    if (callbackRef.current && !callbackRef.current.contains(e.target as Node)) {
+      setIsCbUpOpen(false);
+    }
+  };
+
+  useEffect(() => {
+    if (iscbUpOpen) {
+      document.addEventListener("mousedown", handleOutsideClick);
+    }
+    return () => document.removeEventListener("mousedown", handleOutsideClick);
+  }, [iscbUpOpen]);
+
+
+
+
   useEffect(() => {
     axios
       .get("https://cortex-api-htc8.onrender.com/add-course/all")
@@ -63,13 +101,15 @@ const WorkSpeakers = ({ showTitle = true }) => {
                 <span className="text-gray-500 line-through">{course.total_price}</span>
               </div>
 
+
+
               {/* बटन को वैसा ही रखा है जैसा आपका था */}
-              {/* <Link href="/buycourse" className="btn btn-1 hover-filled-slide-down rounded-lg overflow-hidden my-5">
+              <Link href="/buycourse" className="btn btn-1 hover-filled-slide-down rounded-lg overflow-hidden my-5">
                 <span className="!flex !items-center gap-14">Enroll Now</span>
               </Link>
 
               {/* Know More बटन - इसमें से RequestCallback हटा दिया ताकि डिज़ाइन न बिगड़े */}
-              {/* <div 
+              <div 
                 className="btn btn-1 hover-filled-slide-down rounded-lg mx-5 overflow-hidden my-5 cursor-pointer"
                 onClick={() => setIsCbUpOpen(true)} // यहाँ से ओपन होगा
               >
@@ -77,10 +117,14 @@ const WorkSpeakers = ({ showTitle = true }) => {
                   <Icon icon="solar:phone-calling-linear" className="text-xl" />
                   Know More
                 </span>
-              </div> */}
-              <div className="flex flex-col sm:flex-row gap-4 mt-6">
+              </div> 
+
+
+
+              {/* <div className="flex flex-col sm:flex-row gap-4 mt-6">*/}
 
                 {/* Enroll Now */}
+                {/*
                 <Link
                   href="/buycourse"
                   className="btn btn-1 hover-filled-slide-down rounded-lg w-full sm:w-auto overflow-hidden my-5"
@@ -88,9 +132,11 @@ const WorkSpeakers = ({ showTitle = true }) => {
                   <span className="flex items-center justify-center gap-3">
                     Enroll Now
                   </span>
-                </Link>
+                </Link> 
+                */}
 
                 {/* Know More */}
+                {/*
                 <button
                   onClick={() => setIsCbUpOpen(true)}
                   className="btn btn-1 hover-filled-slide-down rounded-lg w-full sm:w-auto overflow-hidden my-5"
@@ -101,7 +147,7 @@ const WorkSpeakers = ({ showTitle = true }) => {
                   </span>
                 </button>
 
-              </div>
+              </div> */}
 
             </div>
           ))}
@@ -121,7 +167,8 @@ const WorkSpeakers = ({ showTitle = true }) => {
             </button>
 
             {/* यह कॉम्पोनेंट अब सिर्फ फॉर्म दिखाएगा */}
-            <Callback />
+            <Callback signUpOpen={(value: boolean) => setIsCbUpOpen(value)} />
+
           </div>
         </div>
       )}

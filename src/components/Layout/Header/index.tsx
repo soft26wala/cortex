@@ -274,7 +274,7 @@ const Header: React.FC = () => {
           >
             <div className="relative mx-auto w-full max-w-md overflow-hidden rounded-lg bg-white px-8 py-14 text-center dark:bg-darklight">
               <button
-                onClick={() => setIsCbUpOpen(false)}
+                onClick={() => setIsCbUpOpen(false)} 
                 className=" hover:bg-gray-200 dark:hover:bg-gray-700 p-1 rounded-full absolute -top-5 -right-3 mr-8 mt-8"
                 aria-label="Close Request Callback Modal"
               >
@@ -282,7 +282,7 @@ const Header: React.FC = () => {
               </button>
               {/* Assuming RequestCallback can take a prop to handle its closing */}
               
-              <Callback />
+              <Callback signUpOpen={(value: boolean) => setIsCbUpOpen(value)} />
             </div>
           </div>
         )

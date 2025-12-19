@@ -3,14 +3,53 @@ import Image from "next/image";
 import Link from "next/link";
 import { Icon } from "@iconify/react";
 import './style.css'
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Callback from "@/components/Auth/Callback";
+import { usePathname } from "next/navigation";
 
 
 
 const Hero = () => {
     const [iscbUpOpen, setIsCbUpOpen] = useState(false);
     const callbackRef = useRef<HTMLDivElement>(null);
+
+
+
+
+
+    const handleClickOutside = (event: MouseEvent) => {
+
+
+        // Close Callback Modal
+        if (
+            callbackRef.current &&
+            !callbackRef.current.contains(event.target as Node)
+        ) {
+            setIsCbUpOpen(false);
+        }
+
+    };
+
+    useEffect(() => {
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [iscbUpOpen]);
+
+    // close popup on outside click
+    const handleOutsideClick = (e: MouseEvent) => {
+        if (callbackRef.current && !callbackRef.current.contains(e.target as Node)) {
+            setIsCbUpOpen(false);
+        }
+    };
+
+    useEffect(() => {
+        if (iscbUpOpen) {
+            document.addEventListener("mousedown", handleOutsideClick);
+        }
+        return () => document.removeEventListener("mousedown", handleOutsideClick);
+    }, [iscbUpOpen]);
 
 
     return (
@@ -63,7 +102,7 @@ const Hero = () => {
                                 data-aos-delay="600"
                                 data-aos-duration="1000"
                                 className="btn_outline btn-2 hover-outline-slide-down group"
-                                 onClick={() => setIsCbUpOpen(true)} // यहाँ से ओपन होगा
+                                onClick={() => setIsCbUpOpen(true)} // यहाँ से ओपन होगा
                             >
                                 <span className="!flex !items-center gap-14">
                                     <Icon icon="solar:phone-calling-linear" className="text-xl" />
@@ -132,7 +171,8 @@ const Hero = () => {
                         </button>
 
                         {/* यह कॉम्पोनेंट अब सिर्फ फॉर्म दिखाएगा */}
-                        <Callback />
+                        <Callback signUpOpen={(value: boolean) => setIsCbUpOpen(value)} />
+
                     </div>
                 </div>
             )}
