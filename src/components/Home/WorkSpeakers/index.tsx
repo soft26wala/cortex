@@ -18,14 +18,7 @@ type typeofCourse = {
 };
 
 const WorkSpeakers = ({ showTitle = true }) => {
-  const [courses, setCourses] = useState<typeofCourse[]>([
-    {course_id: "555",
-    course_name: "mern",
-    course_desc: "lkdjf jflk jdfkjsdf",  
-    course_price: 232,
-    course_image: "kldlksd.png",
-    total_price: "666"}
-  ]);
+  const [courses, setCourses] = useState<typeofCourse[]>([]);
   const [iscbUpOpen, setIsCbUpOpen] = useState(false);
   const callbackRef = useRef<HTMLDivElement>(null);
 
