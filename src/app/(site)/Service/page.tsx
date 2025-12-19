@@ -7,7 +7,8 @@ import ServiceText from "@/components/Home/ServiceText";
 
 
 export const metadata: Metadata = {
-  title: "Events | Cortex Web Solutions",
+  title: "Service | Cortex Web Solutions",
+  description: "Cortex Web Solutions — our services include web development, training, and digital transformation for businesses.",
 };
 
 const page = () => {

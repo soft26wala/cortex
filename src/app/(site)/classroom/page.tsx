@@ -5,7 +5,8 @@ import HeroSub from "@/components/SharedComponent/HeroSub";
 import React from "react";
 import { Metadata } from "next";
 export const metadata: Metadata = {
-  title: "classroom | Cortex Web Solutions",
+  title: "Classroom | Cortex Web Solutions",
+  description: "Classroom sessions and speaker-led workshops from Cortex Web Solutions to upskill learners and professionals.",
 };
 
 const page = () => {

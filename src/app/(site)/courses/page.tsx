@@ -7,7 +7,8 @@ import { Metadata } from "next";
 import AboutTum from "@/components/Home/AboutTum";
 
 export const metadata: Metadata = {
-  title: "courses | Cortex Web Solutions",
+  title: "Courses | Cortex Web Solutions",
+  description: "Hands-on courses by Cortex Web Solutions — job-ready training with real projects and modern tooling.",
 };
 
 const page = () => {
@@ -25,7 +26,7 @@ const page = () => {
       />
       <WorkSpeakers showTitle={true} />
       <Testimonials/>
-      <AboutTum />
+      {/* <AboutTum /> */}
      
     </>
   );

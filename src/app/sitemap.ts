@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next'
 
 export default function sitemap(): MetadataRoute.Sitemap {
   // अपनी वेबसाइट का बेस URL (डोमेन) यहाँ डिफाइन करें
-  const baseUrl = 'https://cortexstack.com'
+  const baseUrl = 'https://cortestack.com'
   
   return [
     {
@@ -11,10 +11,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'weekly', // आप इसे 'daily', 'weekly', 'monthly' में से चुन सकते हैं
       priority: 1.0, // होमपेज को सबसे ज़्यादा प्राथमिकता दें
     },
-    
-    // भविष्य में, जब आप About Us, Services, या Contact पेज बनाएँ,
-    // तो उन्हें इस Array में जोड़ दें:
-    /*
     {
       url: `${baseUrl}/services`,
       lastModified: new Date(),
@@ -27,7 +23,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'yearly',
       priority: 0.5,
     },
-    */
   ]
 }
 

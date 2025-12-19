@@ -102,7 +102,7 @@ const Footer: FC = () => {
                                 </Link>
                             </li> */}
                             <li>
-                                <Link href="www.linkedin.com/in/cortex-web-solutions-349459399" className="group" target="_blank">
+                                <Link href="https://www.linkedin.com/in/cortex-web-solutions-349459399" className="group" target="_blank">
                                     <svg
                                         width="26"
                                         height="28"

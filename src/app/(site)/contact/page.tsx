@@ -6,7 +6,8 @@ import HeroSub from "@/components/SharedComponent/HeroSub";
 import { Metadata } from "next";
 import TicketSection from "@/components/Home/TicketSection";
 export const metadata: Metadata = {
-    title: "Contact | Cortex Web Solutions",
+  title: "Contact | Cortex Web Solutions",
+  description: "Get in touch with Cortex Web Solutions for training, partnerships and service inquiries.",
 };
 
 const page = () => {

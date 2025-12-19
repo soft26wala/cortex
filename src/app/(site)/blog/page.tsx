@@ -4,25 +4,27 @@ import HeroSub from "@/components/SharedComponent/HeroSub";
 import { Metadata } from "next";
 import TicketSection from "@/components/Home/TicketSection";
 export const metadata: Metadata = {
-  title: "Blog | cortex",
+  title: "Blog | Cortex Web Solutions",
+  description:
+    "Articles, tutorials and updates from Cortex Web Solutions — learn web development and industry best practices.",
 };
 
 const BlogPage = () => {
-    const breadcrumbLinks = [
-        { href: "/", text: "Home" },
-        { href: "/blog", text: "Blog" },
-    ];
-    return (
-        <>
-            <HeroSub
-                title="Blog"
-                description="Discover a wealth of insightful materials meticulously crafted to provide you with a comprehensive understanding of the latest trends."
-                breadcrumbLinks={breadcrumbLinks}
-            />
-            <BlogList />
-            <TicketSection/>
-        </>
-    );
+  const breadcrumbLinks = [
+    { href: "/", text: "Home" },
+    { href: "/blog", text: "Blog" },
+  ];
+  return (
+    <>
+      <HeroSub
+        title="Blog"
+        description="Discover a wealth of insightful materials meticulously crafted to provide you with a comprehensive understanding of the latest trends."
+        breadcrumbLinks={breadcrumbLinks}
+      />
+      <BlogList />
+      <TicketSection />
+    </>
+  );
 };
 
 export default BlogPage;

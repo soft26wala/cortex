@@ -2,11 +2,12 @@ import WorkSpeakers from "@/components/Home/WorkSpeakers";
 import React from "react";
 import { Metadata } from "next";
 import Aboutcom from "@/components/SharedComponent/Aboutcom";
-import AboutTum from "@/components/Home/AboutTum";
 import Testimonials from "@/components/Home/Testimonials";
 
 export const metadata: Metadata = {
-  title: " About-us | Cortex Web Solutions",
+  title: "About-us | Cortex Web Solutions",
+  description:
+    "Learn the story, mission and approach of Cortex Web Solutions — digital solutions and training focused on business impact.",
 };
 
 const page = () => {
@@ -18,8 +19,7 @@ const page = () => {
     <>
       <Aboutcom
         title="🧠 The Story of Cortex Web Solutions"
-        description="
-"
+        description=""
         breadcrumbLinks={breadcrumbLinks}
       /> <br />
 <div className="container">
@@ -36,7 +36,6 @@ We believe that technology should be a multiplier, not a hurdle. Our expertise s
 <p>At Cortex Web Solutions, we see beyond the code and into the business potential. We are dedicated to delivering solutions that aren't just good, but brilliant. We invite you to experience the difference that deep, intelligent digital partnership can make.
 <br /> <br /><h1>This is Cortex. This is where your potential is fully realized.</h1></p></div>
       <WorkSpeakers showTitle={false} />
-      <AboutTum />
       <Testimonials />
       
     </>
