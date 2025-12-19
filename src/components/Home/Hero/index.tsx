@@ -10,12 +10,9 @@ import { usePathname } from "next/navigation";
 
 
 const Hero = () => {
+    
     const [iscbUpOpen, setIsCbUpOpen] = useState(false);
     const callbackRef = useRef<HTMLDivElement>(null);
-
-
-
-
 
     const handleClickOutside = (event: MouseEvent) => {
 

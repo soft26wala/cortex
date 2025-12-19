@@ -46,7 +46,7 @@ function RequestCallback() {
           >
             {/* Close Button */}
             <button
-              onClick={() => setIsSignUpOpen(false)}
+              onClick={() => setIsSignUpOpen(false)} 
               className="absolute -top-0 -right-0  p-2 rounded-full shadow hover:bg-gray-200 dark:hover:bg-gray-600"
             >
               <Icon icon="ic:round-close" className="text-2xl dark:text-white" />
