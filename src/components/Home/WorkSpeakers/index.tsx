@@ -7,7 +7,6 @@ import axios from "axios";
 import { Icon } from "@iconify/react";
 import Callback from "@/components/Auth/Callback";
 
-// ... (typeofCourse interface)
 type typeofCourse = {
   course_id: string;
   course_name: string;
@@ -22,43 +21,15 @@ const WorkSpeakers = ({ showTitle = true }) => {
   const [iscbUpOpen, setIsCbUpOpen] = useState(false);
   const callbackRef = useRef<HTMLDivElement>(null);
 
-
-  const handleClickOutside = (event: MouseEvent) => {
-
-
-    // Close Callback Modal
-    if (
-      callbackRef.current &&
-      !callbackRef.current.contains(event.target as Node)
-    ) {
-      setIsCbUpOpen(false);
-    }
-
-  };
-
   useEffect(() => {
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+    const handleOutsideClick = (event: MouseEvent) => {
+      if (callbackRef.current && !callbackRef.current.contains(event.target as Node)) {
+        setIsCbUpOpen(false);
+      }
     };
-  }, [iscbUpOpen]);
-
-  // close popup on outside click
-  const handleOutsideClick = (e: MouseEvent) => {
-    if (callbackRef.current && !callbackRef.current.contains(e.target as Node)) {
-      setIsCbUpOpen(false);
-    }
-  };
-
-  useEffect(() => {
-    if (iscbUpOpen) {
-      document.addEventListener("mousedown", handleOutsideClick);
-    }
+    if (iscbUpOpen) document.addEventListener("mousedown", handleOutsideClick);
     return () => document.removeEventListener("mousedown", handleOutsideClick);
   }, [iscbUpOpen]);
-
-
-
 
   useEffect(() => {
     axios
@@ -71,106 +42,78 @@ const WorkSpeakers = ({ showTitle = true }) => {
 
   return (
     <>
-      <section className={`dark:bg-darkmode ${pathname === "/" ? "" : ""}`}>
-        {showTitle && <h2 className="text-center pb-12">Courses Offered</h2>}
-        <div className="grid lg:grid-cols-3 sm:grid-cols-2 grid-cols-1 items-stretch gap-8 mx-7">
+      <section className={`dark:bg-darkmode py-10 ${pathname === "/" ? "" : ""}`}>
+        {showTitle && <h2 className="text-center pb-12 text-3xl font-bold">Courses Offered</h2>}
+        
+        {/* --- Responsive Container --- */}
+        {/* Mobile: flex with horizontal scroll | Desktop: Grid layout */}
+        <div className="flex overflow-x-auto pb-8 snap-x snap-mandatory gap-6 px-6 
+                        md:grid md:grid-cols-2 lg:grid-cols-3 md:overflow-visible md:pb-0 md:mx-7">
+          
           {courses.map((course, index) => (
-            <div key={course.course_id} className={`col-span-1 group overflow-hidden ${index % 2 === 1 ? "lg:mt-28 mt-0" : ""}`}>
-
-              <div className="overflow-hidden rounded-lg">
+            <div 
+              key={course.course_id} 
+              className={`
+                flex-none w-[85%] sm:w-[60%] snap-center  /* Mobile Slider Settings */
+                md:w-full md:flex md:flex-col group overflow-hidden bg-white dark:bg-darklight rounded-xl shadow-lg
+                ${index % 2 === 1 ? "lg:mt-20 mt-0" : ""}
+              `}
+            >
+              {/* Image */}
+              <div className="overflow-hidden aspect-video">
                 <Image
                   src={course.course_image?.startsWith("http") ? course.course_image : `/${course.course_image}`}
                   alt={course.course_name}
-                  width={500} height={300} layout="responsive"
-                  className="object-cover transition-all duration-500 group-hover:scale-110"
+                  width={500} 
+                  height={300} 
+                  className="w-full h-full object-cover transition-all duration-500 group-hover:scale-110"
                 />
               </div>
 
-              <div className="pt-6">
-                <h6 className="text-[28px] font-bold text-secondary dark:text-white">{course.course_name}</h6>
-                <span className="text-lg font-normal text-SlateBlueText dark:text-opacity-80">{course.course_desc}</span><br />
-                <span className="text-lg font-normal text-SlateDarkText dark:text-opacity-80">₹ {course.course_price}</span>
-                <br />
-                <span className="text-green-600 font-semibold">
-                  {Math.round(
-                    ((Number(course.total_price) - Number(course.course_price)) /
-                      Number(course.total_price)) * 100
-                  )}% OFF
-                </span>
-                <br />
-                <span className="text-gray-500 line-through">{course.total_price}</span>
-              </div>
+              {/* Content */}
+              <div className="p-5 flex-grow">
+                <h6 className="text-xl font-bold text-secondary dark:text-white mb-2 line-clamp-1">
+                  {course.course_name}
+                </h6>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">
+                  {course.course_desc}
+                </p>
+                
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="text-lg font-bold text-primary dark:text-white">₹{course.course_price}</span>
+                  <span className="text-xs text-gray-400 line-through">₹{course.total_price}</span>
+                  <span className="text-xs text-green-600 font-bold bg-green-50 px-1.5 py-0.5 rounded">
+                    {Math.round(((Number(course.total_price) - Number(course.course_price)) / Number(course.total_price)) * 100)}% OFF
+                  </span>
+                </div>
 
-
-
-              {/* बटन को वैसा ही रखा है जैसा आपका था */}
-              <Link href="/buycourse" className="btn btn-1 hover-filled-slide-down rounded-lg overflow-hidden px-0 py-0">
-                <span className="!flex !items-center gap-2">
-                  <i className="bg-[url('/images/hero/tickets.svg')] bg-no-repeat bg-contain w-6 h-6 inline-block"></i>
-                  Enroll Now</span>
-              </Link>
-
-              {/* Know More बटन - इसमें से RequestCallback हटा दिया ताकि डिज़ाइन न बिगड़े */}
-              <div 
-                className="btn btn-1 hover-filled-slide-down rounded-lg overflow-hidden mx-1 px-0 py-0"
-                onClick={() => setIsCbUpOpen(true)} // यहाँ से ओपन होगा
-              >
-                <span className="!flex !items-center gap-3">
-                  <Icon icon="solar:phone-calling-linear" className="text-xl" />
-                  Know More
-                </span>
-              </div> 
-
-
-
-              {/* <div className="flex flex-col sm:flex-row gap-4 mt-6">*/}
-
-                {/* Enroll Now */}
-                {/*
-                <Link
-                  href="/buycourse"
-                  className="btn btn-1 hover-filled-slide-down rounded-lg w-full sm:w-auto overflow-hidden my-5"
-                >
-                  <span className="flex items-center justify-center gap-3">
+                <div className="flex flex-col gap-2">
+                  <Link href="/buycourse" className="btn-primary-style py-2 text-center bg-secondary text-white rounded-md text-sm font-medium">
                     Enroll Now
-                  </span>
-                </Link> 
-                */}
-
-                {/* Know More */}
-                {/*
-                <button
-                  onClick={() => setIsCbUpOpen(true)}
-                  className="btn btn-1 hover-filled-slide-down rounded-lg w-full sm:w-auto overflow-hidden my-5"
-                >
-                  <span className="flex items-center justify-center gap-3">
-                    <Icon icon="solar:phone-calling-linear" className="text-xl" />
+                  </Link>
+                  <button onClick={() => setIsCbUpOpen(true)} className="py-2 text-sm border border-secondary text-secondary rounded-md font-medium dark:border-white dark:text-white">
                     Know More
-                  </span>
-                </button>
-
-              </div> */}
-
+                  </button>
+                </div>
+              </div>
             </div>
           ))}
+        </div>
+        
+        {/* Mobile Indicator (Optional) */}
+        <div className="md:hidden text-center text-gray-400 text-xs mt-2 animate-pulse">
+           ← Swipe to see more →
         </div>
       </section>
 
       {/* --- MODAL SECTION --- */}
-      {/* इसे लूप के बाहर रखा गया है ताकि डिज़ाइन खराब न हो */}
       {iscbUpOpen && (
-        <div className="fixed inset-0 bg-black/50 z-[9999] flex items-center justify-center p-4">
-          <div ref={callbackRef} className="relative w-full max-w-md bg-white dark:bg-darklight p-10 rounded-lg shadow-2xl">
-            <button
-              onClick={() => setIsCbUpOpen(false)}
-              className="absolute top-4 right-4 text-2xl dark:text-white"
-            >
+        <div className="fixed inset-0 bg-black/60 z-[9999] flex items-center justify-center p-4 backdrop-blur-sm">
+          <div ref={callbackRef} className="relative w-full max-w-md bg-white dark:bg-darklight p-8 rounded-2xl shadow-2xl">
+            <button onClick={() => setIsCbUpOpen(false)} className="absolute top-4 right-4 text-2xl text-gray-500 dark:text-white">
               <Icon icon="ic:round-close" />
             </button>
-
-            {/* यह कॉम्पोनेंट अब सिर्फ फॉर्म दिखाएगा */}
             <Callback signUpOpen={(value: boolean) => setIsCbUpOpen(value)} />
-
           </div>
         </div>
       )}
