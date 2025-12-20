@@ -104,18 +104,18 @@ const WorkSpeakers = ({ showTitle = true }) => {
 
 
               {/* बटन को वैसा ही रखा है जैसा आपका था */}
-              <Link href="/buycourse" className="btn btn-1 hover-filled-slide-down rounded-lg overflow-hidden">
-                <span className="!flex !items-center gap-14">
+              <Link href="/buycourse" className="btn btn-1 hover-filled-slide-down rounded-lg overflow-hidden px-0 py-0">
+                <span className="!flex !items-center gap-2">
                   <i className="bg-[url('/images/hero/tickets.svg')] bg-no-repeat bg-contain w-6 h-6 inline-block"></i>
                   Enroll Now</span>
               </Link>
 
               {/* Know More बटन - इसमें से RequestCallback हटा दिया ताकि डिज़ाइन न बिगड़े */}
               <div 
-                className="btn btn-1 hover-filled-slide-down rounded-lg overflow-hidden lg:mx-3"
+                className="btn btn-1 hover-filled-slide-down rounded-lg overflow-hidden mx-1 px-0 py-0"
                 onClick={() => setIsCbUpOpen(true)} // यहाँ से ओपन होगा
               >
-                <span className="!flex !items-center gap-14">
+                <span className="!flex !items-center gap-3">
                   <Icon icon="solar:phone-calling-linear" className="text-xl" />
                   Know More
                 </span>
