@@ -27,6 +27,13 @@ const BuyNowPage = () => {
     if (!userData || !userData.id) {
       alert("Please login to continue!");
       router.push("/login");
+      setBtnLoading(false);
+      return;
+    }
+
+    if (!course || !course.course_price || !course.course_name) {
+      alert("Course information is incomplete!");
+      setBtnLoading(false);
       return;
     }
 
@@ -34,15 +41,17 @@ const BuyNowPage = () => {
       const response = await axios.post("https://cortestack.com/api/payment", {
         amount: course.course_price,
         userId: userData.id,
-        courseName: course.course_name // Yahan courseName bhejna zaroori hai DB ke liye
+        courseName: course.course_name
       });
 
-      if (response.data.url) {
+      if (response.data?.url) {
         window.location.href = response.data.url;
+      } else {
+        alert("Payment URL not received. Please try again!");
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Payment failed", error);
-      alert("Something went wrong with PhonePe!");
+      alert(error.response?.data?.message || "Something went wrong with PhonePe!");
     } finally {
       setBtnLoading(false);
     }
@@ -60,7 +69,7 @@ const BuyNowPage = () => {
         
         <div className="mb-6">
           <p className="text-gray-500 text-sm">Course Name</p>
-          <p className="text-md red font-semibold dark:text-white">{course.course_name}</p>
+          <p className="text-md text-gray-900 font-semibold dark:text-white">{course.course_name}</p>
         </div>
 
         <div className="flex justify-between items-center mb-8 pb-4 border-b border-dashed dark:border-white/10">
