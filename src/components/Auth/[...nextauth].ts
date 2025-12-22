@@ -7,12 +7,12 @@ import GitHubProvider from "next-auth/providers/github";
 const handler = NextAuth({
   providers: [
     GoogleProvider({
-      clientId: process.env.GOOGLE_ID!,
-      clientSecret: process.env.GOOGLE_SECRET!,
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
     GitHubProvider({
-      clientId: process.env.GITHUB_ID!,
-      clientSecret: process.env.GITHUB_SECRET!,
+      clientId: process.env.GITHUB_CLIENT_ID!,
+      clientSecret: process.env.GITHUB_CLIENT_SECRET!,
     }),
   ],
 
@@ -24,7 +24,7 @@ const handler = NextAuth({
         const photo = user.image;
 
         // yahan tumhari Node.js API call hogi
-        await fetch("http://localhost:4000/user", {
+        await fetch(`${process.env.NEXT_PUBLIC_API}/user`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

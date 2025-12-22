@@ -88,7 +88,7 @@ const WorkSpeakers = ({ showTitle = true }) => {
                 </div>
 
                 <div className="flex flex-col gap-2">
-                  <Link href="/buycourse" className="btn-primary-style py-2 text-center bg-secondary text-white rounded-md text-sm font-medium">
+                  <Link href={`courses/${course.course_id}`} className="btn-primary-style py-2 text-center bg-secondary text-white rounded-md text-sm font-medium">
                     Enroll Now
                   </Link>
                   <button onClick={() => setIsCbUpOpen(true)} className="py-2 text-sm border border-secondary text-secondary rounded-md font-medium dark:border-white dark:text-white">
