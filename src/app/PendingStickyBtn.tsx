@@ -6,7 +6,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 
 const PendingStickyBtn = () => {
-    const [show, setShow] = useState(true);
+    const [show, setShow] = useState(false);
 
     useEffect(() => {
         const user = Cookies.get("user") ? JSON.parse(Cookies.get("user")!) : null;

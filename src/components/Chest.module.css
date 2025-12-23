@@ -1,0 +1,114 @@
+/* Chest.module.css */
+.chestContainer {
+  --bg: hsl(210, 32%, 80%);
+  --hover: 0.05;
+  --default: 0.01;
+  --limit: 0.9;
+  --height: 30;
+  --width: 20;
+  --depth: 15;
+  --frame: 1;
+  --handle: hsl(0, 0%, 80%);
+  --hue: 10;
+  --saturation: 0%;
+  --drawer-one: hsl(0, 0%, 98%);
+  --drawer-two: hsl(0, 0%, 90%);
+  --drawer-three: hsl(0, 0%, 95%);
+  --unit-one: hsl(var(--hue), var(--saturation), 50%);
+  --unit-two: hsl(var(--hue), var(--saturation), 40%);
+  --unit-three: hsl(var(--hue), var(--saturation), 20%);
+  --unit-four: hsl(var(--hue), var(--saturation), 15%);
+  --transition: 0.2s;
+
+  background: var(--bg);
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  transform: scale(1.5);
+  perspective: 1000px;
+}
+
+.chest {
+  height: calc(var(--height) * 1vmin);
+  width: calc(var(--width) * 1vmin);
+  position: relative;
+  transform-style: preserve-3d;
+  transform: translate3d(0, 0, 50vmin) rotateX(-32deg) rotateY(40deg);
+}
+
+.chestPanel {
+  position: absolute;
+  transform-style: preserve-3d;
+}
+
+.chestPanelBack { height: 100%; width: 100%; background: var(--unit-two); transform: translate3d(0, 0, calc(var(--depth) * -0.5vmin)); }
+.chestPanelFront { height: 100%; width: 100%; transform: translate3d(0, 0, calc(var(--depth) * 0.5vmin)); }
+.chestPanelFrontFrame {
+  height: 100%; width: 100%;
+  border: calc(var(--frame) * 1vmin) solid var(--unit-one);
+  border-bottom-width: calc(var(--frame) * 2vmin);
+}
+
+.chestPanelLeft, .chestPanelRight {
+  height: 100%;
+  width: calc(var(--depth) * 1vmin);
+  background: var(--unit-three);
+  top: 0; left: 50%;
+}
+
+.chestPanelRight { transform: translate(-50%, 0) rotateY(90deg) translate3d(0, 0, calc(var(--width) * 0.5vmin)); }
+.chestPanelLeft { transform: translate(-50%, 0) rotateY(90deg) translate3d(0, 0, calc(var(--width) * -0.5vmin)); }
+
+.chestPanelTop, .chestPanelBottom {
+  width: calc(var(--width) * 1vmin);
+  height: calc(var(--depth) * 1vmin);
+  background: var(--unit-two);
+  left: 50%;
+}
+.chestPanelTop { top: 0; transform: translate(-50%, -50%) rotateX(-90deg); }
+.chestPanelBottom { bottom: 0; transform: translate(-50%, 50%) rotateX(-90deg); }
+
+/* Drawer Styles */
+.drawer {
+  --drawer-height: calc((var(--height) - (5 * var(--frame))) / 3);
+  position: absolute;
+  left: 50%;
+  height: calc(var(--drawer-height) * 1vmin);
+  width: calc((var(--width) - (2 * var(--frame))) * 1vmin);
+  transform-style: preserve-3d;
+  transition: transform var(--transition);
+  transform: translate3d(-50%, var(--top), calc((var(--depth) * 0.5vmin) + 0.01vmin)) translate3d(0, 0, calc((var(--open, var(--default)) * var(--depth)) * 1vmin));
+}
+
+.drawerStructure {
+  height: 100%; width: 100%; position: absolute; transform-style: preserve-3d;
+}
+
+.drawerPanel { position: absolute; transform-style: preserve-3d; }
+.drawerPanelFront {
+  height: calc((var(--drawer-height) + (0.6 * var(--frame))) * 1vmin);
+  width: calc((var(--width) - (0.6 * var(--frame))) * 1vmin);
+  top: 50%; left: 50%; transform: translate3d(-50%, -50%, 1px);
+  background: var(--unit-four);
+}
+
+.drawerPanelBack {
+  height: 65%; width: 100%; background: var(--drawer-one); bottom: 1%; left: 50%;
+  transform: translate3d(-50%, 0, calc(var(--depth) * -1vmin));
+  text-align: center; font-size: 3vmin; font-family: sans-serif;
+}
+
+/* Logic for opening details */
+.drawerDetails {
+  position: absolute; height: 100%; width: 100%; cursor: pointer; z-index: 2;
+}
+.drawerDetails[open], .drawerDetails:hover { --open: var(--limit); }
+.drawerDetails summary { list-style: none; height: 100%; width: 100%; outline: none; }
+.drawerDetails summary::-webkit-details-marker { display: none; }
+
+.drawerDetails summary:after {
+  content: ''; position: absolute;
+  background: linear-gradient(var(--handle), var(--handle)) 50% 15% / 40% 8% no-repeat;
+  height: 110%; width: 110%; top: 50%; left: 50%;
+  transform: translate3d(-50%, -50%, 0.5vmin);
+}

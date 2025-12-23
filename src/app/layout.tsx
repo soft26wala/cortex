@@ -14,6 +14,9 @@ import PayPalProvider from "@/components/PayPalProvider";
 const dmsans = DM_Sans({ subsets: ["latin"] });
 import NextTopLoader from 'nextjs-toploader';
 import PendingStickyBtn from "./PendingStickyBtn";
+import GlowText from "./GlowText";
+import Notification from "./Notification";
+import Chest from "@/components/Chest";
 
 export default function RootLayout({
   children,
@@ -35,6 +38,9 @@ export default function RootLayout({
               <Aoscompo>
                 <Header />
                 <PendingStickyBtn />
+                <Notification />
+                <Chest />
+                <GlowText/>
                 <NextTopLoader />
                 <PayPalProvider>
                 {children}

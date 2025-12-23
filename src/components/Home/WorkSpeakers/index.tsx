@@ -6,6 +6,7 @@ import Link from "next/link";
 import axios from "axios";
 import { Icon } from "@iconify/react";
 import Callback from "@/components/Auth/Callback";
+import HoverUnderline from "@/components/HoverUnderline";
 
 type typeofCourse = {
   course_id: string;
@@ -44,15 +45,15 @@ const WorkSpeakers = ({ showTitle = true }) => {
     <>
       <section className={`dark:bg-darkmode py-10 ${pathname === "/" ? "" : ""}`}>
         {showTitle && <h2 className="text-center pb-12 text-3xl font-bold">Courses Offered</h2>}
-        
+
         {/* --- Responsive Container --- */}
         {/* Mobile: flex with horizontal scroll | Desktop: Grid layout */}
         <div className="flex overflow-x-auto pb-8 snap-x snap-mandatory gap-6 px-6 
                         md:grid md:grid-cols-2 lg:grid-cols-3 md:overflow-visible md:pb-0 md:mx-7">
-          
+
           {courses.map((course, index) => (
-            <div 
-              key={course.course_id} 
+            <div
+              key={course.course_id}
               className={`
                 flex-none w-[85%] sm:w-[60%] snap-center  /* Mobile Slider Settings */
                 md:w-full md:flex md:flex-col group overflow-hidden bg-white dark:bg-darklight rounded-xl shadow-lg
@@ -64,21 +65,28 @@ const WorkSpeakers = ({ showTitle = true }) => {
                 <Image
                   src={course.course_image?.startsWith("http") ? course.course_image : `/${course.course_image}`}
                   alt={course.course_name}
-                  width={500} 
-                  height={300} 
+                  width={500}
+                  height={300}
                   className="w-full h-full object-cover transition-all duration-500 group-hover:scale-110"
                 />
               </div>
 
               {/* Content */}
               <div className="p-5 flex-grow">
-                <h6 className="text-xl font-bold text-secondary dark:text-white mb-2 line-clamp-1">
+                {/* <h6 className="text-xl font-bold text-secondary dark:text-white mb-2 line-clamp-1">
                   {course.course_name}
-                </h6>
+                </h6> */}
+
+                <HoverUnderline
+                  text={course.course_name}
+                  textColor="#f1c40f"
+                  gradient="linear-gradient(to right, #f39c12, #e67e22)"
+                  thickness="4px"
+                />
                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">
                   {course.course_desc}
                 </p>
-                
+
                 <div className="flex items-center gap-2 mb-4">
                   <span className="text-lg font-bold text-primary dark:text-white">₹{course.course_price}</span>
                   <span className="text-xs text-gray-400 line-through">₹{course.total_price}</span>
@@ -99,10 +107,10 @@ const WorkSpeakers = ({ showTitle = true }) => {
             </div>
           ))}
         </div>
-        
+
         {/* Mobile Indicator (Optional) */}
         <div className="md:hidden text-center text-gray-400 text-xs mt-2 animate-pulse">
-           ← Swipe to see more →
+          ← Swipe to see more →
         </div>
       </section>
 

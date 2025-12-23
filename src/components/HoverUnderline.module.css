@@ -1,0 +1,45 @@
+/* components/HoverUnderline.module.css */
+.hoverUnderline {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.hoverUnderline::after,
+.hoverUnderline::before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  /* Dynamic values via CSS Variables */
+  height: var(--thickness, 2px);
+  background: var(--gradient, linear-gradient(to right, #ff0000, #00ffff));
+  left: 0;
+  transform: scaleX(0);
+  transition: transform 0.4s ease-out;
+}
+
+/* Bottom line */
+.hoverUnderline::after {
+  bottom: -5px;
+  transform-origin: right;
+}
+
+/* Top line */
+.hoverUnderline::before {
+  top: -5px;
+  transform-origin: left;
+}
+
+.hoverUnderline:hover::after,
+.hoverUnderline:hover::before {
+  transform: scaleX(1);
+}
+
+/* Hover par origin flip karna (optional, for extra effect) */
+.hoverUnderline:hover::after {
+  transform-origin: left;
+}
+.hoverUnderline:hover::before {
+  transform-origin: right;
+}
