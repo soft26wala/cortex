@@ -4,7 +4,7 @@ import { useSearchParams } from "next/navigation";
 import { Icon } from "@iconify/react";
 import Link from "next/link";
 
-const PaymentDetails = () => {
+const ClientPaymentResult = () => {
   const searchParams = useSearchParams();
   const status = searchParams.get("status"); 
   const tid = searchParams.get("tid");
@@ -58,7 +58,7 @@ export default function PaymentResultClient() {
   return (
     <div className="min-h-screen bg-white dark:bg-[#0a0a0a] flex items-center justify-center p-6">
       <Suspense fallback={<div className="text-white">Loading Payment Status...</div>}>
-        <PaymentDetails />
+        <ClientPaymentResult />
       </Suspense>
     </div>
   );

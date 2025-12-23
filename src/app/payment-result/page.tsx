@@ -1,11 +1,11 @@
 import React, { Suspense } from "react";
-import ClientPaymentResult from "./ClientPaymentResult";
+import PaymentResultClient from "./ClientPaymentResult";
 
-export default function Page() {
+export default function PaymentDetails() {
   return (
     <main>
       <Suspense fallback={<div>Loading payment details…</div>}>
-        <ClientPaymentResult />
+        <PaymentResultClient />
       </Suspense>
     </main>
   );
