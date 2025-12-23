@@ -6,8 +6,8 @@ import Link from "next/link";
 
 const ClientPaymentResult = () => {
   const searchParams = useSearchParams();
-  const status = searchParams.get("status"); 
-  const tid = searchParams.get("tid");
+  const status = searchParams.get("status") ?? "unknown"; 
+  const tid = searchParams.get("tid") ?? "";
 
   return (
     <div className="max-w-md w-full bg-gray-50 dark:bg-[#111] p-10 rounded-[2rem] border border-gray-200 dark:border-white/5 shadow-2xl text-center mt-16">
@@ -18,7 +18,7 @@ const ClientPaymentResult = () => {
           </div>
           <h1 className="text-3xl font-black dark:text-white mb-3 tracking-tight">Success!</h1>
           <p className="text-gray-500 dark:text-gray-400 mb-8 leading-relaxed">
-            Paise mil gaye hain. Course ab aapke dashboard mein hai.
+            your payment has been processed successfully. course your classroom added. happy learning!
           </p>
         </>
       )}
@@ -30,7 +30,7 @@ const ClientPaymentResult = () => {
           </div>
           <h1 className="text-3xl font-black dark:text-white mb-3 tracking-tight">Processing...</h1>
           <p className="text-gray-500 dark:text-gray-400 mb-8 leading-relaxed">
-            Bank se confirmation ka intezar hai.
+            your payment is currently being processed. please wait while we confirm your transaction. thank you for your patience.
           </p>
         </>
       )}
