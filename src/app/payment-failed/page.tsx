@@ -12,7 +12,7 @@ const PaymentFailed = () => {
         </div>
         <h1 className="text-3xl font-bold dark:text-white mb-2">Payment Failed</h1>
         <p className="text-gray-500 dark:text-gray-400 mb-8">
-          Oops! Payment poori nahi ho saki. Kripya dobara koshish karein.
+          Oops! Payment Failed. Payment could not be processed. Please try again.
         </p>
         <div className="flex gap-4 justify-center">
           <Link 

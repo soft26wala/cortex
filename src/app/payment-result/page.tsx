@@ -1,5 +1,6 @@
 import React, { Suspense } from "react";
 import PaymentResultClient from "./ClientPaymentResult";
+export const dynamic = "force-dynamic";
 
 export default function PaymentDetails() {
   return (
