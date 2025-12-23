@@ -63,7 +63,7 @@ const BuyNowPage = () => {
   const amountInUSD = (course.course_price / 85).toFixed(2);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-white dark:bg-[#0a0a0a] p-5">
+    <div className="min-h-screen flex items-center justify-center bg-white dark:bg-[#0a0a0a] p-5 mt-20">
       <div className="w-full max-w-md bg-gray-50 dark:bg-[#111] p-8 rounded-3xl shadow-xl border border-gray-200 dark:border-white/5">
         <h2 className="text-2xl font-bold dark:text-white mb-4">Confirm Purchase</h2>
         

@@ -1,10 +1,9 @@
 "use client";
-import React, { Suspense } from "react"; // Suspense import kiya
+import React, { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { Icon } from "@iconify/react";
 import Link from "next/link";
 
-// 1. Ek alag component banayein jo Search Params use karega
 const PaymentDetails = () => {
   const searchParams = useSearchParams();
   const status = searchParams.get("status"); 
@@ -12,8 +11,6 @@ const PaymentDetails = () => {
 
   return (
     <div className="max-w-md w-full bg-gray-50 dark:bg-[#111] p-10 rounded-[2rem] border border-gray-200 dark:border-white/5 shadow-2xl text-center mt-16">
-      
-      {/* --- SUCCESS STATE --- */}
       {status === "SUCCESS" && (
         <>
           <div className="w-20 h-20 bg-green-500/10 text-green-500 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -26,7 +23,6 @@ const PaymentDetails = () => {
         </>
       )}
 
-      {/* --- PENDING/PROCESSING STATE --- */}
       {status === "PENDING" && (
         <>
           <div className="w-20 h-20 bg-orange-500/10 text-orange-500 rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse">
@@ -34,12 +30,11 @@ const PaymentDetails = () => {
           </div>
           <h1 className="text-3xl font-black dark:text-white mb-3 tracking-tight">Processing...</h1>
           <p className="text-gray-500 dark:text-gray-400 mb-8 leading-relaxed">
-            Bank se confirmation ka intezar hai. 5-10 minute mein course automatic active ho jayega.
+            Bank se confirmation ka intezar hai.
           </p>
         </>
       )}
 
-      {/* --- DETAILS & BUTTONS --- */}
       <div className="bg-white dark:bg-white/5 rounded-2xl p-4 mb-8 text-left border dark:border-white/5">
         <div className="flex justify-between text-sm mb-1">
           <span className="text-gray-400">Transaction ID</span>
@@ -48,7 +43,7 @@ const PaymentDetails = () => {
       </div>
 
       <div className="flex flex-col gap-3">
-        <Link href="/dashboard" className="bg-orange-600 hover:bg-orange-700 text-white py-4 rounded-2xl font-bold transition-all shadow-lg shadow-orange-600/20">
+        <Link href="/dashboard" className="bg-orange-600 hover:bg-orange-700 text-white py-4 rounded-2xl font-bold transition-all">
           Go to Dashboard
         </Link>
         <Link href="/" className="text-gray-500 dark:text-gray-400 font-semibold hover:underline">
@@ -59,16 +54,12 @@ const PaymentDetails = () => {
   );
 };
 
-// 2. Main Page component jo Suspense ke sath wrap hai
-const PaymentResult = () => {
+export default function PaymentResultClient() {
   return (
     <div className="min-h-screen bg-white dark:bg-[#0a0a0a] flex items-center justify-center p-6">
-      {/* Suspense is mandatory for useSearchParams in Next.js Client Components during Build */}
       <Suspense fallback={<div className="text-white">Loading Payment Status...</div>}>
         <PaymentDetails />
       </Suspense>
     </div>
   );
-};
-
-export default PaymentResult;
+}

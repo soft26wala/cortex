@@ -16,7 +16,6 @@ import NextTopLoader from 'nextjs-toploader';
 import PendingStickyBtn from "./PendingStickyBtn";
 import GlowText from "./GlowText";
 import Notification from "./Notification";
-import Chest from "@/components/Chest";
 
 export default function RootLayout({
   children,
@@ -39,7 +38,6 @@ export default function RootLayout({
                 <Header />
                 <PendingStickyBtn />
                 <Notification />
-                <Chest />
                 <GlowText/>
                 <NextTopLoader />
                 <PayPalProvider>

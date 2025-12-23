@@ -16,7 +16,7 @@ export default function Home() {
   return (
     <main>
       <Hero />
-      <ThumbnailCarousel/>
+      <ThumbnailCarousel />
       <WorkSpeakers/>
       <EventTicket/>
       <Highlight/>
