@@ -43,6 +43,9 @@ const Footer: FC = () => {
                                 <Link href="/contact">Contact Us</Link>
                             </li>
                             <li className="text-PaleCerulean sm:text-xl text-lg font-normal transition-all duration-0.4s hover:text-primary">
+                                <Link href="/terms">Terms & Conditions</Link>
+                            </li>
+                            <li className="text-PaleCerulean sm:text-xl text-lg font-normal transition-all duration-0.4s hover:text-primary">
                                 <Link href="/documentation">documentation</Link>
                             </li>
                         </ul>

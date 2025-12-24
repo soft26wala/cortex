@@ -38,19 +38,14 @@ const handler = NextAuth({
             name,
             email,
             photo,
-            // agar phone, age, gender nahi hai to null/send later
-            phone: null,
-            age: null,
-            gender: null,
             provider: account?.provider, // optional extra field
+            password: null
           }),
         });
 
         return true; // login allow
       } catch (e) {
         console.error("Error saving user to API", e);
-        // agar error pe login block karna hai:
-        // return false;
         return true;
       }
     },
