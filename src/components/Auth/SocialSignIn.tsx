@@ -4,10 +4,10 @@ import { signIn } from "next-auth/react";
 
 const SocialSignIn = () => {
     const handleGoogleSignIn = async () => {
-        await signIn("google");
+        await signIn("google", { callbackUrl: "/" });
     };
     const handleGithubSignIn = async () => {
-        await signIn("github");
+        await signIn("github", { callbackUrl: "/" });
     };
     return (
         <>

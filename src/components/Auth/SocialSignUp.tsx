@@ -7,7 +7,7 @@ const SocialSignUp = () => {
         <>
             <div className="flex gap-4">
                 <button
-                    onClick={() => signIn("google")}
+                    onClick={() => signIn("google", { callbackUrl: "/" })}
                     className="flex w-full items-center justify-center gap-2.5 rounded-lg border border-solid hover:bg-stroke border-stroke p-3.5 text-dark duration-200 ease-in  dark:border-dark_border dark:text-white dark:hover:bg-primary/10 hover:bg-primary/10"
                 >
                     Sign Up

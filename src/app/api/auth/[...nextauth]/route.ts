@@ -16,6 +16,11 @@ const handler = NextAuth({
     }),
   ],
 
+  pages: {
+    signIn: '/', // Agar aapka login button home page par hai to '/' likhein
+    error: '/',  // Error aane par bhi aapka hi page dikhega
+  },
+
   callbacks: {
     async signIn({ user, account }) {
       try {
