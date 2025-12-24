@@ -14,7 +14,6 @@ import PayPalProvider from "@/components/PayPalProvider";
 const dmsans = DM_Sans({ subsets: ["latin"] });
 import NextTopLoader from 'nextjs-toploader';
 import PendingStickyBtn from "./PendingStickyBtn";
-import GlowText from "./GlowText";
 import Notification from "./Notification";
 
 export default function RootLayout({
@@ -38,7 +37,6 @@ export default function RootLayout({
                 <Header />
                 <PendingStickyBtn />
                 <Notification />
-                <GlowText/>
                 <NextTopLoader />
                 <PayPalProvider>
                 {children}
