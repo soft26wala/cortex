@@ -27,7 +27,7 @@ const Aboutcom: FC<HeroSubProps> = ({ title, description }) => {
           {title}
         </h1>
 
-        <p className="text-lg text-SlateBlueText dark:text-opacity-80 font-normal w-full mt-3">
+        <p className="text-lg text-dark-400 dark:text-opacity-80 font-normal w-full mt-3">
           {description}
         </p>
       </div>
