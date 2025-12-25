@@ -180,7 +180,7 @@ const Testimonials = () => {
 
                                 <div className="flex items-center gap-6 justify-center md:justify-start">
                                     <Image
-                                        src="/images/testimonials/anjli.jfif"
+                                        src="/images/testimonials/anjli.png"
                                         alt="profile"
                                         width={64}
                                         height={64}
