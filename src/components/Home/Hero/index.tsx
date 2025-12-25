@@ -5,7 +5,6 @@ import { Icon } from "@iconify/react";
 import './style.css'
 import { useEffect, useRef, useState } from "react";
 import Callback from "@/components/Auth/Callback";
-import { usePathname } from "next/navigation";
 
 
 
@@ -54,14 +53,6 @@ const Hero = () => {
             <div className="container">
                 <div className="grid lg:grid-cols-12 grid-cols-1 items-center gap-30">
                     <div className="col-span-6">
-                        {/* <p
-                            data-aos="fade-up"
-                            data-aos-delay="200"
-                            data-aos-duration="1000"
-                            className="relative z-0  inline-block text-primary text-lg font-bold before:absolute before:content-[''] before:bg-primary/20  before:w-full before:h-2 before:-z-1 dark:before:-z-1 before:bottom-0"
-                        >
-                            Starts on 16 June 2020
-                        </p> */}
                         <h1
                             className="py-8"
                             data-aos="fade-up"

@@ -51,7 +51,7 @@ const WorkSpeakers = ({ showTitle = true }) => {
         <div className="flex overflow-x-auto pb-8 snap-x snap-mandatory gap-6 px-6 
                         md:grid md:grid-cols-2 lg:grid-cols-3 md:overflow-visible md:pb-0 md:mx-7">
 
-          {courses.map((course, index) => (
+          {courses.slice(0, 3).map((course, index) => (
             <div
               key={course.course_id}
               className={`
@@ -105,6 +105,7 @@ const WorkSpeakers = ({ showTitle = true }) => {
                 </div>
               </div>
             </div>
+            
           ))}
         </div>
 

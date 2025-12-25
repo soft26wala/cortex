@@ -1,14 +1,16 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Calendar, Video, Users, Bell, Trash2, ExternalLink } from "lucide-react";
-
+import { Calendar, Video, Users, Bell, ExternalLink } from "lucide-react";
+import Callback from "@/components/Auth/Callback";
+import { Icon } from "@iconify/react";
 // Demo Data Structure
 interface CompanyEvent {
   id: number;
   type: "Interview" | "Meeting" | "Event";
   title: string;
-  candidateName?: string;
+
+  location?: string;
   time: string;
   date: string;
   link: string;
@@ -16,52 +18,78 @@ interface CompanyEvent {
 
 const EventNotificationPage = () => {
   // Abhi ke liye 1 demo notification, baad mein ise DB se connect kar sakte hain
+   const [iscbUpOpen, setIsCbUpOpen] = useState(false);
+    const callbackRef = useRef<HTMLDivElement>(null);
+
   const [events, setEvents] = useState<CompanyEvent[]>([
     {
       id: 1,
       type: "Interview",
-      title: "Frontend Developer Interview",
-      candidateName: "Gurvinder Singh",
-      date: "24 Dec 2025",
+      title: "Back-End Developer Interview",
+      location: "walk in interview at Office",
+      date: "1 Jan 2026",
       time: "11:30 AM",
       link: "/interview/gurvinder-123",
     },
     {
       id: 2,
       type: "Interview",
-      title: "MERN Stock Interview",
-      candidateName: "Gurvinder Singh",
-      date: "24 Dec 2025",
+      title: "Front-End Developer Interview",
+      location: "walk in interview at Office",
+      date: "1 Jan 2026",
       time: "11:30 AM",
       link: "/interview/gurvinder-123",
     },
-     {
+    {
       id: 3,
       type: "Interview",
-      title: "MERN Stock Interview",
-      candidateName: "Gurvinder Singh",
-      date: "24 Dec 2025",
-      time: "11:30 AM",
-      link: "/interview/gurvinder-123",
-    },
-     {
-      id: 4,
-      type: "Interview",
-      title: "MERN Stock Interview",
-      candidateName: "Gurvinder Singh",
-      date: "24 Dec 2025",
+      title: "MERN Stack Interview",
+      location: "walk in interview at Office",
+      date: "1 Jan 2026",
       time: "11:30 AM",
       link: "/interview/gurvinder-123",
     }
   ]);
 
-  const removeEvent = (id: number) => {
-    setEvents(events.filter(e => e.id !== id));
-  };
+
+ const handleClickOutside = (event: MouseEvent) => {
+
+
+        // Close Callback Modal
+        if (
+            callbackRef.current &&
+            !callbackRef.current.contains(event.target as Node)
+        ) {
+            setIsCbUpOpen(false);
+        }
+
+    };
+
+    useEffect(() => {
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [iscbUpOpen]);
+
+    // close popup on outside click
+    const handleOutsideClick = (e: MouseEvent) => {
+        if (callbackRef.current && !callbackRef.current.contains(e.target as Node)) {
+            setIsCbUpOpen(false);
+        }
+    };
+
+    useEffect(() => {
+        if (iscbUpOpen) {
+            document.addEventListener("mousedown", handleOutsideClick);
+        }
+        return () => document.removeEventListener("mousedown", handleOutsideClick);
+    }, [iscbUpOpen]);
+
 
   return (
     <div className="min-h-screen bg-[#050505] text-white p-6 md:p-10 font-sans">
-      
+
       {/* --- Header with 3D Glow (SEO Friendly) --- */}
       <header className="mb-10 text-center mt-20">
         <div className="relative inline-block preserve-3d">
@@ -73,7 +101,7 @@ const EventNotificationPage = () => {
       </header>
 
       {/* --- Notification List Container --- */}
-      <div className="max-w-4xl space-y-4">
+      <div className="max-w-4xl space-y-4 container">
         <AnimatePresence>
           {events.length > 0 ? (
             events.map((event) => (
@@ -102,7 +130,7 @@ const EventNotificationPage = () => {
                       {event.title}
                     </h2>
                     <p className="text-gray-400 text-sm">
-                      Candidate: <span className="text-gray-200 font-medium">{event.candidateName}</span>
+                      Location: <span className="text-gray-200 font-medium">{event.location}</span>
                     </p>
                   </div>
                 </div>
@@ -115,19 +143,16 @@ const EventNotificationPage = () => {
 
                 {/* Right Side: Action Button */}
                 <div className="flex items-center gap-3">
-                  <button 
-                    onClick={() => window.location.href = event.link}
+                  <button
+                    onClick={() => {
+                      setIsCbUpOpen(true); // Open the callback modal
+                    }}
                     className="flex items-center gap-2 bg-orange-600 hover:bg-orange-500 text-white font-bold py-2 px-6 rounded-xl transition-all shadow-lg active:scale-95"
                   >
                     Join Now <ExternalLink size={16} />
                   </button>
-                  
-                  {/* <button 
-                    onClick={() => removeEvent(event.id)}
-                    className="p-2 text-gray-600 hover:text-red-500 transition-colors"
-                  >
-                    <Trash2 size={20} />
-                  </button> */}
+
+
                 </div>
 
                 {/* Subtle side glow decoration */}
@@ -156,7 +181,36 @@ const EventNotificationPage = () => {
           perspective: 1000px;
         }
       `}</style>
+
+
+    {/* Request Callback Modal Rendering */}
+        {iscbUpOpen && (
+          <div
+            ref={callbackRef}
+            className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center z-50 !m-0"
+          >
+            <div className="relative mx-auto w-full max-w-md overflow-hidden rounded-lg bg-white px-8 py-14 text-center dark:bg-darklight">
+              <button
+                onClick={() => setIsCbUpOpen(false)} 
+                className=" hover:bg-gray-200 dark:hover:bg-gray-700 p-1 rounded-full absolute -top-5 -right-3 mr-8 mt-8"
+                aria-label="Close Request Callback Modal"
+              >
+                <Icon icon="ic:round-close" className="text-2xl dark:text-white" />
+              </button>
+              {/* Assuming RequestCallback can take a prop to handle its closing */}
+              
+              <Callback signUpOpen={(value: boolean) => setIsCbUpOpen(value)} />
+            </div>
+          </div>
+        )
+        }
+
+
+
     </div>
+
+
+
   );
 };
 

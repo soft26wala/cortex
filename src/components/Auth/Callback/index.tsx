@@ -121,8 +121,11 @@ const Callback = ({ signUpOpen }: { signUpOpen?: any }) => {
                         <option value="">
                             Select Technology
                         </option>
-                        <option value="mern">MERN</option>
-                        <option value="mysql">MySQL</option>
+                        <option value="Create your Own Website ">Create your Own Website</option>
+                        <option value="Services">Services</option>
+                        <option value="Online Course">Online Course</option>
+                        <option value="Offline Course">Offline Course</option>
+                        <option value="Interview">Interview</option>
                     </select>
                 </div>
                 <div className="mb-9">
