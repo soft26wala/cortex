@@ -17,7 +17,7 @@ const Page = () => {
   ];
 
   return (
-    <div className="bg-white dark:bg-gray-900 overflow-hidden">
+    <div className="bg-orange-50  dark:bg-gray-900 overflow-hidden">
       {/* Header Section */}
       <Aboutcom
         title="🧠 The Story of Cortex Web Solutions"

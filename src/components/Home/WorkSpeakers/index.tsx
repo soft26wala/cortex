@@ -43,7 +43,7 @@ const WorkSpeakers = ({ showTitle = true }) => {
 
   return (
     <>
-      <section className={`dark:bg-darkmode py-10 ${pathname === "/" ? "" : ""}`}>
+      <section className={`dark:bg-darkmode bg-orange-50 py-10 ${pathname === "/" ? "" : ""}`}>
         {showTitle && <h2 className="text-center pb-12 text-3xl font-bold">Courses Offered</h2>}
 
         {/* --- Responsive Container --- */}

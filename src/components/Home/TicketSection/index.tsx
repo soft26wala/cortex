@@ -5,7 +5,7 @@ import Image from "next/image";
 const TicketSection = () => {
     return (
         <>
-            <section className="dark:bg-darkmode pt-0">
+            <section className="dark:bg-darkmode bg-orange-50 pt-0">
                 <div className="container">
                     <div className="bg-primary relative md:mx-auto mx-0 overflow-hidden py-0 rounded-22 lg:-mb-48 dark:lg:-mb-48 md:mt-20 mt-10">
                         <div className="flex flex-wrap items-center justify-between md:p-20 p-5">

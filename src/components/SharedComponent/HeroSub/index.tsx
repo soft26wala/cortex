@@ -12,7 +12,7 @@ const HeroSub: FC<HeroSubProps> = ({ title, description, breadcrumbLinks }) => {
 
     return (
         <>
-            <section className="text-start pt-32 dark:bg-darkmode pb-0">
+            <section className="text-start pt-32 dark:bg-darkmode bg-orange-50  pb-0">
                 <div className="container">
                     <div className="flex flex-wrap items-center justify-between">
                         <div data-aos="fade-right" data-aos-delay="200" data-aos-duration="1000">

@@ -23,7 +23,7 @@ const page = () => {
         description="Discover a wealth of insightful materials meticulously crafted to provide you with a comprehensive."
         breadcrumbLinks={breadcrumbLinks}
       />
-      <section className="dark:bg-darkmode">  
+      <section className="dark:bg-darkmode bg-orange-50 ">  
         <div className="container upcoming">
           <BoxSlider/>
           <Schedules/>        

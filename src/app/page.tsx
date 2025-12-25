@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 
 export default function Home() {
   return (
-    <main>
+    <main className='dark:bg-darkmode bg-orange-50'>
       <Hero />
       <ThumbnailCarousel />
       <WorkSpeakers/>

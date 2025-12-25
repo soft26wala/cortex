@@ -30,7 +30,7 @@ const SplitPane: React.FC<SplitPaneProps> = ({
         <div className="absolute flex items-center h-screen right-0 w-48 z-10">
           <button
             onClick={() => setRatio(0)} // Left ko zero kar do
-            className="w-full h-48 flex items-center justify-center cursor-pointer transition duration-500 hover:bg-gray-300 bg-white text-black font-bold outline-none"
+            className="w-full h-48 flex items-center justify-center cursor-pointer transition duration-500 hover:bg-gray-300 bg-orange-50 text-black font-bold outline-none"
           >
             {leftButtonLabel}
           </button>
@@ -42,7 +42,7 @@ const SplitPane: React.FC<SplitPaneProps> = ({
 
       {/* Right Pane */}
       <div 
-        className="bg-white text-black text-center relative transition-all duration-1000 ease-in-out flex items-center justify-center overflow-hidden"
+        className="bg-orange-50 text-black text-center relative transition-all duration-1000 ease-in-out flex items-center justify-center overflow-hidden"
         style={{ width: `${(1 - ratio) * 100}%` }}
       >
         <div className="absolute flex items-center h-screen left-0 w-48 z-10">

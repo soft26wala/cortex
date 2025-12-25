@@ -49,7 +49,7 @@ const Hero = () => {
 
 
     return (
-        <section className="dark:bg-darkmode">
+        <section className="dark:bg-darkmode bg-orange-50">
             <div className="container">
                 <div className="grid lg:grid-cols-12 grid-cols-1 items-center gap-30">
                     <div className="col-span-6">

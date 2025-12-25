@@ -7,7 +7,7 @@ import { conferences } from "../../../app/api/data";
 const Upcoming = () => {
   return (
     <>
-      <section className="upcoming dark:bg-darkmode">
+      <section className="upcoming dark:bg-darkmode bg-orange-50">
         <div className="max-w-1068 m-auto">
           <div className="container">
             <h2 data-aos="fade-up" data-aos-delay="200" data-aos-duration="1000" className="text-center pb-10">Upcoming Conference</h2>
