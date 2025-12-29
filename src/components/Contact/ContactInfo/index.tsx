@@ -50,8 +50,7 @@ const ContactInfo = () => {
                                         Careers
                                     </span>
                                     <p className="text-SlateBlueText font-normal text-xl max-w-80 pt-3 pb-7 dark:text-opacity-80">
-                                        Sit ac ipsum leo lorem magna nunc mattis maecenas non
-                                        vestibulum
+                                       Join Cortex Web Solutions and grow your career with a team that values innovation, learning, and real-world impact. We work on modern technologies, live projects, and client-driven solutions that help you sharpen your skills and advance professionally.
                                     </p>
                                 </div>
                                 <div>
