@@ -1,9 +1,52 @@
 "use client";
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { AlertTriangle, RefreshCcw, ShieldAlert, Mail } from 'lucide-react';
+import Link from 'next/link';
+import { Icon } from "@iconify/react";
+import Callback from '@/components/Auth/Callback';
 
 const RefundPolicy = () => {
+  const [iscbUpOpen, setIsCbUpOpen] = useState(false);
+    const callbackRef = useRef<HTMLDivElement>(null);
+
+    const handleClickOutside = (event: MouseEvent) => {
+
+
+        // Close Callback Modal
+        if (
+            callbackRef.current &&
+            !callbackRef.current.contains(event.target as Node)
+        ) {
+            setIsCbUpOpen(false);
+        }
+
+    };
+
+    useEffect(() => {
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [iscbUpOpen]);
+
+    // close popup on outside click
+    const handleOutsideClick = (e: MouseEvent) => {
+        if (callbackRef.current && !callbackRef.current.contains(e.target as Node)) {
+            setIsCbUpOpen(false);
+        }
+    };
+
+    useEffect(() => {
+        if (iscbUpOpen) {
+            document.addEventListener("mousedown", handleOutsideClick);
+        }
+        return () => document.removeEventListener("mousedown", handleOutsideClick);
+    }, [iscbUpOpen]);
+
+
   return (
+        <>
+
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 py-40 px-4 sm:px-6 lg:px-8 transition-colors duration-300">
       <div className="max-w-3xl mx-auto">
         
@@ -81,12 +124,18 @@ const RefundPolicy = () => {
                   <Mail className="h-5 w-5 mr-2 text-blue-500" />
                   Have questions before buying?
                 </p>
-                <a 
-                  href="mailto:support@cortestack.com"
+                <Link 
+                  href="#"
                   className="inline-block px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition-colors shadow-lg shadow-blue-500/20"
                 >
+                  <button
+              onClick={() => {
+                setIsCbUpOpen(true); // Open the callback modal
+              }}
+            >
                   Contact Support
-                </a>
+                  </button>
+                </Link>
               </div>
             </section>
 
@@ -99,6 +148,29 @@ const RefundPolicy = () => {
         </p>
       </div>
     </div>
+
+    {/* Request Callback Modal Rendering */}
+        {iscbUpOpen && (
+          <div
+            ref={callbackRef}
+            className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center z-50 !m-0"
+          >
+            <div className="relative mx-auto w-full max-w-md overflow-hidden rounded-lg bg-white px-8 py-14 text-center dark:bg-darklight">
+              <button
+                onClick={() => setIsCbUpOpen(false)} 
+                className=" hover:bg-gray-200 dark:hover:bg-gray-700 p-1 rounded-full absolute -top-5 -right-3 mr-8 mt-8"
+                aria-label="Close Request Callback Modal"
+              >
+                <Icon icon="ic:round-close" className="text-2xl dark:text-white" />
+              </button>
+              {/* Assuming RequestCallback can take a prop to handle its closing */}
+              
+              <Callback signUpOpen={(value: boolean) => setIsCbUpOpen(value)} />
+            </div>
+          </div>
+        )
+        }
+        </>
   );
 };
 

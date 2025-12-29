@@ -107,7 +107,7 @@ const PrivacyPolicy = () => {
               <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Questions about Privacy?</h3>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                 <a 
-                  href="mailto:privacy@cortestack.com" 
+                  href="mailto:cortexwebsolution@gmail.com" 
                   className="flex items-center px-6 py-3 bg-gray-900 dark:bg-white dark:text-black text-white rounded-full font-medium hover:opacity-90 transition-all"
                 >
                   <Mail className="h-5 w-5 mr-2" />

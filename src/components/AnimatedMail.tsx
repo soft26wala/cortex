@@ -27,7 +27,7 @@ const AnimatedMail: React.FC<AnimatedMailProps> = ({
         <div className={styles.backFold}></div>
         
         <div className={styles.letter}>
-          <div className={styles.letterBorder}></div>
+          <div className={styles.letterBorder}>Interview</div>
           <div className={styles.letterTitle} style={{color: "black"}}></div>
           <div className={styles.letterContext}></div>
           <div className={styles.letterStamp}>
