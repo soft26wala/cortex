@@ -35,6 +35,7 @@ const Footer: FC = () => {
                             { name: "Terms", href: "/terms" },
                             { name: "Refund", href: "/refund-policy" },
                             { name: "Privacy", href: "/privacy-policy" },
+                            { name: "Shipping", href: "/shipping" },
                         ].map((link) => (
                             <Link 
                                 key={link.name} 
