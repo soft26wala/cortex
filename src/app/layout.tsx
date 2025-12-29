@@ -8,7 +8,6 @@ import Aoscompo from "@/utils/aos";
 import SessionProviderComp from "@/components/nextauth/SessionProvider";
 import { AuthDialogProvider } from "./context/AuthDialogContext";
 import { SpeedInsights } from '@vercel/speed-insights/next';
-import PayPalProvider from "@/components/PayPalProvider";
 
 
 const dmsans = DM_Sans({ subsets: ["latin"] });
@@ -38,9 +37,9 @@ export default function RootLayout({
                 <PendingStickyBtn />
                 <Notification />
                 <NextTopLoader />
-                <PayPalProvider>
+                
                 {children}
-                </PayPalProvider>
+                
                 <Footer />
               </Aoscompo>
               <ScrollToTop />
