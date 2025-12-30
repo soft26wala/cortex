@@ -22,7 +22,14 @@ import { useSession, signOut } from "next-auth/react";
 const Header: React.FC = () => {
   const pathUrl = usePathname();
   const { theme, setTheme } = useTheme();
-  const { data: session } = useSession(); // Ye batayega user logged in hai ya nahi
+
+  const sessionData = useSession();
+  const session = sessionData ? sessionData.data : null;
+  const status = sessionData ? sessionData.status : "loading";
+
+  // Ya phir optional chaining ke saath:
+  // const { data: session, status } = useSession() || {};
+
   const [navbarOpen, setNavbarOpen] = useState(false);
   const [sticky, setSticky] = useState(false);
   const [isSignInOpen, setIsSignInOpen] = useState(false);
@@ -34,6 +41,18 @@ const Header: React.FC = () => {
   const signUpRef = useRef<HTMLDivElement>(null);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
   const callbackRef = useRef<HTMLDivElement>(null); // New ref for Request Callback Modal
+  const [manualUser, setManualUser] = useState<any>(null);
+
+  useEffect(() => {
+    // Yeh sirf browser par chalega, build ke waqt server par nahi
+    const user = typeof window !== "undefined" ? localStorage.getItem("user") : null;
+    if (user) {
+      setManualUser(JSON.parse(user));
+    }
+  }, []);
+
+  // Dono mein se koi bhi login ho
+  const isLoggedIn = status === "authenticated" || !!manualUser;
 
   const handleScroll = () => {
     setSticky(window.scrollY >= 80);
@@ -124,7 +143,7 @@ const Header: React.FC = () => {
                   <path d="M16.6111 15.855C17.591 15.1394 18.3151 14.1979 18.7723 13.1623C16.4824 13.4065 14.1342 12.4631 12.6795 10.4711C11.2248 8.47905 11.0409 5.95516 11.9705 3.84818C10.8449 3.9685 9.72768 4.37162 8.74781 5.08719C5.7759 7.25747 5.12529 11.4308 7.29558 14.4028C9.46586 17.3747 13.6392 18.0253 16.6111 15.855Z" />
                 </svg>
               </button>
-              {!session ? (
+              {!isLoggedIn ? (
                 <>
                   <Link
                     href="#"
