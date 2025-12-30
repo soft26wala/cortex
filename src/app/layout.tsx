@@ -14,6 +14,7 @@ const dmsans = DM_Sans({ subsets: ["latin"] });
 import NextTopLoader from 'nextjs-toploader';
 import PendingStickyBtn from "./PendingStickyBtn";
 import Notification from "./Notification";
+import { NextAuthProvider } from "./providers";
 
 export default function RootLayout({
   children,
@@ -32,22 +33,24 @@ export default function RootLayout({
               enableSystem={true}
               defaultTheme="system"
             >
-              <Aoscompo>
-                <Header />
-                <PendingStickyBtn />
-                <Notification />
-                <NextTopLoader />
-                
-                {children}
-                
-                <Footer />
-              </Aoscompo>
-              <ScrollToTop />
+              <NextAuthProvider>
+                <Aoscompo>
+                  <Header />
+                  <PendingStickyBtn />
+                  <Notification />
+                  <NextTopLoader />
+
+                  {children}
+
+                  <Footer />
+                </Aoscompo>
+                <ScrollToTop />
+              </NextAuthProvider>
             </ThemeProvider>
           </SessionProviderComp>
         </AuthDialogProvider>
         <SpeedInsights />
       </body>
-    </html>
+    </html >
   );
 }

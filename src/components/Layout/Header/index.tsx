@@ -16,7 +16,7 @@ import { UserRegistered } from "@/components/Auth/AuthDialog/UserRegistered";
 import AuthDialogContext from "@/app/context/AuthDialogContext";
 import RequestCallback from "./Navigation/RequestCallback";
 import Callback from "@/components/Auth/Callback";
-import { useSession, signOut } from "next-auth/react"
+import { useSession, signOut } from "next-auth/react";
 
 
 const Header: React.FC = () => {
