@@ -29,7 +29,7 @@ const handler = NextAuth({
         const photo = user.image;
 
         // yahan tumhari Node.js API call hogi
-        await fetch(`${process.env.NEXT_PUBLIC_API}/user`, {
+        await fetch(`${process.env.NEXT_PUBLIC_API}/user/social-login`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

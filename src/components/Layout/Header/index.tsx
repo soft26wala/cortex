@@ -16,7 +16,7 @@ import { UserRegistered } from "@/components/Auth/AuthDialog/UserRegistered";
 import AuthDialogContext from "@/app/context/AuthDialogContext";
 import RequestCallback from "./Navigation/RequestCallback";
 import Callback from "@/components/Auth/Callback";
-import { useSession, signOut } from "next-auth/react";
+import { useSession, signOut, getSession } from "next-auth/react";
 
 
 const Header: React.FC = () => {
@@ -101,6 +101,24 @@ const Header: React.FC = () => {
 
   const authDialog = useContext(AuthDialogContext);
 
+
+  const handleLogout = async () => {
+  // 1. NextAuth Session check karein
+  const session = await getSession(); // ya useSession() se status check karein
+
+  if (session) {
+    // Agar user Google/GitHub se login hai, toh NextAuth ka signOut use karein
+    await signOut({ redirect: true, callbackUrl: "/" });
+  } else {
+    // 2. Agar user Manual Login hai, toh LocalStorage saaf karein
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    
+    // UI update karne ke liye ya toh state null karein ya page refresh karein
+    window.location.href = "/"; 
+  }
+};
+
   return (
     <>
       <div className="relative"></div>
@@ -148,9 +166,7 @@ const Header: React.FC = () => {
                   <Link
                     href="#"
                     className="hidden lg:block btn_outline btn-2 hover-outline-slide-down rounded-lg"
-                    onClick={() => {
-                      setIsSignInOpen(true);
-                    }}
+                    onClick={handleLogout}
                   >
                     <span className="!py-2 !px-4">Sign In</span>
                   </Link>
