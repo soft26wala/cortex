@@ -166,6 +166,7 @@ const SignUp = ({ signUpOpen }: { signUpOpen?: any }) => {
                                 value={formData.password}
                                 onChange={handleChange}
                                 required
+                                autoComplete="new-password"
                                 className="w-full rounded-md border border-border dark:border-dark_border border-solid bg-transparent px-5 py-3 text-base text-dark outline-none transition placeholder:text-gray-300 focus:border-primary focus-visible:shadow-none dark:text-white dark:focus:border-primary"
                             />
                         </div>
@@ -178,6 +179,7 @@ const SignUp = ({ signUpOpen }: { signUpOpen?: any }) => {
                                 value={formData.Confirm_password}
                                 onChange={handleChange}
                                 required
+                                autoComplete="new-password"
                                 className="w-full rounded-md border border-border dark:border-dark_border border-solid bg-transparent px-5 py-3 text-base text-dark outline-none transition placeholder:text-gray-300 focus:border-primary focus-visible:shadow-none dark:text-white dark:focus:border-primary"
                             />
                         </div>
