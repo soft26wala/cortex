@@ -93,12 +93,12 @@ const SignUp = ({ signUpOpen }: { signUpOpen?: any }) => {
         }
 
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API}/user/signup-manual`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API}user/signup-manual`, {
                 method: "POST",
                 // Note: "Content-Type" header mat lagao, browser khud boundary ke saath set kar lega
                 body: dataToSend,
             });
-           console.log("dataToSend :", dataToSend)
+          
             const result = await response.json();
             if (response.ok) {
                 toast.success("Signup Successful!");
