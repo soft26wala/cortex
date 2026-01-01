@@ -93,7 +93,7 @@ const SignUp = ({ signUpOpen }: { signUpOpen?: any }) => {
         }
 
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API}user/signup-manual`, {
+            const response = await fetch(`https://cortex-api-htc8.onrender.com/user/signup-manual`, {
                 method: "POST",
                 // Note: "Content-Type" header mat lagao, browser khud boundary ke saath set kar lega
                 body: dataToSend,
