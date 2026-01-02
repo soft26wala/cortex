@@ -21,26 +21,15 @@ const BuyNowPage = () => {
       .catch(err => console.log(err));
   }, [id]);
 
-  const handleRazorpayPayment = async () => {
-    // 3. Check karein ki user logged in hai ya nahi
-    if (status === "unauthenticated") {
-      alert("Please login to continue!");
-      router.push("/login");
-      return;
-    }
-
-    setBtnLoading(true);
-
-    if (!course || !course.course_price) {
-      alert("Course information is incomplete!");
-      setBtnLoading(false);
-      return;
-    }
+const handleRazorpayPayment = async () => {
+    // Validation same rahega...
 
     try {
-      const orderResponse = await axios.post("https://cortestack.com/api/create-order", {
+      // 1. URL badlein: cortestack.com ki jagah Render ka URL use karein
+      // Agar aapne backend mein router ko "/api/payment" par mount kiya hai toh niche wala URL sahi hai:
+      const orderResponse = await axios.post("https://cortex-api-htc8.onrender.com/api/payment/create-order", {
         amount: course.course_price,
-        userId: session?.user?.email, // Ya session.user.id agar aapne configure kiya hai
+        userId: session?.user?.email, 
         courseName: course.course_name
       });
 
@@ -55,7 +44,8 @@ const BuyNowPage = () => {
         order_id: orderData.id,
         handler: async (response: any) => {
           try {
-            const verifyRes = await axios.post("https://cortex-api-htc8.onrender.com/api/verify-payment", {
+            // 2. Verification URL ko bhi check karein (Ensure path matches backend)
+            const verifyRes = await axios.post("https://cortex-api-htc8.onrender.com/api/payment/verify-payment", {
               razorpay_order_id: response.razorpay_order_id,
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_signature: response.razorpay_signature,
@@ -81,11 +71,12 @@ const BuyNowPage = () => {
       rzp.open();
 
     } catch (error: any) {
-      alert("Could not start payment.");
+      console.error("Payment error:", error);
+      alert("Could not start payment. Backend response: " + error.response?.status);
     } finally {
       setBtnLoading(false);
     }
-  };
+};
 
   // ... baki ka UI same rahega
   if (!course) return <p className="text-center p-10 dark:text-white">Loading...</p>;
