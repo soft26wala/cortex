@@ -17,6 +17,7 @@ import AuthDialogContext from "@/app/context/AuthDialogContext";
 import RequestCallback from "./Navigation/RequestCallback";
 import Callback from "@/components/Auth/Callback";
 import { useSession, signOut, getSession } from "next-auth/react";
+import { set } from "date-fns";
 
 
 const Header: React.FC = () => {
@@ -166,7 +167,7 @@ const Header: React.FC = () => {
                   <Link
                     href="#"
                     className="hidden lg:block btn_outline btn-2 hover-outline-slide-down rounded-lg"
-                    onClick={handleLogout}
+                    onClick={() => {setIsSignInOpen(true)}}
                   >
                     <span className="!py-2 !px-4">Sign In</span>
                   </Link>

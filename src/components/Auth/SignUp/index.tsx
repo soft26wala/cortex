@@ -39,35 +39,6 @@ const SignUp = ({ signUpOpen }: { signUpOpen?: any }) => {
         }
     };
 
-    // const handleSubmit = (e: any) => {
-    //     e.preventDefault();
-
-    //     setLoading(true);
-    //     const data = new FormData(e.currentTarget);
-    //     const value = Object.fromEntries(data.entries());
-    //     const finalData = { ...value };
-
-    //     // Use client-side mock for registration (static export)
-    //     registerUser(finalData)
-    //         .then((data: any) => {
-    //             toast.success("Successfully registered");
-    //             setLoading(false);
-    //             router.push("/");
-    //         })
-    //         .catch((err: any) => {
-    //             toast.error(err?.message || "Registration failed");
-    //             setLoading(false);
-    //         });
-    //     setTimeout(() => {
-    //         signUpOpen(false);
-    //     }, 1200);
-    //     authDialog?.setIsUserRegistered(true);
-
-    //     setTimeout(() => {
-    //         authDialog?.setIsUserRegistered(false);
-    //     }, 1100);
-
-    // };
 
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
