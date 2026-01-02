@@ -2,39 +2,34 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import axios from "axios";
-import Cookies from "js-cookie"; 
+import { useSession } from "next-auth/react"; // 1. Session hook import karein
 import { useRazorpay, RazorpayOrderOptions } from "react-razorpay";
 
 const BuyNowPage = () => {
   const { id } = useParams();
   const router = useRouter();
+  const { data: session, status } = useSession(); // 2. Session data access karein
   const { Razorpay } = useRazorpay();
   
   const [course, setCourse] = useState<any>(null);
   const [btnLoading, setBtnLoading] = useState(false);
-  const [userData, setUserData] = useState<any>(null);
 
   useEffect(() => {
     // Get Course Data
     axios.get(`https://cortex-api-htc8.onrender.com/add-course/${id}`)
       .then(res => setCourse(res.data))
       .catch(err => console.log(err));
-    
-    // Get User Data from Cookie
-    const userCookie = Cookies.get("user");
-    setUserData(userCookie ? JSON.parse(userCookie) : null);
   }, [id]);
 
   const handleRazorpayPayment = async () => {
-    setBtnLoading(true);
-
-    // Validation
-    if (!userData || !userData.id) {
+    // 3. Check karein ki user logged in hai ya nahi
+    if (status === "unauthenticated") {
       alert("Please login to continue!");
       router.push("/login");
-      setBtnLoading(false);
       return;
     }
+
+    setBtnLoading(true);
 
     if (!course || !course.course_price) {
       alert("Course information is incomplete!");
@@ -43,27 +38,22 @@ const BuyNowPage = () => {
     }
 
     try {
-      // 1. Backend se Razorpay Order ID create karwana
-      // Note: Backend URL ko apne mutabik change karein
       const orderResponse = await axios.post("https://cortestack.com/api/create-order", {
         amount: course.course_price,
-        userId: userData.id,
+        userId: session?.user?.email, // Ya session.user.id agar aapne configure kiya hai
         courseName: course.course_name
       });
 
       const orderData = orderResponse.data;
 
-      // 2. Razorpay Options Setup
       const options: RazorpayOrderOptions = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "", // Apni Key yahan dalein
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "", 
         amount: orderData.amount,
         currency: orderData.currency || "INR",
         name: "Cortex Stack",
         description: `Buying ${course.course_name}`,
-        image: "/public/images/logo/logo3.svg",
         order_id: orderData.id,
         handler: async (response: any) => {
-          // 3. Payment verify karna backend par
           try {
             const verifyRes = await axios.post("https://cortex-api-htc8.onrender.com/api/verify-payment", {
               razorpay_order_id: response.razorpay_order_id,
@@ -77,35 +67,27 @@ const BuyNowPage = () => {
               alert("Payment verification failed!");
             }
           } catch (err) {
-            console.error("Verification Error", err);
             alert("Error verifying payment.");
           }
         },
         prefill: {
-          name: userData.name || "",
-          email: userData.email || "",
-          contact: userData.phone || "",
+          name: session?.user?.name || "",
+          email: session?.user?.email || "",
         },
-        theme: {
-          color: "#6739b7", // Purple theme matching your previous UI
-        },
+        theme: { color: "#6739b7" },
       };
 
       const rzp = new Razorpay(options);
       rzp.open();
 
-      rzp.on("payment.failed", function (response: any) {
-        alert("Payment Failed: " + response.error.description);
-      });
-
     } catch (error: any) {
-      console.error("Payment initialization failed", error);
-      alert("Could not start payment. Please try again.");
+      alert("Could not start payment.");
     } finally {
       setBtnLoading(false);
     }
   };
 
+  // ... baki ka UI same rahega
   if (!course) return <p className="text-center p-10 dark:text-white">Loading...</p>;
 
   return (
