@@ -28,7 +28,7 @@ const Signin = ({ signInOpen }: { signInOpen?: any }) => {
         setLoading(true);
 
         try {
-            const response = await fetch(`https://cortex-api-htc8.onrender.com/user/signup-manual`, {
+            const response = await fetch(`https://cortex-api-htc8.onrender.com/user/login`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json", // Use JSON for standard text fields
