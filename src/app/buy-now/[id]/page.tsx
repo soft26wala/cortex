@@ -60,12 +60,12 @@ const BuyNowPage = () => {
         currency: orderData.currency || "INR",
         name: "Cortex Stack",
         description: `Buying ${course.course_name}`,
-        image: "https://your-logo-url.com/logo.png",
+        image: "/public/images/logo/logo3.svg",
         order_id: orderData.id,
         handler: async (response: any) => {
           // 3. Payment verify karna backend par
           try {
-            const verifyRes = await axios.post("https://cortestack.com/api/verify-payment", {
+            const verifyRes = await axios.post("https://cortex-api-htc8.onrender.com/api/verify-payment", {
               razorpay_order_id: response.razorpay_order_id,
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_signature: response.razorpay_signature,
