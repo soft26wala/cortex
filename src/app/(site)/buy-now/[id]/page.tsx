@@ -45,15 +45,22 @@ const handleRazorpayPayment = async () => {
         handler: async (response: any) => {
           try {
             // 2. Verification URL ko bhi check karein (Ensure path matches backend)
-            const verifyRes = await axios.post("https://cortex-api-htc8.onrender.com/api/payment/verify-payment", {
+            const verifyRes = await axios.post("https://cortex-api-htc8.onrender.com/api/payment/verify-payment",
+               {
               razorpay_order_id: response.razorpay_order_id,
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_signature: response.razorpay_signature,
-            });
+            },
+            {
+               headers: {
+                "Content-Type": "application/json",
+              },
+            }
+          );
 
             if (verifyRes.data.status === "SUCCESS") {
               router.push(`/payment-result?status=SUCCESS&tid=${response.razorpay_order_id}`);
-              
+
             } else {
               alert("Payment verification failed!");
             }
