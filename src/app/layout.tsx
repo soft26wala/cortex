@@ -46,7 +46,7 @@ export default function RootLayout({
                     position="top-center"
                     reverseOrder={false}
                     containerStyle={{
-                      zIndex: 99999, // Taaki modal ke upar dikhe
+                      zIndex: 99999,
                     }}
                   />
                   <Footer />

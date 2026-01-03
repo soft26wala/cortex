@@ -39,15 +39,15 @@ const Signin = ({ signInOpen }: { signInOpen?: any }) => {
             const result = await response.json();
 
             if (response.ok) {
-                toast.success("Signup Successful!");
+                toast.success("Login Successful!");
                 localStorage.setItem("token", result.token);
                 localStorage.setItem("user", JSON.stringify(result.user));
                 authDialog?.setIsSuccessDialogOpen(true);
                 setTimeout(() => {
-                   router.refresh()
+                    window.location.reload()
                 }, 1000);
             } else {
-                toast.error(result.message || "Signup failed");
+                toast.error(result.message || "Login failed");
             }
         } catch (err) {
             toast.error("Network error. Please check your connection.");

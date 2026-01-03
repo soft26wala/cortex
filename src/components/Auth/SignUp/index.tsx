@@ -73,6 +73,12 @@ const SignUp = ({ signUpOpen }: { signUpOpen?: any }) => {
             const result = await response.json();
             if (response.ok) {
                 toast.success("Signup Successful!");
+                localStorage.setItem("token", result.token);
+                localStorage.setItem("user", JSON.stringify(result.user));
+                authDialog?.setIsSuccessDialogOpen(true);
+                setTimeout(() => {
+                    window.location.reload()
+                }, 1000);
             } else {
                 toast.error(result.message || "Signup failed");
             }
