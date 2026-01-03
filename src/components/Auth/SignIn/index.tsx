@@ -43,11 +43,7 @@ const Signin = ({ signInOpen }: { signInOpen?: any }) => {
                 localStorage.setItem("token", result.token);
                 localStorage.setItem("user", JSON.stringify(result.user));
                 authDialog?.setIsSuccessDialogOpen(true);
-                router.push("/")
-                setTimeout(() => {
-                    window.location.reload();
-                }, 1000);
-
+                window.location.reload();
             } else {
                 toast.error(result.message || "Signup failed");
             }
