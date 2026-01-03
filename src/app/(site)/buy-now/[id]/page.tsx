@@ -10,7 +10,7 @@ const BuyNowPage = () => {
   const router = useRouter();
   const { data: session, status } = useSession(); // 2. Session data access karein
   const { Razorpay } = useRazorpay();
-  
+
   const [course, setCourse] = useState<any>(null);
   const [btnLoading, setBtnLoading] = useState(false);
 
@@ -21,22 +21,29 @@ const BuyNowPage = () => {
       .catch(err => console.log(err));
   }, [id]);
 
-const handleRazorpayPayment = async () => {
+  const handleRazorpayPayment = async () => {
     // Validation same rahega...
 
     try {
       // 1. URL badlein: cortestack.com ki jagah Render ka URL use karein
       // Agar aapne backend mein router ko "/api/payment" par mount kiya hai toh niche wala URL sahi hai:
-      const orderResponse = await axios.post("https://cortex-api-htc8.onrender.com/api/payment/create-order", {
-        amount: course.course_price,
-        userId: session?.user?.email, 
-        courseName: course.course_name
-      });
+      const orderResponse = await axios.post("https://cortex-api-htc8.onrender.com/api/payment/create-order",
+        {
+          amount: course.course_price,
+          userId: session?.user?.email,
+          courseName: course.course_name
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       const orderData = orderResponse.data;
 
       const options: RazorpayOrderOptions = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "", 
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "",
         amount: orderData.amount,
         currency: orderData.currency || "INR",
         name: "Cortex Stack",
@@ -46,17 +53,17 @@ const handleRazorpayPayment = async () => {
           try {
             // 2. Verification URL ko bhi check karein (Ensure path matches backend)
             const verifyRes = await axios.post("https://cortex-api-htc8.onrender.com/api/payment/verify-payment",
-               {
-              razorpay_order_id: response.razorpay_order_id,
-              razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_signature: response.razorpay_signature,
-            },
-            {
-               headers: {
-                "Content-Type": "application/json",
+              {
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
               },
-            }
-          );
+              {
+                headers: {
+                  "Content-Type": "application/json",
+                },
+              }
+            );
 
             if (verifyRes.data.status === "SUCCESS") {
               router.push(`/payment-result?status=SUCCESS&tid=${response.razorpay_order_id}`);
@@ -84,7 +91,7 @@ const handleRazorpayPayment = async () => {
     } finally {
       setBtnLoading(false);
     }
-};
+  };
 
   // ... baki ka UI same rahega
   if (!course) return <p className="text-center p-10 dark:text-white">Loading...</p>;
@@ -93,7 +100,7 @@ const handleRazorpayPayment = async () => {
     <div className="min-h-screen flex items-center justify-center bg-white dark:bg-[#0a0a0a] p-5 mt-20 transition-colors duration-300">
       <div className="w-full max-w-md bg-gray-50 dark:bg-[#111] p-8 rounded-3xl shadow-xl border border-gray-200 dark:border-white/5">
         <h2 className="text-2xl font-bold dark:text-white mb-4">Confirm Purchase</h2>
-        
+
         <div className="mb-6">
           <p className="text-gray-500 text-sm">Course Name</p>
           <p className="text-md text-gray-900 font-semibold dark:text-white">{course.course_name}</p>
@@ -105,7 +112,7 @@ const handleRazorpayPayment = async () => {
         </div>
 
         {/* --- Razorpay Button --- */}
-        <button 
+        <button
           onClick={handleRazorpayPayment}
           disabled={btnLoading}
           className="w-full bg-[#3399cc] hover:bg-[#287da8] text-white py-4 rounded-xl font-bold transition-all shadow-lg active:scale-95 disabled:opacity-50"
