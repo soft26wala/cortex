@@ -53,6 +53,7 @@ const handleRazorpayPayment = async () => {
 
             if (verifyRes.data.status === "SUCCESS") {
               router.push(`/payment-result?status=SUCCESS&tid=${response.razorpay_order_id}`);
+              
             } else {
               alert("Payment verification failed!");
             }
