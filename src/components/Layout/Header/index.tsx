@@ -202,7 +202,7 @@ const Header: React.FC = () => {
               ) : (
                 /* Agar login HAI to Logout dikhao */
                 <button
-                  onClick={() => signOut()}
+                  onClick={() => handleLogout()}
                   className="hidden lg:block bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-all"
                 >
                   Logout
