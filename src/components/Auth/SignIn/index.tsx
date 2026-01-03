@@ -1,12 +1,12 @@
 "use client";
-import { signIn, useSession } from "@/lib/authMock";
+import { useSession } from "@/lib/authMock";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useContext, useState } from "react";
 import SocialSignIn from "../SocialSignIn";
 import Logo from "@/components/Layout/Header/Logo";
 import Loader from "@/components/Common/Loader";
-import toast, { Toaster } from 'react-hot-toast';
+import toast from "react-hot-toast";
 import AuthDialogContext from "@/app/context/AuthDialogContext";
 
 const Signin = ({ signInOpen }: { signInOpen?: any }) => {
@@ -40,8 +40,14 @@ const Signin = ({ signInOpen }: { signInOpen?: any }) => {
 
             if (response.ok) {
                 toast.success("Signup Successful!");
-                // Optionally redirect or close dialog
-                // router.push("/dashboard"); 
+                localStorage.setItem("token", result.token);
+                localStorage.setItem("user", JSON.stringify(result.user));
+                authDialog?.setIsSuccessDialogOpen(true);
+                router.push("/")
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
+
             } else {
                 toast.error(result.message || "Signup failed");
             }
@@ -68,7 +74,7 @@ const Signin = ({ signInOpen }: { signInOpen?: any }) => {
                     <span className="text-body-secondary relative z-10 inline-block bg-white dark:bg-darklight px-3 text-base">
                         OR
                     </span>
-                    <Toaster position="top-center" reverseOrder={false} />
+                    {/* <Toaster position="top-center" reverseOrder={false} /> */}
                 </span>
 
                 <form onSubmit={handleSubmit}>

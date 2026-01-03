@@ -8,7 +8,7 @@ import Aoscompo from "@/utils/aos";
 import SessionProviderComp from "@/components/nextauth/SessionProvider";
 import { AuthDialogProvider } from "./context/AuthDialogContext";
 import { SpeedInsights } from '@vercel/speed-insights/next';
-
+import { Toaster } from 'react-hot-toast';
 
 const dmsans = DM_Sans({ subsets: ["latin"] });
 import NextTopLoader from 'nextjs-toploader';
@@ -42,6 +42,13 @@ export default function RootLayout({
                   <NextTopLoader />
                   <NewYearRocket />
                   {children}
+                  <Toaster
+                    position="top-center"
+                    reverseOrder={false}
+                    containerStyle={{
+                      zIndex: 99999, // Taaki modal ke upar dikhe
+                    }}
+                  />
                   <Footer />
                 </Aoscompo>
                 <ScrollToTop />
