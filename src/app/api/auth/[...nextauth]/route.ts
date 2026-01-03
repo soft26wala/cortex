@@ -22,34 +22,31 @@ const handler = NextAuth({
   },
 
   callbacks: {
-    async signIn({ user, account }) {
+  async signIn({ user, account, profile }) {
+    if (account?.provider === "google" || account?.provider === "github") {
       try {
-        const email = user.email;
-        const name = user.name;
-        const photo = user.image;
-
-        // yahan tumhari Node.js API call hogi
-        await fetch(`${process.env.NEXT_PUBLIC_API}/user/social-login`, {
+        // Backend ke social-login endpoint par data bhejien
+        const response = await fetch("https://cortex-api-htc8.onrender.com/user/social-login", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            name,
-            email,
-            photo,
-            provider: account?.provider, // optional extra field
-            password: null
+            name: user.name,
+            email: user.email,
+            photo: user.image,
+            provider: account.provider,
           }),
         });
-
-        return true; // login allow
-      } catch (e) {
-        console.error("Error saving user to API", e);
-        return true;
+        
+        if (response.ok) return true; // DB mein data chala gaya
+        else return false; // Login cancel kar do agar DB fail ho jaye
+      } catch (error) {
+        console.error("DB Error:", error);
+        return false;
       }
-    },
-  },
+    }
+    return true;
+  }
+},
 
   secret: process.env.NEXTAUTH_SECRET,
 });
