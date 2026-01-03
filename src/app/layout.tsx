@@ -15,7 +15,7 @@ import NextTopLoader from 'nextjs-toploader';
 import PendingStickyBtn from "./PendingStickyBtn";
 import Notification from "./Notification";
 import { NextAuthProvider } from "./providers";
-import NewYearRocket from "./NewYearRocket";
+
 
 export default function RootLayout({
   children,
@@ -40,7 +40,7 @@ export default function RootLayout({
                   <PendingStickyBtn />
                   <Notification />
                   <NextTopLoader />
-                  <NewYearRocket />
+                  {/* <NewYearRocket /> */}
                   {children}
                   <Toaster
                     position="top-center"
