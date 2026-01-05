@@ -10,6 +10,17 @@ const BuyNowPage = () => {
   const router = useRouter();
   const { data: session, status } = useSession(); // 2. Session data access karein
   const { Razorpay } = useRazorpay();
+  const [manualUser, setManualUser] = useState<any>(null);
+
+  useEffect(() => {
+    // Yeh sirf browser par chalega, build ke waqt server par nahi
+    const user = typeof window !== "undefined" ? localStorage.getItem("user") : null;
+    if (user) {
+      setManualUser(JSON.parse(user));
+    }
+  }, []);
+
+  const isLoggedIn = status === "authenticated" || !!manualUser;
 
   const [course, setCourse] = useState<any>(null);
   const [btnLoading, setBtnLoading] = useState(false);
@@ -23,13 +34,13 @@ const BuyNowPage = () => {
 
 
   // Razorpay Payment Handler
-  const loadScript = (src: string) =>{
+  const loadScript = (src: string) => {
     return new Promise((resolve) => {
       const script = document.createElement("script");
       script.src = src;
       script.onload = () => {
         resolve(true);
-      } 
+      }
       script.onerror = () => {
         resolve(false);
       }
@@ -38,42 +49,58 @@ const BuyNowPage = () => {
   }
 
   const onPayment = async () => {
-     // create order on backend
-     try {
-      
-      const res = await axios.post("https://cortex-api-htc8.onrender.com/api/payment/create-order", {
-       course_id : id,
-        })
+    if (!isLoggedIn) {
+      alert("Please log in to proceed with the purchase.");
+      return router.push("/");
+    }
+    setBtnLoading(true);
+    // create order on backend
+    try {
 
-        const data = res.data;
-        console.log(data)
+      const res = await axios.post("https://cortex-api-htc8.onrender.com/api/payment/create-order", { course_id: id })
 
-        const paymentObject = new (window as any).Razorpay({
-          key : process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-          order_id : data.id,
-          ...data,
-          handler: function (response: any) {
-            const option2 = {
-              order_id : response.razorpay_order_id,
-              payment_id : response.razorpay_payment_id,
-              signature : response.razorpay_signature,
-            }
+      const data = res.data;
+      console.log(data)
 
-            axios.post("https://cortex-api-htc8.onrender.com/api/payment/verify-payment", option2)
+      const paymentObject = new (window as any).Razorpay({
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+        order_id: data.id,
+        ...data,
+        handler: async function (response: any) {
+          const option2 = {
+            order_id: response.razorpay_order_id,
+            payment_id: response.razorpay_payment_id,
+            signature: response.razorpay_signature,
           }
 
-          
-        })
-        paymentObject.open();
-     } catch (error) {
+          try {
+            const verifyRes = await axios.post("https://cortex-api-htc8.onrender.com/api/payment/verify-payment", option2);
+            const data = verifyRes.data;
+            if (data && (data.success === true || data === 'success')) {
+              router.push('/payment-result/success');
+            } else {
+              router.push('/payment-result/failure');
+            }
+          } catch (err) {
+            console.error('Payment verify error:', err);
+            router.push('/payment-result/failure');
+          } finally {
+            setBtnLoading(false);
+          }
+
+
+        }
+      });
+      paymentObject.open();
+    } catch (error) {
       console.log(error)
-     }
+    }
   }
 
-  useEffect(()=>{
+  useEffect(() => {
     loadScript("https://checkout.razorpay.com/v1/checkout.js");
 
-  },[]);
+  }, []);
 
 
   // Razorpay Payment Handler close
