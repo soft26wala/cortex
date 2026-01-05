@@ -77,13 +77,13 @@ const BuyNowPage = () => {
             const verifyRes = await axios.post("https://cortex-api-htc8.onrender.com/api/payment/verify-payment", option2);
             const data = verifyRes.data;
             if (data && (data.success === true || data === 'success')) {
-              router.push('/payment-result/success');
+              router.push('/payment-result?status=SUCCESS&tid=' + response.razorpay_payment_id);
             } else {
-              router.push('/payment-result/failure');
+              router.push('/payment-failed');
             }
           } catch (err) {
             console.error('Payment verify error:', err);
-            router.push('/payment-result/failure');
+            router.push('/payment-failed');
           } finally {
             setBtnLoading(false);
           }
