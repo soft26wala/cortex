@@ -24,7 +24,7 @@ const page = () => {
       setCourses(data);
     }
     fetchCourses();
-  })
+  }, [])
 
   return (
     <>
