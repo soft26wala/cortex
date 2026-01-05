@@ -93,7 +93,7 @@ const CourseDetails = () => {
                   src={course.course_image?.startsWith("http") ? course.course_image : `/${course.course_image}`}
                   alt={course.course_name} 
                   width={800} height={500} 
-                  className="w-full object-cover aspect-video hover:scale-105 transition-transform duration-700"
+                  className="w-full object-cover aspect-video hover:scale-105 transition-transform duration-600"
                   priority
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-8">

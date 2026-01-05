@@ -43,8 +43,8 @@ const ClientPaymentResult = () => {
       </div>
 
       <div className="flex flex-col gap-3">
-        <Link href="/courses" className="bg-orange-600 hover:bg-orange-700 text-white py-4 rounded-2xl font-bold transition-all">
-          Go to Courses
+        <Link href="/classroom" className="bg-orange-600 hover:bg-orange-700 text-white py-4 rounded-2xl font-bold transition-all">
+          Go to Classroom
         </Link>
         <Link href="/" className="text-gray-500 dark:text-gray-400 font-semibold hover:underline">
           Back to Home
