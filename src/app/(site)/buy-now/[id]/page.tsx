@@ -21,77 +21,62 @@ const BuyNowPage = () => {
       .catch(err => console.log(err));
   }, [id]);
 
-  const handleRazorpayPayment = async () => {
-    // Validation same rahega...
 
-    try {
-      // 1. URL badlein: cortestack.com ki jagah Render ka URL use karein
-      // Agar aapne backend mein router ko "/api/payment" par mount kiya hai toh niche wala URL sahi hai:
-      const orderResponse = await axios.post("https://cortex-api-htc8.onrender.com/api/payment/create-order",
-        {
-          amount: course.course_price,
-          userId: session?.user?.email,
-          courseName: course.course_name
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+  // Razorpay Payment Handler
+  const loadScript = (src: string) =>{
+    return new Promise((resolve) => {
+      const script = document.createElement("script");
+      script.src = src;
+      script.onload = () => {
+        resolve(true);
+      } 
+      script.onerror = () => {
+        resolve(false);
+      }
+      document.body.appendChild(script);
+    })
+  }
 
-      const orderData = orderResponse.data;
+  const onPayment = async () => {
+     // create order on backend
+     try {
+      
+      const res = await axios.post("https://cortex-api-htc8.onrender.com/api/payment/create-order", {
+       course_id : id,
+        })
 
-      const options: RazorpayOrderOptions = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "",
-        amount: orderData.amount,
-        currency: orderData.currency || "INR",
-        name: "Cortex Stack",
-        description: `Buying ${course.course_name}`,
-        order_id: orderData.id,
-        handler: async (response: any) => {
-          try {
-            // 2. Verification URL ko bhi check karein (Ensure path matches backend)
-            const verifyRes = await axios.post("https://cortex-api-htc8.onrender.com/api/payment/verify-payment",
-              {
-                razorpay_order_id: response.razorpay_order_id,
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_signature: response.razorpay_signature,
-              },
-              {
-                headers: {
-                  "Content-Type": "application/json",
-                },
-              }
-            );
+        const data = res.data;
+        console.log(data)
 
-            if (verifyRes.data.status === "SUCCESS") {
-              router.push(`/payment-result?status=SUCCESS&tid=${response.razorpay_order_id}`);
-
-            } else {
-              alert("Payment verification failed!");
+        const paymentObject = new (window as any).Razorpay({
+          key : process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+          order_id : data.id,
+          ...data,
+          handler: function (response: any) {
+            const option2 = {
+              order_id : response.razorpay_order_id,
+              payment_id : response.razorpay_payment_id,
+              signature : response.razorpay_signature,
             }
-          } catch (err) {
-            alert("Error verifying payment.");
+
+            axios.post("https://cortex-api-htc8.onrender.com/api/payment/verify-payment", option2)
           }
-        },
-        prefill: {
-          name: session?.user?.name || "",
-          email: session?.user?.email || "",
-        },
-        theme: { color: "#6739b7" },
-      };
 
-      const rzp = new Razorpay(options);
-      rzp.open();
+          
+        })
+        paymentObject.open();
+     } catch (error) {
+      console.log(error)
+     }
+  }
 
-    } catch (error: any) {
-      console.error("Payment error:", error);
-      alert("Could not start payment. Backend response: " + error.response?.status);
-    } finally {
-      setBtnLoading(false);
-    }
-  };
+  useEffect(()=>{
+    loadScript("https://checkout.razorpay.com/v1/checkout.js");
+
+  },[]);
+
+
+  // Razorpay Payment Handler close
 
   // ... baki ka UI same rahega
   if (!course) return <p className="text-center p-10 dark:text-white">Loading...</p>;
@@ -113,7 +98,7 @@ const BuyNowPage = () => {
 
         {/* --- Razorpay Button --- */}
         <button
-          onClick={handleRazorpayPayment}
+          onClick={onPayment}
           disabled={btnLoading}
           className="w-full bg-[#3399cc] hover:bg-[#287da8] text-white py-4 rounded-xl font-bold transition-all shadow-lg active:scale-95 disabled:opacity-50"
         >
