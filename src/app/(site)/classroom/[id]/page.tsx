@@ -5,13 +5,17 @@ import React, { useEffect, useState } from "react";
 import { Metadata } from "next";
 import SplitPane from "@/app/api/SplitPane";
 import axios from "axios";
+import { useParams } from "next/navigation";
 export const metadata: Metadata = {
   title: "Classroom | Cortex Web Solutions",
   description: "Classroom sessions and speaker-led workshops from Cortex Web Solutions to upskill learners and professionals.",
 };
 
 const page = () => {
+  const { id } = useParams();
+
   const [courses, setCourses] = useState<any[]>([]);
+
   const breadcrumbLinks = [
     { href: "/", text: "Home" },
     { href: "/classroom", text: "classroom" },
@@ -19,7 +23,7 @@ const page = () => {
 
   useEffect(() => {
     const fetchCourses = async () => {
-      const res = await axios.get('https://cortex-api-htc8.onrender.com/classroom')
+      const res = await axios.get(`https://cortex-api-htc8.onrender.com/classroom/${id}`);
       const data = await res.data;
       setCourses(data);
     }
@@ -35,10 +39,10 @@ const page = () => {
       />
       {
         courses.map((course: any) => {
-          return(
+          return (
             <>
-          <h1>{course.course_title}</h1>
-          <h2>{course.course_description}</h2>
+              <h1>{course.course_title}</h1>
+              <h2>{course.course_description}</h2>
             </>
           )
 

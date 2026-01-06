@@ -9,7 +9,6 @@ const BuyNowPage = () => {
   const { id } = useParams();
   const router = useRouter();
   const { data: session, status } = useSession(); // 2. Session data access karein
-  const { Razorpay } = useRazorpay();
   const [manualUser, setManualUser] = useState<any>(null);
 
   useEffect(() => {
@@ -71,6 +70,8 @@ const BuyNowPage = () => {
             order_id: response.razorpay_order_id,
             payment_id: response.razorpay_payment_id,
             signature: response.razorpay_signature,
+            user_id: manualUser ? manualUser.id : session?.user?.email,
+            course_id: id
           }
 
           try {
