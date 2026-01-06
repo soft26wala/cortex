@@ -11,11 +11,7 @@ export const metadata: Metadata = {
     "Classroom sessions and speaker-led workshops from Cortex Web Solutions to upskill learners and professionals.",
 };
 
-type Props = {
-  params: { id: string };
-};
-
-const page = async ({ params }: Props) => {
+const Page = async ({ params }: { params: { id: string } }) => {
   const { id } = params;
 
   const breadcrumbLinks = [
@@ -55,4 +51,4 @@ const page = async ({ params }: Props) => {
   );
 };
 
-export default page;
+export default Page;
