@@ -43,7 +43,7 @@ const ClassroomPage = () => {
           params: { user_id: userId } 
         });
 
-        const data = await res.data
+        const data = await res
         setCourses([data]);
         console.log(courses)
       } catch (error) {
