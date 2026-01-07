@@ -1,0 +1,83 @@
+import Testimonials from "@/components/Home/Testimonials";
+import TicketSection from "@/components/Home/TicketSection";
+import HeroSub from "@/components/SharedComponent/HeroSub";
+import React, { useEffect, useState } from "react";
+import { Metadata } from "next";
+import SplitPane from "@/app/api/SplitPane";
+import axios from "axios";
+import { useParams } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/router";
+export const metadata: Metadata = {
+  title: "Classroom | Cortex Web Solutions",
+  description: "Classroom sessions and speaker-led workshops from Cortex Web Solutions to upskill learners and professionals.",
+};
+
+const page = () => {
+
+  const [courses, setCourses] = useState<any[]>([]);
+  const [manualUser, setManualUser] = useState<any>(null);
+  const { data: session, status } = useSession(); // 2. Session data access karein
+  const router = useRouter();
+
+  useEffect(() => {
+    // Yeh sirf browser par chalega, build ke waqt server par nahi
+    const user = typeof window !== "undefined" ? localStorage.getItem("user") : null;
+    if (user) {
+      setManualUser(JSON.parse(user));
+    }
+  }, []);
+
+  const isLoggedIn = status === "authenticated" || !!manualUser;
+
+  const breadcrumbLinks = [
+    { href: "/", text: "Home" },
+    { href: "/classroom", text: "classroom" },
+  ];
+
+  useEffect(() => {
+    const fetchCourses = async () => {
+
+      if (!isLoggedIn) {
+        alert("Please log in to proceed with the purchase.");
+        return router.push("/");
+      }
+
+     
+      const res = await axios.get('https://cortex-api-htc8.onrender.com/classroom', { params: { user_id: manualUser ? manualUser.id : session?.user?.email } })
+      const data = await res.data;
+      setCourses(data);
+    }
+    fetchCourses();
+  }, [])
+
+  return (
+    <>
+      <HeroSub
+        title="Welcome to the Classroom"
+        description="Interactive sessions and workshops led by industry experts to enhance your skills."
+        breadcrumbLinks={breadcrumbLinks}
+      />
+      {
+        courses.map((course: any) => {
+          return (
+            <>
+              <h1>{course.course_title}</h1>
+              <h2>{course.course_description}</h2>
+            </>
+          )
+
+        })
+      }
+      <SplitPane
+        leftText="WELCOME TO THE DARK SIDE"
+        rightText="HELLO FROM THE LIGHT SIDE"
+        leftButtonLabel="JOIN CLASSROOM"
+        rightButtonLabel="EXIT CLASSROOM"
+      />
+
+    </>
+  );
+};
+
+export default page;
