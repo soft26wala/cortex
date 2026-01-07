@@ -67,15 +67,57 @@ const ClassroomPage = () => {
             <h1>Your Courses</h1>
             {courses.map((course: any) => (
                 <React.Fragment key={course.id || course.course_name}>
+                    {/* --- Course List Container --- */}
+<div className="container mx-auto px-4 py-8">
+    <h1 className="text-3xl font-bold mb-8 text-dark dark:text-white">Your Courses</h1>
+    
+    <div className="grid gap-6">
+        {courses.map((course: any) => (
+            <div 
+                key={course.id || course.course_name} 
+                className="flex flex-col md:flex-row items-center bg-white dark:bg-darklight border border-border dark:border-dark_border rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+            >
+                {/* 1. Image Section */}
+                <div className="w-full md:w-1/4 relative h-48 md:h-40">
                     <Image
                         src={course.course_image?.startsWith("http") ? course.course_image : `/${course.course_image}`}
                         alt={course.course_name}
-                        width={800} height={500}
-                        className="w-full object-cover aspect-video hover:scale-105 transition-transform duration-600"
-                        priority
+                        fill
+                        className="object-cover"
                     />
-                    <h2>{course.course_name}</h2>
-                    <h2>{course.course_desc}</h2>
+                </div>
+
+                {/* 2. Content Section */}
+                <div className="flex-1 p-6 flex flex-col md:flex-row justify-between items-start md:items-center w-full gap-4">
+                    <div>
+                        <h2 className="text-xl font-bold text-dark dark:text-white mb-2">{course.course_name}</h2>
+                        <p className="text-gray-500 dark:text-gray-400 text-sm line-clamp-2 max-w-md">
+                            {course.course_desc}
+                        </p>
+                    </div>
+
+                    {/* 3. Time & Action Section */}
+                    <div className="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto border-t md:border-t-0 pt-4 md:pt-0">
+                        {/* Time Slot */}
+                        <div className="flex items-center gap-2 bg-gray-100 dark:bg-dark px-4 py-2 rounded-full border border-border dark:border-dark_border">
+                            <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span className="text-sm font-semibold text-dark dark:text-white">
+                                04:00 PM - 05:00 PM
+                            </span>
+                        </div>
+
+                        {/* Join Button */}
+                        <button className="w-full sm:w-auto bg-primary hover:bg-darkprimary text-white font-bold py-2 px-8 rounded-lg transition-colors duration-300">
+                            Join Now
+                        </button>
+                    </div>
+                </div>
+            </div>
+        ))}
+    </div>
+</div>
                 </React.Fragment>
             ))}
             <SplitPane
