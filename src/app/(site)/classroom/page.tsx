@@ -42,7 +42,9 @@ const ClassroomPage = () => {
         const res = await axios.get('https://cortex-api-htc8.onrender.com/classroom', { 
           params: { user_id: userId } 
         });
-        setCourses([res.data]);
+
+        const data = await res.data
+        setCourses([data]);
         console.log(courses)
       } catch (error) {
         console.error("Error fetching courses:", error);
