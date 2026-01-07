@@ -63,11 +63,10 @@ const ClassroomPage = () => {
         description="Interactive sessions and workshops led by industry experts to enhance your skills."
         breadcrumbLinks={breadcrumbLinks}
       />
-      {courses.map((course: any) => (
-        <React.Fragment key={course.id || course.course_title}>
           <h1>Your Courses</h1>
-          <h2>{course.course_title}</h2>
-          <h2>{course.course_description}</h2>
+      {courses.map((course: any) => (
+        <React.Fragment key={course.id || course.course_name}>
+          <h2>{course.course_name}</h2> 
         </React.Fragment>
       ))}
       <SplitPane
