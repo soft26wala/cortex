@@ -60,7 +60,8 @@ const ClassroomPage = () => {
       />
       {courses.map((course: any) => (
         <React.Fragment key={course.id || course.course_title}>
-          <h1>{course.course_title}</h1>
+          <h1>Your Courses</h1>
+          <h2>{course.course_title}</h2>
           <h2>{course.course_description}</h2>
         </React.Fragment>
       ))}
