@@ -39,13 +39,15 @@ const ClassroomPage = () => {
 
       try {
         const userId = manualUser ? manualUser.id : session?.user?.email;
-        const res = await axios.get('https://cortex-api-htc8.onrender.com/classroom', { 
-          params: { user_id: userId } 
+        const res = await axios.get('https://cortex-api-htc8.onrender.com/classroom', {
+          params: { user_id: userId },
         });
 
-        const data = await res
-        setCourses([data]);
-        console.log(courses)
+        const payload = res.data;
+        // Backend shape: { success: true, user, data }
+        const courseList = payload?.data ?? (Array.isArray(payload) ? payload : []);
+        setCourses(courseList);
+        console.log('fetched courses:', courseList);
       } catch (error) {
         console.error("Error fetching courses:", error);
       }
