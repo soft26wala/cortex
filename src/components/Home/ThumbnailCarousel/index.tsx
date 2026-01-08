@@ -138,6 +138,32 @@ const ThumbnailCarousel: React.FC = () => {
                             className="rounded-lg"
                         />
                     </div>
+
+                     <div>
+                        <Image
+                            src="/images/anubav1.png"
+                            alt="Conference"
+                            width={0}
+                            height={0}
+                            quality={100}
+                            layout="responsive"
+                            sizes="100vh"
+                            className="rounded-lg"
+                        />
+                    </div>
+
+                     <div>
+                        <Image
+                            src="/images/anubav2.jpeg"
+                            alt="Conference"
+                            width={0}
+                            height={0}
+                            quality={100}
+                            layout="responsive"
+                            sizes="100vh"
+                            className="rounded-lg"
+                        />
+                    </div>
                 </Slider>
                 <Slider {...settingsNav} ref={navSliderRef} className="thumb">
                     <div>
@@ -179,6 +205,30 @@ const ThumbnailCarousel: React.FC = () => {
                     <div>
                         <Image
                             src="/images/anmol3.jpeg"
+                            alt="Thumbnail"
+                            width={0}
+                            height={0}
+                            quality={100}
+                            layout="responsive"
+                            sizes="100vh"
+                            className="rounded-lg"
+                        />
+                    </div>
+                    <div>
+                        <Image
+                            src="/images/anubav1.png"
+                            alt="Thumbnail"
+                            width={0}
+                            height={0}
+                            quality={100}
+                            layout="responsive"
+                            sizes="100vh"
+                            className="rounded-lg"
+                        />
+                    </div>
+                    <div>
+                        <Image
+                            src="/images/anubav2.jpeg"
                             alt="Thumbnail"
                             width={0}
                             height={0}
