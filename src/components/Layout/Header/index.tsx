@@ -280,17 +280,18 @@ const Header: React.FC = () => {
             ))}
 
             {/* Mobile Request Callback Button */}
-            <button
+            <p
               onClick={() => {
                 setIsCbUpOpen(true); // Open the callback modal
                 setNavbarOpen(false); // Close the mobile menu
               }}
-              className="w-full text-left bg-transparent border border-solid border-primary text-primary px-4 py-2 rounded-lg hover:bg-blue-600 hover:text-white mb-4"
+              className="w-full text-left bg-transparent py-2 rounded-lg hover:bg-blue-600 hover:text-white p-0"
             >
               Request Callback
-            </button>
+            </p>
 
-
+                {!isLoggedIn ? (
+                <>
             <div className="mt-4 flex flex-col space-y-4 w-full">
               <Link
                 href="#"
@@ -313,6 +314,16 @@ const Header: React.FC = () => {
                 Sign Up
               </Link>
             </div>
+              </>
+              ) : (
+                /* Agar login HAI to Logout dikhao */
+                <button
+                  onClick={() => handleLogout()}
+                  className="hidden lg:block bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-all"
+                >
+                  Logout
+                </button>
+              )}
           </nav>
         </div>
 

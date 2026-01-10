@@ -58,7 +58,7 @@ const CourseDetails = () => {
       
       {/* --- HERO SECTION --- */}
       <section className="relative pt-12 pb-20 px-6 lg:px-20 lg:pt-24 dark:bg-gradient-to-b dark:from-[#111] dark:to-[#0a0a0a]">
-        <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
+        <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 items-center mt-14">
           
           {/* Left Content */}
           <div className="order-2 lg:order-1">

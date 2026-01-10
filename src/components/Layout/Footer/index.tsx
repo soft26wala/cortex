@@ -27,10 +27,8 @@ const Footer: FC = () => {
                     <div className="flex flex-wrap justify-center gap-x-8 gap-y-4 max-w-2xl">
                         {[
                             { name: "Home", href: "/" },
-                            { name: "Speakers", href: "/" },
                             { name: "Service", href: "/Service" },
                             { name: "About", href: "/about_us" },
-                            { name: "Sponsors", href: "/" },
                             { name: "Contact", href: "/contact" },
                             { name: "Terms", href: "/terms" },
                             { name: "Refund", href: "/refund-policy" },
