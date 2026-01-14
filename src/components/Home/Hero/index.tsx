@@ -120,7 +120,7 @@ const Hero = () => {
                             <div className="bg-yellow-300 rounded-22 shadow-hero-box py-4 px-5 absolute top-20 -left-20">
                                 <p className="text-lg font-bold text-yellow-900">Anmol Singh</p>
                                 <p className="text-base font-medium text-yellow-900 text-center">
-                                    4.8 rating
+                                    4.6 rating
                                 </p>
                             </div>
                         </div>

@@ -79,10 +79,13 @@ const CourseDetails = () => {
              Buy Now - ₹{course.course_price}
            </Link>
               </button>
+
+              <Link href={`https://www.notion.so/Job-Ready-Complete-Web-Development-DSA-Aptitude-Reasoning-Web3-GenAI-DevOps-AWS-2d1b62fb4b3481d9a341c1bff11afbdf?source=copy_link`}  passHref>
               <button className="flex items-center justify-center gap-2 border border-gray-300 dark:border-white/10 hover:bg-gray-100 dark:hover:bg-white/5 px-10 py-4 rounded-2xl font-bold transition-all">
                 <Icon icon="solar:download-minimalistic-bold" className="text-xl" />
                 Syllabus
               </button>
+              </Link>
             </div>
           </div>
           
