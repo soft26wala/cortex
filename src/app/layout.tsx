@@ -1,5 +1,6 @@
 import { DM_Sans } from "next/font/google";
 import "./globals.css";
+// import "../Style/style.css";
 import Header from "@/components/Layout/Header";
 import Footer from "@/components/Layout/Footer";
 import { ThemeProvider } from "next-themes";
@@ -15,6 +16,7 @@ import NextTopLoader from 'nextjs-toploader';
 import PendingStickyBtn from "./PendingStickyBtn";
 import Notification from "./Notification";
 import { NextAuthProvider } from "./providers";
+import ChatBot from "@/components/ChatBot";
 
 
 export default function RootLayout({
@@ -55,7 +57,8 @@ export default function RootLayout({
               </NextAuthProvider>
             </ThemeProvider>
           </SessionProviderComp>
-        </AuthDialogProvider>
+          </AuthDialogProvider>
+          <ChatBot />
         <SpeedInsights />
       </body>
     </html >

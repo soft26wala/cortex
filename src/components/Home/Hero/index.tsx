@@ -59,9 +59,11 @@ const Hero = () => {
                             data-aos-delay="300"
                             data-aos-duration="1000"
                         >
-                            We Only Teach <br></br>
+                            {/* We Only Teach <br></br>
                             What We are Really
-                            Really good at.
+                            Really good at. */}
+
+                            We Build Powerful<br></br> Websites That <br /> Grow Your Business
                         </h1>
                         <p
                             data-aos="fade-up"
@@ -69,7 +71,8 @@ const Hero = () => {
                             data-aos-duration="1000"
                             className="text-xl text-SlateBlueText dark:text-opacity-80 font-normal md:pb-14 pb-6"
                         >
-                            We ready to accelerate your career with customized courese and leave your mark in the tech industry.
+                            {/* We ready to accelerate your career with customized courese and leave your mark in the tech industry. */}
+                            From modern websites to advanced web applications, we help businesses go digital, generate leads, and scale faster with smart technology solutions.
                         </p>
                         <div className="flex items-center md:justify-normal lg:justify-center justify-start flex-wrap gap-4">
                             <Link
@@ -81,7 +84,7 @@ const Hero = () => {
                             >
                                 <span className="!flex !items-center gap-14">
                                     <i className="bg-[url('/images/hero/tickets.svg')] bg-no-repeat bg-contain w-6 h-6 inline-block"></i>
-                                    Courses
+                                    Servise
                                 </span>
                             </Link>
                             <Link

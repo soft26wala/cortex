@@ -8,11 +8,49 @@ const EventTicket = () => {
             <section className="dark:bg-darkmode bg-orange-50 pt-0">
                 <div className="container">
                     <div className="text-center md:pb-20 pb-8">
-                        <h2 className="pb-8" data-aos="fade-up" data-aos-delay="200" data-aos-duration="1000">The Biggest Digital Learning Experience in 2025</h2>
+                        <h2 className="pb-8" data-aos="fade-up" data-aos-delay="200" data-aos-duration="1000">Powerful Digital Solutions for Modern Businesses</h2>
                         <p data-aos="fade-up" data-aos-delay="300" data-aos-duration="1000" className="text-SlateBlueText dark:text-opacity-80 text-lg font-normal max-w-920 m-auto">
-                            At Cortex Web Solutions, we empower students and professionals with industry-ready digital skills. Our expert-led programs are designed to bridge the gap between learning and real-world implementation.
-                            <br /><br /> From beginner to advanced levels, our courses focus on practical training, live projects, and career growth in the digital ecosystem.
+                            At Cortex Web Solutions, we help businesses grow with smart digital tools and automation systems. From website development to advanced shop management systems, we build solutions that save time, increase sales, and simplify operations.
                         </p>
+                    </div>
+
+                    <div className="text-center md:pb-20 pb-8">
+                        <h2 className="pb-8" data-aos="fade-up" data-aos-delay="200" data-aos-duration="1000">Smart Shop Management System (All-in-One Dashboard)</h2>
+                        <p data-aos="fade-up" data-aos-delay="300" data-aos-duration="1000" className="text-SlateBlueText dark:text-opacity-80 text-lg font-normal max-w-920 m-auto">
+                            Manage your entire business from one powerful dashboard with automation, billing, and real-time tracking features designed for both GST and non-GST businesses.
+                        </p>
+
+                        <h3
+  className="pb-8 text-center text-2xl font-bold"
+  data-aos="fade-up"
+  data-aos-delay="200"
+  data-aos-duration="1000"
+>
+  FEATURES
+</h3>
+
+<div className="max-w-2xl mx-auto space-y-4">
+  {[
+    "Auto Stock Management (real-time stock update)",
+    "Smart Billing with Auto HSN Code Support",
+    "GST & Non-GST Billing System (both supported)",
+    "Sales, Orders & Customer Management in One Dashboard",
+    "Reports & Analytics for Business Growth",
+  ].map((item, index) => (
+    <div
+      key={index}
+      data-aos="fade-up"
+      data-aos-delay={300 + index * 100}
+      data-aos-duration="1000"
+      className="flex items-start gap-3 bg-white/5 backdrop-blur-md p-4 rounded-lg border border-white/10 hover:scale-[1.02] transition"
+    >
+      <span className="text-green-400 text-xl mt-1">✔</span>
+      <p className="text-SlateBlueText dark:text-opacity-80 text-base">
+        {item}
+      </p>
+    </div>
+  ))}
+</div>
                     </div>
                     <div className="flex flex-wrap items-stretch" data-aos="fade-up" data-aos-delay="400" data-aos-duration="1000">
                         <div className="bg-primary flex items-center justify-center lg:px-16 px-8 lg:py-0 py-8 lg:rounded-l-22 rounded-t-22 md:rounded-tr-none md:rounded-bl-22 rounded-bl-none md:w-2/4 w-full">

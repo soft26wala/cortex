@@ -117,3 +117,11 @@ body {
 .blog-details h3 {
   @apply mb-6 text-2xl font-bold dark:text-white sm:text-28;
 }
+
+
+
+.slick-slide {
+  display: flex !important;
+  justify-content: center;
+  align-items: center;
+}

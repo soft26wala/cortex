@@ -111,9 +111,9 @@ const Callback = ({ signUpOpen }: { signUpOpen?: any }) => {
             <option value="" className="text-black">Select Technology</option>
             <option value="Create your Own Website" className="text-black">Create your Own Website</option>
             <option value="Services" className="text-black">Services</option>
-            <option value="Online Course" className="text-black">Online Course</option>
-            <option value="Offline Course" className="text-black">Offline Course</option>
+            <option value="Whatapp Auto Flow Setup" className="text-black">Whatapp Auto Flow Setup(Coming soon...)</option>
             <option value="Interview" className="text-black">Interview</option>
+            <option value="Upcoming Meeting" className="text-black">Upcoming Meeting (20 May 2026)</option>
           </select>
         </div>
 

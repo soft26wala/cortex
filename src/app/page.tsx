@@ -8,6 +8,7 @@ import Highlight from '@/components/Home/YearHighlight/page';
 import Upcoming from '@/components/Home/Upcoming';
 import Testimonials from '@/components/Home/Testimonials';
 import TicketSection from '@/components/Home/TicketSection';
+import ServicesSection from '@/components/ServicesSection';
 export const metadata: Metadata = {
   title: "Cortex Web Solutions",
 };
@@ -17,7 +18,7 @@ export default function Home() {
     <main className='dark:bg-darkmode bg-orange-50'>
       <Hero />
       <ThumbnailCarousel />
-      <WorkSpeakers/>
+      <ServicesSection/>
       <EventTicket/>
       <Highlight/>
       <Upcoming/>

@@ -7,7 +7,7 @@ import { Icon } from "@iconify/react";
 
 interface CompanyEvent {
   id: number;
-  type: "Interview" | "Meeting" | "Event";
+  type: "Interview" | "Meeting" | "Event" | "Upcoming Meeting";
   title: string;
   location?: string;
   time: string;
@@ -25,8 +25,8 @@ const EventNotificationPage = () => {
       type: "Interview",
       title: "Back-End Developer Interview",
       location: "walk in interview at Office",
-      date: "1 Jan 2026",
-      time: "11:30 AM",
+      date: "11 April 2026",
+      time: "11:31 AM",
       link: "/interview/gurvinder-123",
     },
     {
@@ -34,8 +34,8 @@ const EventNotificationPage = () => {
       type: "Interview",
       title: "Front-End Developer Interview",
       location: "walk in interview at Office",
-      date: "1 Jan 2026",
-      time: "11:30 AM",
+      date: "31 March 2026",
+      time: "2:36 PM",
       link: "/interview/gurvinder-123",
     },
     {
@@ -43,10 +43,21 @@ const EventNotificationPage = () => {
       type: "Interview",
       title: "MERN Stack Interview",
       location: "walk in interview at Office",
-      date: "1 Jan 2026",
-      time: "11:30 AM",
+      date: "1 May 2026",
+      time: "3:03 PM",
+      link: "/interview/gurvinder-123",
+    },
+     {
+      id: 4,
+      type: "Upcoming Meeting",
+      title: "Project Kickoff Meeting",
+      location: "Jalandhar Office",
+      date: "20 May 2026",
+      time: "2:00 PM",
       link: "/interview/gurvinder-123",
     }
+
+
   ]);
 
   // Unified click outside handler
