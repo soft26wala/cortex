@@ -92,7 +92,7 @@ const updateBlock = (nodeId: string, blockId: string, data: any) => {
 
       return {
         ...node,
-        blocks: node.blocks.map(block => {
+        blocks: node.blocks.map((block : any) => {
           if (block.id !== blockId) return block
           return { ...block, ...data }
         })
@@ -109,7 +109,7 @@ const deleteBlock = (nodeId: string, blockId: string) => {
 
       return {
         ...node,
-        blocks: node.blocks.filter(b => b.id !== blockId)
+        blocks: node.blocks.filter((b: any) => b.id !== blockId)
       }
     })
   }))
@@ -125,19 +125,19 @@ const deleteButton = (nodeId: string, btnId: string) => {
     const updatedNodes = prev.nodes.map(node => {
       if (node.id !== nodeId) return node
 
-      const btn = node.buttons.find(b => b.id === btnId)
+      const btn = node.buttons.find((b: any) => b.id === btnId)
       if (btn) {
         deleteNodeId = btn.nextNodeId
       }
 
       return {
         ...node,
-        buttons: node.buttons.filter(b => b.id !== btnId)
+        buttons: node.buttons.filter((b: any) => b.id !== btnId)
       }
     })
 
     // 🔥 ALSO REMOVE LINKED NODE
-    const finalNodes = updatedNodes.filter(n => n.id !== deleteNodeId)
+    const finalNodes = updatedNodes.filter((n: any) => n.id !== deleteNodeId)
 
     return { nodes: finalNodes }
   })
