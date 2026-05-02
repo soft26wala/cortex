@@ -71,7 +71,7 @@ export default function Page() {
                             )}
 
                             {/* BLOCKS */}
-                            {node.blocks.map(block => {
+                            {node.blocks.map((block: any) => {
 
                                 // 🔥 HEADING
                                 if (block.type === "heading") {
@@ -205,7 +205,7 @@ export default function Page() {
 
                             {/* BUTTONS */}
                             <div className="flex gap-2 mt-3 flex-wrap">
-                                {node.buttons.map(btn => (
+                                {node.buttons.map((btn: any) => (
                                     <div key={btn.id} className="relative group">
                                           
                                         {/* ❌ DELETE BTN */}
