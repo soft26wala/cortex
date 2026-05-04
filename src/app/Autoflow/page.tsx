@@ -1,296 +1,296 @@
-"use client"
-import { useState } from "react"
-import { useFlow } from "@/hooks/useFlow"
+// "use client"
+// import { useState } from "react"
+// import { useFlow } from "@/hooks/useFlow"
 
-export default function Page() {
-    const { flow, addInputNode, addButton, addBlock, updateBlock, deleteBlock, deleteButton } = useFlow()
+// export default function Page() {
+//     const { flow, addButton, addBlock, updateBlock, deleteBlock, deleteButton } = useFlow()
 
-    const [input, setInput] = useState("")
-    const [btnName, setBtnName] = useState("")
-    const [selectedNode, setSelectedNode] = useState<string | null>(null)
-    const [dark, setDark] = useState(true)
+//     const [input, setInput] = useState("")
+//     const [btnName, setBtnName] = useState("")
+//     const [selectedNode, setSelectedNode] = useState<string | null>(null)
+//     const [dark, setDark] = useState(true)
 
-    const handleSave = () => {
-        console.log("FLOW DATA 👉", flow)
-    }
+//     const handleSave = () => {
+//         console.log("FLOW DATA 👉", flow)
+//     }
 
-    console.log("deleteButton 👉", deleteButton)
-
-
-    return (
-        <div className={dark ? "dark" : ""}>
+//     console.log("deleteButton 👉", deleteButton)
 
 
-            <div className="flex h-screen bg-gray-100 dark:bg-gray-900 text-black dark:text-white mt-20">
+//     return (
+//         <div className={dark ? "dark" : ""}>
 
-                {/* LEFT */}
 
-                <div className="w-[25%] bg-white dark:bg-gray-800 p-4 border-r">
+//             <div className="flex h-screen bg-gray-100 dark:bg-gray-900 text-black dark:text-white mt-20">
 
-                    <h2 className="mb-2 font-semibold">Inputs</h2>
+//                 {/* LEFT */}
 
-                    <input
-                        className="w-full px-3 py-2 border rounded dark:bg-gray-700"
-                        placeholder="Type input..."
-                        value={input}
-                        onChange={(e) => setInput(e.target.value)}
-                        onKeyDown={(e) => {
-                            if (e.key === "Enter" && input) {
-                                addInputNode(input)
-                                setInput("")
-                            }
-                        }}
-                    />
+//                 <div className="w-[25%] bg-white dark:bg-gray-800 p-4 border-r">
 
-                    <button
-                        onClick={() => setDark(!dark)}
-                        className="mt-4 px-3 py-1 bg-black text-white dark:bg-white dark:text-black rounded"
-                    >
-                        Toggle Dark
-                    </button>
-                </div>
+//                     <h2 className="mb-2 font-semibold">Inputs</h2>
 
-                {/* CENTER */}
-                <div className="w-[50%] p-4 space-y-4 overflow-auto">
+//                     <input
+//                         className="w-full px-3 py-2 border rounded dark:bg-gray-700"
+//                         placeholder="Type input..."
+//                         value={input}
+//                         onChange={(e) => setInput(e.target.value)}
+//                         onKeyDown={(e) => {
+//                             if (e.key === "Enter" && input) {
+//                                 addInputNode(input)
+//                                 setInput("")
+//                             }
+//                         }}
+//                     />
 
-                    {flow.nodes.map(node => (
-                        <div
-                            key={node.id}
-                            onClick={() => setSelectedNode(node.id)}
-                            className={`p-4 rounded-xl border cursor-pointer transition
-              ${selectedNode === node.id
-                                    ? "border-blue-500 shadow-lg"
-                                    : "border-gray-300 dark:border-gray-700"
-                                }
-              bg-white dark:bg-gray-800`}
-                        >
-                            {node.parentButtonName && (
-                                <div className="text-xs mb-2 text-gray-500">
-                                    Reply of: <b>{node.parentButtonName}</b>
-                                </div>
-                            )}
+//                     <button
+//                         onClick={() => setDark(!dark)}
+//                         className="mt-4 px-3 py-1 bg-black text-white dark:bg-white dark:text-black rounded"
+//                     >
+//                         Toggle Dark
+//                     </button>
+//                 </div>
 
-                            {/* BLOCKS */}
-                            {node.blocks.map((block: any) => {
+//                 {/* CENTER */}
+//                 <div className="w-[50%] p-4 space-y-4 overflow-auto">
 
-                                // 🔥 HEADING
-                                if (block.type === "heading") {
-                                    return (
+//                     {flow.nodes.map(node => (
+//                         <div
+//                             key={node.id}
+//                             onClick={() => setSelectedNode(node.id)}
+//                             className={`p-4 rounded-xl border cursor-pointer transition
+//               ${selectedNode === node.id
+//                                     ? "border-blue-500 shadow-lg"
+//                                     : "border-gray-300 dark:border-gray-700"
+//                                 }
+//               bg-white dark:bg-gray-800`}
+//                         >
+//                             {node.parentButtonName && (
+//                                 <div className="text-xs mb-2 text-gray-500">
+//                                     Reply of: <b>{node.parentButtonName}</b>
+//                                 </div>
+//                             )}
 
-                                        <div key={block.id} className="relative group">
+//                             {/* BLOCKS */}
+//                             {node.blocks.map((block: any) => {
 
-                                            {/* ❌ DELETE BTN */}
-                                            <button
-                                                onClick={() => deleteBlock(node.id, block.id)}
-                                                className="absolute right-0 top-0 text-red-500 text-xs opacity-0 group-hover:opacity-100"
-                                            >
-                                                ✕
-                                            </button>
-                                            <input
-                                                value={block.text}
-                                                onChange={(e) =>
-                                                    updateBlock(node.id, block.id, { text: e.target.value })
-                                                }
-                                                placeholder="Heading..."
-                                                className="w-full font-bold text-lg bg-transparent outline-none"
-                                            />
-                                        </div>
-                                    )
-                                }
+//                                 // 🔥 HEADING
+//                                 if (block.type === "heading") {
+//                                     return (
 
-                                // 🔥 PARA
-                                if (block.type === "paragraph") {
-                                    return (
-                                        <div key={block.id} className="relative group">
+//                                         <div key={block.id} className="relative group">
 
-                                            {/* ❌ DELETE BTN */}
-                                            <button
-                                                onClick={() => deleteBlock(node.id, block.id)}
-                                                className="absolute right-0 top-0 text-red-500 text-xs opacity-0 group-hover:opacity-100"
-                                            >
-                                                ✕
-                                            </button>
-                                            <textarea
-                                                value={block.text}
-                                                onChange={(e) =>
-                                                    updateBlock(node.id, block.id, { text: e.target.value })
-                                                }
-                                                placeholder="Paragraph..."
-                                                className="w-full bg-transparent outline-none"
-                                            />
-                                        </div>
-                                    )
-                                }
+//                                             {/* ❌ DELETE BTN */}
+//                                             <button
+//                                                 onClick={() => deleteBlock(node.id, block.id)}
+//                                                 className="absolute right-0 top-0 text-red-500 text-xs opacity-0 group-hover:opacity-100"
+//                                             >
+//                                                 ✕
+//                                             </button>
+//                                             <input
+//                                                 value={block.text}
+//                                                 onChange={(e) =>
+//                                                     updateBlock(node.id, block.id, { text: e.target.value })
+//                                                 }
+//                                                 placeholder="Heading..."
+//                                                 className="w-full font-bold text-lg bg-transparent outline-none"
+//                                             />
+//                                         </div>
+//                                     )
+//                                 }
 
-                                // 🔥 IMAGE
-                                if (block.type === "image") {
-                                    return (
-                                        <div key={block.id} className="relative group">
+//                                 // 🔥 PARA
+//                                 if (block.type === "paragraph") {
+//                                     return (
+//                                         <div key={block.id} className="relative group">
 
-                                            {/* ❌ DELETE BTN */}
-                                            <button
-                                                onClick={() => deleteBlock(node.id, block.id)}
-                                                className="absolute right-0 top-0 text-red-500 text-xs opacity-0 group-hover:opacity-100"
-                                            >
-                                                ✕
-                                            </button>
-                                            <div className="mb-3">
+//                                             {/* ❌ DELETE BTN */}
+//                                             <button
+//                                                 onClick={() => deleteBlock(node.id, block.id)}
+//                                                 className="absolute right-0 top-0 text-red-500 text-xs opacity-0 group-hover:opacity-100"
+//                                             >
+//                                                 ✕
+//                                             </button>
+//                                             <textarea
+//                                                 value={block.text}
+//                                                 onChange={(e) =>
+//                                                     updateBlock(node.id, block.id, { text: e.target.value })
+//                                                 }
+//                                                 placeholder="Paragraph..."
+//                                                 className="w-full bg-transparent outline-none"
+//                                             />
+//                                         </div>
+//                                     )
+//                                 }
 
-                                                {/* FILE INPUT */}
-                                                <input
-                                                    type="file"
-                                                    accept="image/*"
-                                                    className="w-full text-sm"
-                                                    onChange={(e) => {
-                                                        const file = e.target.files?.[0]
-                                                        if (!file) return
+//                                 // 🔥 IMAGE
+//                                 if (block.type === "image") {
+//                                     return (
+//                                         <div key={block.id} className="relative group">
 
-                                                        const preview = URL.createObjectURL(file)
+//                                             {/* ❌ DELETE BTN */}
+//                                             <button
+//                                                 onClick={() => deleteBlock(node.id, block.id)}
+//                                                 className="absolute right-0 top-0 text-red-500 text-xs opacity-0 group-hover:opacity-100"
+//                                             >
+//                                                 ✕
+//                                             </button>
+//                                             <div className="mb-3">
 
-                                                        updateBlock(node.id, block.id, {
-                                                            file,
-                                                            preview
-                                                        })
-                                                    }}
-                                                />
+//                                                 {/* FILE INPUT */}
+//                                                 <input
+//                                                     type="file"
+//                                                     accept="image/*"
+//                                                     className="w-full text-sm"
+//                                                     onChange={(e) => {
+//                                                         const file = e.target.files?.[0]
+//                                                         if (!file) return
 
-                                                {/* PREVIEW */}
-                                                {block.preview && (
-                                                    <img
-                                                        src={block.preview}
-                                                        className="w-full h-40 object-cover mt-2 rounded"
-                                                    />
-                                                )}
+//                                                         const preview = URL.createObjectURL(file)
 
-                                            </div>
-                                        </div>
-                                    )
-                                }
+//                                                         updateBlock(node.id, block.id, {
+//                                                             file,
+//                                                             preview
+//                                                         })
+//                                                     }}
+//                                                 />
 
-                                // 🔥 INPUT FIELD (FORM)
-                                if (block.type === "input") {
-                                    return (
-                                        <div key={block.id} className="relative group">
+//                                                 {/* PREVIEW */}
+//                                                 {block.preview && (
+//                                                     <img
+//                                                         src={block.preview}
+//                                                         className="w-full h-40 object-cover mt-2 rounded"
+//                                                     />
+//                                                 )}
 
-                                            {/* ❌ DELETE BTN */}
-                                            <button
-                                                onClick={() => deleteBlock(node.id, block.id)}
-                                                className="absolute right-0 top-0 text-red-500 text-xs opacity-0 group-hover:opacity-100"
-                                            >
-                                                ✕
-                                            </button>
-                                            <div key={block.id} className="mb-2">
+//                                             </div>
+//                                         </div>
+//                                     )
+//                                 }
 
-                                                <input
-                                                    value={block.label}
-                                                    onChange={(e) =>
-                                                        updateBlock(node.id, block.id, { label: e.target.value })
-                                                    }
-                                                    placeholder="Label"
-                                                />
+//                                 // 🔥 INPUT FIELD (FORM)
+//                                 if (block.type === "input") {
+//                                     return (
+//                                         <div key={block.id} className="relative group">
 
-                                                <input
-                                                    value={block.placeholder}
-                                                    onChange={(e) =>
-                                                        updateBlock(node.id, block.id, { placeholder: e.target.value })
-                                                    }
-                                                    placeholder="Placeholder"
-                                                />
-                                            </div>
-                                        </div>
-                                    )
-                                }
+//                                             {/* ❌ DELETE BTN */}
+//                                             <button
+//                                                 onClick={() => deleteBlock(node.id, block.id)}
+//                                                 className="absolute right-0 top-0 text-red-500 text-xs opacity-0 group-hover:opacity-100"
+//                                             >
+//                                                 ✕
+//                                             </button>
+//                                             <div key={block.id} className="mb-2">
 
-                            })}
+//                                                 <input
+//                                                     value={block.label}
+//                                                     onChange={(e) =>
+//                                                         updateBlock(node.id, block.id, { label: e.target.value })
+//                                                     }
+//                                                     placeholder="Label"
+//                                                 />
 
-                            {/* BUTTONS */}
-                            <div className="flex gap-2 mt-3 flex-wrap">
-                                {node.buttons.map((btn: any) => (
-                                    <div key={btn.id} className="relative group">
+//                                                 <input
+//                                                     value={block.placeholder}
+//                                                     onChange={(e) =>
+//                                                         updateBlock(node.id, block.id, { placeholder: e.target.value })
+//                                                     }
+//                                                     placeholder="Placeholder"
+//                                                 />
+//                                             </div>
+//                                         </div>
+//                                     )
+//                                 }
+
+//                             })}
+
+//                             {/* BUTTONS */}
+//                             <div className="flex gap-2 mt-3 flex-wrap">
+//                                 {node.buttons.map((btn: any) => (
+//                                     <div key={btn.id} className="relative group">
                                           
-                                        {/* ❌ DELETE BTN */}
-                                        <button
-                                            onClick={() => deleteButton(node.id, btn.id)}
-                                            className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-1 opacity-0 group-hover:opacity-100"
-                                        >
-                                            ✕
-                                        </button>
+//                                         {/* ❌ DELETE BTN */}
+//                                         <button
+//                                             onClick={() => deleteButton(node.id, btn.id)}
+//                                             className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-1 opacity-0 group-hover:opacity-100"
+//                                         >
+//                                             ✕
+//                                         </button>
 
 
-                                        {/* BUTTON */}
-                                        <button className="bg-green-500 text-white px-3 py-1 rounded">
-                                            {btn.text}
-                                        </button>
+//                                         {/* BUTTON */}
+//                                         <button className="bg-green-500 text-white px-3 py-1 rounded">
+//                                             {btn.text}
+//                                         </button>
 
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    ))}
-                </div>
+//                                     </div>
+//                                 ))}
+//                             </div>
+//                         </div>
+//                     ))}
+//                 </div>
 
-                {/* RIGHT */}
-                <div className="w-[25%] bg-white dark:bg-gray-800 p-4 border-l">
-                    <h2 className="mb-3 font-semibold">Edit</h2>
+//                 {/* RIGHT */}
+//                 <div className="w-[25%] bg-white dark:bg-gray-800 p-4 border-l">
+//                     <h2 className="mb-3 font-semibold">Edit</h2>
 
-                    {selectedNode && (
-                        <>
-                            <button
-                                onClick={() => addBlock(selectedNode, "heading")}
-                                className="w-full mb-2 bg-blue-500 text-white py-2 rounded"
-                            >
-                                Add Heading
-                            </button>
+//                     {selectedNode && (
+//                         <>
+//                             <button
+//                                 onClick={() => addBlock(selectedNode, "heading")}
+//                                 className="w-full mb-2 bg-blue-500 text-white py-2 rounded"
+//                             >
+//                                 Add Heading
+//                             </button>
 
-                            <button
-                                onClick={() => addBlock(selectedNode, "paragraph")}
-                                className="w-full mb-2 bg-gray-500 text-white py-2 rounded"
-                            >
-                                Add Paragraph
-                            </button>
+//                             <button
+//                                 onClick={() => addBlock(selectedNode, "paragraph")}
+//                                 className="w-full mb-2 bg-gray-500 text-white py-2 rounded"
+//                             >
+//                                 Add Paragraph
+//                             </button>
 
-                            <button
-                                onClick={() => addBlock(selectedNode, "image")}
-                                className="w-full mb-2 bg-yellow-500 text-white py-2 rounded"
-                            >
-                                Add Image
-                            </button>
+//                             <button
+//                                 onClick={() => addBlock(selectedNode, "image")}
+//                                 className="w-full mb-2 bg-yellow-500 text-white py-2 rounded"
+//                             >
+//                                 Add Image
+//                             </button>
 
-                            <button
-                                onClick={() => addBlock(selectedNode, "input")}
-                                className="w-full mb-2 bg-purple-500 text-white py-2 rounded"
-                            >
-                                Add Input Field
-                            </button>
+//                             <button
+//                                 onClick={() => addBlock(selectedNode, "input")}
+//                                 className="w-full mb-2 bg-purple-500 text-white py-2 rounded"
+//                             >
+//                                 Add Input Field
+//                             </button>
 
-                            <input
-                                value={btnName}
-                                onChange={(e) => setBtnName(e.target.value)}
-                                placeholder="Button name"
-                                className="w-full border px-2 py-1 rounded mt-3 dark:bg-gray-700"
-                            />
+//                             <input
+//                                 value={btnName}
+//                                 onChange={(e) => setBtnName(e.target.value)}
+//                                 placeholder="Button name"
+//                                 className="w-full border px-2 py-1 rounded mt-3 dark:bg-gray-700"
+//                             />
 
-                            <button
-                                onClick={() => {
-                                    if (!btnName) return
-                                    addButton(selectedNode, btnName, "form")
-                                    setBtnName("")
-                                }}
-                                className="w-full mt-2 bg-green-500 text-white py-2 rounded"
-                            >
-                                Add Button
-                            </button>
-                            <button
-                                onClick={handleSave}
-                                className="mt-4 w-full bg-blue-600 text-white py-2 rounded"
-                            >
-                                Save Flow
-                            </button>
-                        </>
-                    )}
-                </div>
+//                             <button
+//                                 onClick={() => {
+//                                     if (!btnName) return
+//                                     addButton(selectedNode, btnName, "form")
+//                                     setBtnName("")
+//                                 }}
+//                                 className="w-full mt-2 bg-green-500 text-white py-2 rounded"
+//                             >
+//                                 Add Button
+//                             </button>
+//                             <button
+//                                 onClick={handleSave}
+//                                 className="mt-4 w-full bg-blue-600 text-white py-2 rounded"
+//                             >
+//                                 Save Flow
+//                             </button>
+//                         </>
+//                     )}
+//                 </div>
 
-            </div>
-        </div>
-    )
-}
+//             </div>
+//         </div>
+//     )
+// }

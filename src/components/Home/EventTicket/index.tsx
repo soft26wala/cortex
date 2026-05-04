@@ -5,7 +5,7 @@ import Image from "next/image";
 const EventTicket = () => {
     return (
         <>
-            <section className="dark:bg-darkmode bg-orange-50 pt-0">
+            <section className="dark:bg-darkmode bg-white/50 pt-0">
                 <div className="container">
                     <div className="text-center md:pb-20 pb-8">
                         <h2 className="pb-8" data-aos="fade-up" data-aos-delay="200" data-aos-duration="1000">Powerful Digital Solutions for Modern Businesses</h2>
@@ -17,40 +17,46 @@ const EventTicket = () => {
                     <div className="text-center md:pb-20 pb-8">
                         <h2 className="pb-8" data-aos="fade-up" data-aos-delay="200" data-aos-duration="1000">Smart Shop Management System (All-in-One Dashboard)</h2>
                         <p data-aos="fade-up" data-aos-delay="300" data-aos-duration="1000" className="text-SlateBlueText dark:text-opacity-80 text-lg font-normal max-w-920 m-auto">
-                            Manage your entire business from one powerful dashboard with automation, billing, and real-time tracking features designed for both GST and non-GST businesses.
+                            {/* Manage your entire business from one powerful dashboard with automation, billing, and real-time tracking features designed for both GST and non-GST businesses. */}
+                            We build smart, scalable, and result-driven digital solutions that help businesses grow faster. Whether you need a high-performance website or a complete business management system, we deliver technology that works for you. <br /> <br />
                         </p>
 
-                        <h3
-  className="pb-8 text-center text-2xl font-bold"
-  data-aos="fade-up"
-  data-aos-delay="200"
-  data-aos-duration="1000"
->
-  FEATURES
-</h3>
+                        <h2 className="pb-8" data-aos="fade-up" data-aos-delay="200" data-aos-duration="1000">Powerful Features to Manage Your Business</h2>
 
-<div className="max-w-2xl mx-auto space-y-4">
-  {[
-    "Auto Stock Management (real-time stock update)",
-    "Smart Billing with Auto HSN Code Support",
-    "GST & Non-GST Billing System (both supported)",
-    "Sales, Orders & Customer Management in One Dashboard",
-    "Reports & Analytics for Business Growth",
-  ].map((item, index) => (
-    <div
-      key={index}
-      data-aos="fade-up"
-      data-aos-delay={300 + index * 100}
-      data-aos-duration="1000"
-      className="flex items-start gap-3 bg-white/5 backdrop-blur-md p-4 rounded-lg border border-white/10 hover:scale-[1.02] transition"
-    >
-      <span className="text-green-400 text-xl mt-1">✔</span>
-      <p className="text-SlateBlueText dark:text-opacity-80 text-base">
-        {item}
-      </p>
-    </div>
-  ))}
-</div>
+                        <h3
+                            className="pb-8 text-center text-2xl font-bold underline"
+                            data-aos="fade-up"
+                            data-aos-delay="200"
+                            data-aos-duration="1000"
+                        >
+                            FEATURES
+                        </h3>
+
+
+                        <div className="max-w-2xl mx-auto space-y-4 hover:box-shadow-">
+                            {[
+                                "Real-Time Auto Stock Management",
+                                "Smart Billing with Automatic HSN Code",
+                                "GST & Non-GST Billing System (All-in-One)",
+                                "Orders, Sales & Customer Management Dashboard",
+                                "Advanced Reports & Business Analytics",
+                            ].map((item, index) => (
+                                <div
+                                    key={index}
+                                    className="flex items-center gap-3 ddark:bg-white/5 bg-blue-500/10 p-4 rounded-lg border dark:border-white/10 border-blue-300 "
+                                    data-aos="fade-left"
+                                    data-aos-delay={index * 100}
+                                    data-aos-duration="1000"
+                                >
+                                    <span className="text-green-400 text-lg" data-aos="fade-right" data-aos-duration="1000">
+                                        ✔
+                                    </span>
+                                    <p className="dark:text-gray-300 text-gray-600" data-aos="fade-up" data-aos-duration="1000">
+                                        {item}
+                                    </p>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                     <div className="flex flex-wrap items-stretch" data-aos="fade-up" data-aos-delay="400" data-aos-duration="1000">
                         <div className="bg-primary flex items-center justify-center lg:px-16 px-8 lg:py-0 py-8 lg:rounded-l-22 rounded-t-22 md:rounded-tr-none md:rounded-bl-22 rounded-bl-none md:w-2/4 w-full">

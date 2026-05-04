@@ -63,7 +63,8 @@ const Hero = () => {
                             What We are Really
                             Really good at. */}
 
-                            We Build Powerful<br></br> Websites That <br /> Grow Your Business
+                            {/* We Build Powerful<br></br> Websites That <br /> Grow Your Business */}
+                            Smart Digital Solutions for Modern Businesses
                         </h1>
                         <p
                             data-aos="fade-up"
@@ -72,7 +73,8 @@ const Hero = () => {
                             className="text-xl text-SlateBlueText dark:text-opacity-80 font-normal md:pb-14 pb-6"
                         >
                             {/* We ready to accelerate your career with customized courese and leave your mark in the tech industry. */}
-                            From modern websites to advanced web applications, we help businesses go digital, generate leads, and scale faster with smart technology solutions.
+                            {/* From modern websites to advanced web applications, we help businesses go digital, generate leads, and scale faster with smart technology solutions. */}
+                            At Cortex Web Solutions, we help startups, shops, and growing businesses build powerful digital products. From modern websites to advanced automation systems, our solutions are designed to increase sales, save time, and scale your business efficiently.
                         </p>
                         <div className="flex items-center md:justify-normal lg:justify-center justify-start flex-wrap gap-4">
                             <Link
@@ -120,10 +122,10 @@ const Hero = () => {
                                 sizes="100vh"
                                 className="w-full h-full imgbl"
                             />
-                            <div className="bg-yellow-300 rounded-22 shadow-hero-box py-4 px-5 absolute top-20 -left-20">
+                            <div className="bg-yellow-300 rounded-22 shadow-hero-box py-4 px-5 absolute top-28 -left-20">
                                 <p className="text-lg font-bold text-yellow-900">Anmol Singh</p>
                                 <p className="text-base font-medium text-yellow-900 text-center">
-                                    4.6 rating
+                                    4.7 rating
                                 </p>
                             </div>
                         </div>

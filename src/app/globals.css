@@ -125,3 +125,16 @@ body {
   justify-content: center;
   align-items: center;
 }
+
+
+.perspective {
+  perspective: 1000px;
+}
+
+.rotate-x-6 {
+  transform: rotateX(6deg);
+}
+
+.rotate-y-6 {
+  transform: rotateY(6deg);
+}

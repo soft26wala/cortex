@@ -3,7 +3,6 @@ import React from "react";
 import Image from "next/image";
 
 const ServicesSection = ({ showTitle = true }) => {
-
   const services = [
     {
       id: 1,
@@ -43,77 +42,98 @@ const ServicesSection = ({ showTitle = true }) => {
   ];
 
   const handleWhatsApp = (serviceName: string) => {
-    const phone = "916376930459"; // 🔥 apna number dal
+    const phone = "916376930459";
     const message = `Hi, I want ${serviceName} service`;
     const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
     window.open(url, "_blank");
   };
 
   return (
-    <section className="bg-orange-50 dark:bg-darkmode py-12">
-      
-      {showTitle && (
-        <h2 className="text-center text-3xl font-bold mb-10"  data-aos="fade-up" data-aos-delay="200" data-aos-duration="1000">
-          Our Services 🚀
-        </h2>
-      )}
+    <section className="relative py-24 dark:bg-[#0b1c2c] bg-orange-50 overflow-hidden">
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 px-6 md:px-12"  data-aos="fade-up" data-aos-delay="300" data-aos-duration="1000">
+      <h2 className="text-center text-4xl font-bold dark:text-white text-gray-700 mb-16" data-aos="fade-up" data-aos-duration="1000">
+        Smart Automation Systems 🤖
+      </h2>
+
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 px-6 md:px-12">
 
         {services.map((service) => (
           <div
             key={service.id}
-            className="bg-white dark:bg-blue-200 rounded-xl shadow-lg overflow-hidden transition hover:scale-105 duration-300"
+            // className="relative group rounded-2xl overflow-hidden border dark:border-white/10 dark:bg-white/5 bg-backdrop-blur-[10px] backdrop-blur-xl hover:scale-105 transition duration-500"
+            className="relative group rounded-2xl overflow-hidden 
+                      border border-black/10 dark:border-white/10 
+                      bg-white/70 dark:bg-white/5 
+                      backdrop-blur-xl 
+                      transition duration-500 shadow-lg 
+                      transform-gpu 
+                      hover:scale-105 
+                      hover:-translate-y-3 
+                      hover:rotate-x-6 hover:rotate-y-6"
+            data-aos="fade-left"
+            data-aos-duration="800"
           >
+            {/* Glow Effect */}
+            {/* <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition duration-500 bg-gradient-to-br from-blue-500/20 to-purple-500/20"></div> */}
+            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition duration-500 
+bg-gradient-to-br from-blue-500/30 via-purple-500/20 to-pink-500/20 blur-xl"></div>
+
             {/* Image */}
-            <div className="aspect-video overflow-hidden" 
-             data-aos="fade-up" data-aos-delay="400" data-aos-duration="1000"
-             >
+            <div className="relative aspect-video overflow-hidden">
               <Image
                 src={service.image}
                 alt={service.name}
                 width={500}
                 height={350}
-                className="w-full h-full object-cover"
+                // className="w-full h-full object-contain p-6 transition duration-500 group-hover:scale-110"
+                className="w-full h-full object-contain p-6 
+transition duration-700 
+group-hover:scale-110 
+group-hover:-translate-y-2"
+                data-aos="fade-right"
+                data-aos-delay="200"
+                data-aos-duration="1000"
               />
             </div>
 
             {/* Content */}
-            <div className="p-5">
+            <div className="p-6 relative z-10" data-aos="fade-up" data-aos-duration="1000">
 
-              <div className="flex justify-between items-center mb-2">
-                <h3 className="text-lg font-bold"  data-aos="fade-up" data-aos-delay="200" data-aos-duration="1000">
+              <div className="flex justify-between items-center mb-3">
+                <h3 className="text-lg font-semibold dark:text-white text-gray-800" data-aos="fade-up" data-aos-delay="100" data-aos-duration="1000">
                   {service.name}
                 </h3>
 
                 {service.status === "available" ? (
-                  <span className="text-xs bg-green-100 text-green-600 px-2 py-1 rounded" data-aos="fade-up" data-aos-delay="200" data-aos-duration="1000">
+                  <span className="text-xs bg-green-500/20 text-green-400 px-3 py-1 rounded-full">
                     Available
                   </span>
                 ) : (
-                  <span className="text-xs bg-yellow-100 text-yellow-600 px-2 py-1 rounded" data-aos="fade-up" data-aos-delay="200" data-aos-duration="1000">
+                  <span className="text-xs bg-yellow-500/20 text-yellow-400 px-3 py-1 rounded-full">
                     Coming
                   </span>
                 )}
               </div>
 
-              <p className="text-sm text-gray-500 mb-4" data-aos="fade-up" data-aos-delay="300" data-aos-duration="1000">
+              <p className="text-sm dark:text-gray-300 text-gray-600 mb-5">
                 {service.desc}
               </p>
 
               {service.status === "available" ? (
                 <button
                   onClick={() => handleWhatsApp(service.name)}
-                  className="w-full bg-green-500 text-white py-2 rounded-md font-medium hover:bg-green-600 transition"
-                  data-aos="fade-up" data-aos-delay="200" data-aos-duration="1000"
+                  // className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white py-2 rounded-lg font-medium hover:opacity-90 transition"
+                  className="w-full bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 
+shadow-lg shadow-green-500/20 
+hover:shadow-green-500/40 transition"
                 >
-                  Contact on WhatsApp
+                  Chat on WhatsApp
                 </button>
               ) : (
                 <button
                   disabled
-                  className="w-full bg-gray-300 text-gray-600 py-2 rounded-md font-medium cursor-not-allowed"
-                    data-aos="fade-up" data-aos-delay="200" data-aos-duration="1000"
+                  className="w-full bg-white/10 text-gray-400 py-2 rounded-lg font-medium cursor-not-allowed"
                 >
                   Coming Soon 🚀
                 </button>

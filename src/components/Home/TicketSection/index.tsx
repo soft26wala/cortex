@@ -5,7 +5,7 @@ import Image from "next/image";
 const TicketSection = () => {
     return (
         <>
-            <section className="dark:bg-darkmode bg-orange-50 pt-0">
+            <section className="dark:bg-darkmode bg-orange-50 pt-0" data-aos="fade-up" data-aos-duration="1000">
                 <div className="container">
                     <div className="bg-primary relative md:mx-auto mx-0 overflow-hidden py-0 rounded-22 lg:-mb-48 dark:lg:-mb-48 md:mt-20 mt-10">
                         <div className="flex flex-wrap items-center justify-between md:p-20 p-5">
@@ -21,16 +21,16 @@ const TicketSection = () => {
                                     className="object-cover"
                                 />
                             </div>
-                            <div className="md:w-2/5 w-full ml-auto lg:text-start text-center">
+                            <div className="md:w-2/5 w-full ml-auto lg:text-start text-center" data-aos="fade-up" data-aos-duration="1000">
                                 <p className="sm:text-4xl text-[28px] leading-[2.25rem] font-bold text-white lg:max-w-364 max-w-full pb-9">
-                                   Learn Coding. Build Your Future
+                                   Powerful Features to Manage Your Business
                                 </p>
                                 <Link
-                                    href="/courses"
+                                    href="/"
                                     className="btn btn-1 hover-filled-slide-down rounded-lg overflow-hidden before:bg-ElectricAqua"
                                 >
                                     <span className="sm:!px-20 px-10 !border-ElectricAqua !text-white">
-                                        Buy Courses
+                                        
                                     </span>
                                 </Link>
                             </div>

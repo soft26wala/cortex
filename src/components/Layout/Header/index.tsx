@@ -104,27 +104,32 @@ const Header: React.FC = () => {
 
 
   const handleLogout = async () => {
-  // 1. NextAuth Session check karein
-  const session = await getSession(); // ya useSession() se status check karein
+    // 1. NextAuth Session check karein
+    const session = await getSession(); // ya useSession() se status check karein
 
-  if (session) {
-    // Agar user Google/GitHub se login hai, toh NextAuth ka signOut use karein
-    await signOut({ redirect: true, callbackUrl: "/" });
-  } else {
-    // 2. Agar user Manual Login hai, toh LocalStorage saaf karein
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    
-    // UI update karne ke liye ya toh state null karein ya page refresh karein
-    window.location.href = "/"; 
-  }
-};
+    if (session) {
+      // Agar user Google/GitHub se login hai, toh NextAuth ka signOut use karein
+      await signOut({ redirect: true, callbackUrl: "/" });
+    } else {
+      // 2. Agar user Manual Login hai, toh LocalStorage saaf karein
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+
+      // UI update karne ke liye ya toh state null karein ya page refresh karein
+      window.location.href = "/";
+    }
+  };
 
   return (
     <>
       <div className="relative"></div>
       <header
-        className={`fixed h-24 top-0 py-1 z-50 w-full bg-transparent transition-all ${sticky ? "shadow-lg dark:shadow-darkmd bg-white dark:bg-secondary" : "shadow-none"
+        className={`fixed h-24 top-0 py-1 z-50 w-full transition-all 
+  backdrop-blur-xl 
+  border-b border-white/10 
+  ${sticky
+            ? "bg-white/70 dark:bg-white/5 shadow-lg"
+            : "bg-transparent"
           }`}
       >
         <div className="container">
@@ -167,7 +172,7 @@ const Header: React.FC = () => {
                   <Link
                     href="#"
                     className="hidden lg:block btn_outline btn-2 hover-outline-slide-down rounded-lg"
-                    onClick={() => {setIsSignInOpen(true)}}
+                    onClick={() => { setIsSignInOpen(true) }}
                   >
                     <span className="!py-2 !px-4">Sign In</span>
                   </Link>
@@ -290,40 +295,40 @@ const Header: React.FC = () => {
               Request Callback
             </p>
 
-                {!isLoggedIn ? (
-                <>
-            <div className="mt-4 flex flex-col space-y-4 w-full">
-              <Link
-                href="#"
-                className="bg-transparent border border-solid border-primary text-primary px-4 py-2 rounded-lg hover:bg-blue-600 hover:text-white"
-                onClick={() => {
-                  setIsSignInOpen(true);
-                  setNavbarOpen(false);
-                }}
-              >
-                Sign In
-              </Link>
-              <Link
-                href="#"
-                className="bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-                onClick={() => {
-                  setIsSignUpOpen(true);
-                  setNavbarOpen(false);
-                }}
-              >
-                Sign Up
-              </Link>
-            </div>
+            {!isLoggedIn ? (
+              <>
+                <div className="mt-4 flex flex-col space-y-4 w-full">
+                  <Link
+                    href="#"
+                    className="bg-transparent border border-solid border-primary text-primary px-4 py-2 rounded-lg hover:bg-blue-600 hover:text-white"
+                    onClick={() => {
+                      setIsSignInOpen(true);
+                      setNavbarOpen(false);
+                    }}
+                  >
+                    Sign In
+                  </Link>
+                  <Link
+                    href="#"
+                    className="bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+                    onClick={() => {
+                      setIsSignUpOpen(true);
+                      setNavbarOpen(false);
+                    }}
+                  >
+                    Sign Up
+                  </Link>
+                </div>
               </>
-              ) : (
-                /* Agar login HAI to Logout dikhao */
-                <button
-                  onClick={() => handleLogout()}
-                  className="hidden lg:block bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-all"
-                >
-                  Logout
-                </button>
-              )}
+            ) : (
+              /* Agar login HAI to Logout dikhao */
+              <button
+                onClick={() => handleLogout()}
+                className="hidden lg:block bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-all"
+              >
+                Logout
+              </button>
+            )}
           </nav>
         </div>
 
