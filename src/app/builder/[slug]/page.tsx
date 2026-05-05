@@ -33,13 +33,12 @@ import { Block, BlockType, ButtonAction, FlowButton, FlowNode } from "@/types/fl
 
 type SaveStatus = "idle" | "saving" | "saved" | "error"
 
-type Props = {
-  params: {
-    slug: string
-  }
-}
 
-export default function BuilderPage({ params }: Props) {
+export default function BuilderPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>
+}) {
   // ── State ──────────────────────────────────────────────────────────────────
   const {
     flow,
