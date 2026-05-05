@@ -19,19 +19,21 @@ const page = () => {
   return (
     <>
       <HeroSub
-        title="Event Schedules"
-        description="Discover a wealth of insightful materials meticulously crafted to provide you with a comprehensive."
+        title="Business Growth System 🚀"
+        description="See how we generate leads, automate customers, and grow your business using smart digital solutions."
         breadcrumbLinks={breadcrumbLinks}
       />
-      <section className="dark:bg-darkmode bg-orange-50 ">  
+      <section className="dark:bg-darkmode bg-orange-50 ">
         <div className="container upcoming">
-          <BoxSlider/>
-          <Schedules/>        
+          <BoxSlider />
+          <Schedules />
         </div>
-      </section>      
+        
+      </section>
       <div>
+        
         <Testimonials />
-        <TicketSection/>
+        <TicketSection />
       </div>
     </>
   );

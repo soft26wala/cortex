@@ -17,7 +17,7 @@ import PendingStickyBtn from "./PendingStickyBtn";
 import Notification from "./Notification";
 import { NextAuthProvider } from "./providers";
 import ChatBot from "@/components/ChatBot";
-
+import TicketSection from "@/components/Home/TicketSection";
 
 export default function RootLayout({
   children,
@@ -59,6 +59,7 @@ export default function RootLayout({
           </SessionProviderComp>
           </AuthDialogProvider>
           <ChatBot />
+          {/* <TicketSection />  */}
         <SpeedInsights />
       </body>
     </html >

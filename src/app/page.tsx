@@ -17,13 +17,14 @@ export default function Home() {
   return (
     <main className='dark:bg-darkmode bg-orange-50'>
       <Hero />
+
       <ThumbnailCarousel />
-      <ServicesSection/>
+      <ServicesSection/><br /><br />
+      <TicketSection/> <br /> <br />
       <EventTicket/>
       <Highlight/>
-      <Upcoming/>
+      {/* <Upcoming/> */}
       <Testimonials/>
-      <TicketSection/>
     </main>
   )
 }

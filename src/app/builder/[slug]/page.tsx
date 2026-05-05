@@ -26,14 +26,14 @@ import {
 } from "lucide-react"
 import { useFlow } from "@/hooks/useFlow"
 import { useChatPreview } from "@/hooks/useChatPreview"
-import NodeCard from "../../components/builder/NodeCard"
-import EditPanel from "../../components/builder/EditPanel"
-import ChatPreview from "../../components/builder/ChatPreview"
+import NodeCard from "../../../components/builder/NodeCard"
+import EditPanel from "../../../components/builder/EditPanel"
+import ChatPreview from "../../../components/builder/ChatPreview"
 import { Block, BlockType, ButtonAction, FlowButton, FlowNode } from "@/types/flow"
 
 type SaveStatus = "idle" | "saving" | "saved" | "error"
 
-export default function BuilderPage() {
+export default function BuilderPage({ params }: { params: { slug: string } }) {
   // ── State ──────────────────────────────────────────────────────────────────
   const {
     flow,
@@ -57,22 +57,35 @@ export default function BuilderPage() {
   const [triggerInput, setTriggerInput] = useState("")
   const [view, setView] = useState<"builder" | "preview">("builder")
   const [dark, setDark] = useState(true)
+  const [client, setClient] = useState<any>(null)
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle")
-
+  const slug = params.slug
   const selectedNode: FlowNode | null =
     flow.nodes.find((n) => n.id === selectedNodeId) ?? null
 
   // ── Load existing flow on mount ────────────────────────────────────────────
   useEffect(() => {
-    fetch("/api/flow")
-      .then((r) => (r.ok ? r.json() : null))
-      .then((record) => {
-        if (record?.data) loadFlow(record.data)
-      })
-      .catch(() => {
-        // No saved flow yet — start fresh
-      })
-  }, [loadFlow])
+  if (!slug) return
+
+  // 🔥 STEP 1: client load
+  fetch(`${process.env.NEXT_PUBLIC_API}/clients/slug/${slug}`)
+    .then(res => res.json())
+    .then((clientData) => {
+      setClient(clientData)
+
+      // 🔥 STEP 2: flow load
+      return fetch(
+        `${process.env.NEXT_PUBLIC_API}/flow?clientId=${clientData.id}`
+      )
+    })
+    .then(res => res.json())
+    .then((record) => {
+      if (record?.data) loadFlow(record.data)
+    })
+    .catch((err) => {
+      console.log("error", err)
+    })
+}, [slug])
 
   // ── DnD sensors ───────────────────────────────────────────────────────────
   const sensors = useSensors(
@@ -91,21 +104,33 @@ export default function BuilderPage() {
   )
 
   // ── Save flow ──────────────────────────────────────────────────────────────
-  const handleSave = useCallback(async () => {
-    setSaveStatus("saving")
-    try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API}/flow`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: flow.name, data: flow }),
+const handleSave = useCallback(async () => {
+  if (!client) {
+    alert("Client not loaded yet")
+    return
+  }
+
+  setSaveStatus("saving")
+
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API}/flow`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: flow.name,
+        data: flow,
+        userId: 1,
+        clientId: client.id
       })
-      setSaveStatus(res.ok ? "saved" : "error")
-    } catch {
-      setSaveStatus("error")
-    } finally {
-      setTimeout(() => setSaveStatus("idle"), 2500)
-    }
-  }, [flow])
+    })
+
+    setSaveStatus(res.ok ? "saved" : "error")
+  } catch {
+    setSaveStatus("error")
+  } finally {
+    setTimeout(() => setSaveStatus("idle"), 2500)
+  }
+}, [flow, client])
 
   // ── Add trigger node ───────────────────────────────────────────────────────
   const handleAddTrigger = useCallback(() => {
@@ -134,6 +159,8 @@ export default function BuilderPage() {
             <div className="w-7 h-7 rounded-lg bg-emerald-500 flex items-center justify-center">
               <MessageSquareText size={14} className="text-white" />
             </div>
+      {/* {client.name} */}
+
             <input
               value={flow.name}
               onChange={(e) => setFlowName(e.target.value)}
@@ -149,11 +176,10 @@ export default function BuilderPage() {
               onClick={() =>
                 setView((v) => (v === "builder" ? "preview" : "builder"))
               }
-              className={`flex items-center gap-1.5 text-sm px-3.5 py-1.5 rounded-xl font-medium transition-colors ${
-                view === "preview"
+              className={`flex items-center gap-1.5 text-sm px-3.5 py-1.5 rounded-xl font-medium transition-colors ${view === "preview"
                   ? "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400"
                   : "bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-600 dark:text-zinc-300"
-              }`}
+                }`}
             >
               {view === "builder" ? (
                 <>
@@ -179,13 +205,12 @@ export default function BuilderPage() {
             <button
               onClick={handleSave}
               disabled={saveStatus === "saving"}
-              className={`flex items-center gap-1.5 text-sm px-4 py-1.5 rounded-xl font-medium transition-colors disabled:opacity-60 ${
-                saveStatus === "error"
+              className={`flex items-center gap-1.5 text-sm px-4 py-1.5 rounded-xl font-medium transition-colors disabled:opacity-60 ${saveStatus === "error"
                   ? "bg-red-500 text-white"
                   : saveStatus === "saved"
-                  ? "bg-emerald-500 text-white"
-                  : "bg-blue-600 hover:bg-blue-700 text-white"
-              }`}
+                    ? "bg-emerald-500 text-white"
+                    : "bg-blue-600 hover:bg-blue-700 text-white"
+                }`}
             >
               {saveStatus === "saving" && (
                 <Loader2 size={13} className="animate-spin" />
@@ -196,10 +221,10 @@ export default function BuilderPage() {
               {saveStatus === "saving"
                 ? "Saving…"
                 : saveStatus === "saved"
-                ? "Saved!"
-                : saveStatus === "error"
-                ? "Error"
-                : "Save Flow"}
+                  ? "Saved!"
+                  : saveStatus === "error"
+                    ? "Error"
+                    : "Save Flow"}
             </button>
           </div>
         </header>
@@ -249,11 +274,10 @@ export default function BuilderPage() {
                     <button
                       key={node.id}
                       onClick={() => setSelectedNodeId(node.id)}
-                      className={`w-full text-left text-sm px-3 py-2 rounded-xl flex items-center gap-2 transition-colors ${
-                        selectedNodeId === node.id
+                      className={`w-full text-left text-sm px-3 py-2 rounded-xl flex items-center gap-2 transition-colors ${selectedNodeId === node.id
                           ? "bg-emerald-50 dark:bg-emerald-900/25 text-emerald-700 dark:text-emerald-400 font-medium"
                           : "hover:bg-zinc-50 dark:hover:bg-zinc-800 text-zinc-600 dark:text-zinc-400"
-                      }`}
+                        }`}
                     >
                       <Hash size={12} className="flex-shrink-0 opacity-60" />
                       <span className="truncate">{node.triggers.join(", ")}</span>

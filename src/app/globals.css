@@ -138,3 +138,14 @@ body {
 .rotate-y-6 {
   transform: rotateY(6deg);
 }
+
+
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
+.bot {
+  animation: float 3s ease-in-out infinite;
+}

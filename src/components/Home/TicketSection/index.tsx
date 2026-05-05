@@ -1,45 +1,66 @@
-import React from "react";
-import Link from "next/link";
-import Image from "next/image";
+"use client";
+import React, { useEffect, useState } from "react";
 
-const TicketSection = () => {
-    return (
-        <>
-            <section className="dark:bg-darkmode bg-orange-50 pt-0" data-aos="fade-up" data-aos-duration="1000">
-                <div className="container">
-                    <div className="bg-primary relative md:mx-auto mx-0 overflow-hidden py-0 rounded-22 lg:-mb-48 dark:lg:-mb-48 md:mt-20 mt-10">
-                        <div className="flex flex-wrap items-center justify-between md:p-20 p-5">
-                            <div className="md:w-2/2 w-full absolute top-0 -left-1 md:block hidden">
-                                <Image
-                                    src="/images/ticket-section/ticket.png"
-                                    alt="hero"
-                                    width={0}
-                                    height={0}
-                                    quality={100}
-                                    layout="responsive"
-                                    sizes="100vh"
-                                    className="object-cover"
-                                />
-                            </div>
-                            <div className="md:w-2/5 w-full ml-auto lg:text-start text-center" data-aos="fade-up" data-aos-duration="1000">
-                                <p className="sm:text-4xl text-[28px] leading-[2.25rem] font-bold text-white lg:max-w-364 max-w-full pb-9">
-                                   Powerful Features to Manage Your Business
-                                </p>
-                                <Link
-                                    href="/"
-                                    className="btn btn-1 hover-filled-slide-down rounded-lg overflow-hidden before:bg-ElectricAqua"
-                                >
-                                    <span className="sm:!px-20 px-10 !border-ElectricAqua !text-white">
-                                        
-                                    </span>
-                                </Link>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-        </>
-    );
+const BotChat = () => {
+  const messages = [
+    "I want website 💻",
+    "I want AI Bot 🤖",
+    "I want Meta Ads 📈",
+  ];
+
+  const [step, setStep] = useState(0);
+  const [typedText, setTypedText] = useState("");
+
+  useEffect(() => {
+    let currentText = messages[step];
+    let index = 0;
+
+    const typing = setInterval(() => {
+      setTypedText(currentText.slice(0, index + 1));
+      index++;
+
+      if (index === currentText.length) {
+        clearInterval(typing);
+
+        // next message after delay
+        setTimeout(() => {
+          setStep((prev) => (prev + 1) % messages.length);
+          setTypedText("");
+        }, 1500);
+      }
+    }, 50);
+
+    return () => clearInterval(typing);
+  }, [step]);
+
+  return (
+    <div className="mt-16 max-w-md mx-auto bg-black/40 backdrop-blur-xl rounded-2xl p-6 border border-white/10 shadow-lg">
+
+      <div className="text-green-400 text-sm mb-2">AI BOT</div>
+
+      <div className="space-y-3">
+
+        {/* BOT MESSAGE */}
+        <div className="bg-white/10 p-3 rounded-lg w-fit">
+          Hi 👋 How can I help?
+        </div>
+
+        {/* USER TYPING */}
+        <div className="bg-blue-500 p-3 rounded-lg w-fit ml-auto min-w-[120px]">
+          {typedText}
+          <span className="animate-pulse">|</span>
+        </div>
+
+        {/* BOT REPLY */}
+        {typedText.length === messages[step]?.length && (
+          <div className="bg-white/10 p-3 rounded-lg w-fit animate-fadeIn">
+            Great! Let’s grow your business 🚀
+          </div>
+        )}
+
+      </div>
+    </div>
+  );
 };
 
-export default TicketSection;
+export default BotChat;
