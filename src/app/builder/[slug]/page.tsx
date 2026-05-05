@@ -34,7 +34,7 @@ import { Block, BlockType, ButtonAction, FlowButton, FlowNode } from "@/types/fl
 type SaveStatus = "idle" | "saving" | "saved" | "error"
 
 
-export default function BuilderPage({
+export default async function BuilderPage({
   params,
 }: {
   params: Promise<{ slug: string }>
@@ -64,7 +64,7 @@ export default function BuilderPage({
   const [dark, setDark] = useState(true)
   const [client, setClient] = useState<any>(null)
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle")
-  const slug = params.slug
+  const { slug } = await params
   const selectedNode: FlowNode | null =
     flow.nodes.find((n) => n.id === selectedNodeId) ?? null
 
