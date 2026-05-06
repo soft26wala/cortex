@@ -7,7 +7,7 @@ export default function Clients() {
   const router = useRouter()
 
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API}/clients/1`)
+    fetch(`${process.env.NEXT_PUBLIC_API}clients/1`)
       .then(res => res.json())
       .then(setClients)
   }, [])

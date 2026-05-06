@@ -8,7 +8,7 @@ export default function CreateClient() {
   const router = useRouter()
 
   const save = async () => {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API}/clients`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API}clients`, {
       method: "POST",
       headers: {"Content-Type":"application/json"},
       body: JSON.stringify({
