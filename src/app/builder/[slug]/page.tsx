@@ -30,16 +30,16 @@ import NodeCard from "../../../components/builder/NodeCard"
 import EditPanel from "../../../components/builder/EditPanel"
 import ChatPreview from "../../../components/builder/ChatPreview"
 import { Block, BlockType, ButtonAction, FlowButton, FlowNode } from "@/types/flow"
+import { useParams } from "next/navigation"
 
 type SaveStatus = "idle" | "saving" | "saved" | "error"
 
 
-export default async function BuilderPage({
-  params,
-}: {
-  params: Promise<{ slug: string }>
-}) {
+export default function BuilderPage() {
   // ── State ──────────────────────────────────────────────────────────────────
+   const params = useParams()
+
+  const slug = params.slug as string
   const {
     flow,
     setFlowName,
@@ -64,7 +64,6 @@ export default async function BuilderPage({
   const [dark, setDark] = useState(true)
   const [client, setClient] = useState<any>(null)
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle")
-  const { slug } = await params
   const selectedNode: FlowNode | null =
     flow.nodes.find((n) => n.id === selectedNodeId) ?? null
 
@@ -73,14 +72,14 @@ export default async function BuilderPage({
   if (!slug) return
 
   // 🔥 STEP 1: client load
-  fetch(`${process.env.NEXT_PUBLIC_API}/clients/slug/${slug}`)
+  fetch(`${process.env.NEXT_PUBLIC_API}clients/slug/${slug}`)
     .then(res => res.json())
     .then((clientData) => {
       setClient(clientData)
 
       // 🔥 STEP 2: flow load
       return fetch(
-        `${process.env.NEXT_PUBLIC_API}/flow?clientId=${clientData.id}`
+        `${process.env.NEXT_PUBLIC_API}flow?clientId=${clientData.id}`
       )
     })
     .then(res => res.json())
@@ -118,7 +117,7 @@ const handleSave = useCallback(async () => {
   setSaveStatus("saving")
 
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API}/flow`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API}flow`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
