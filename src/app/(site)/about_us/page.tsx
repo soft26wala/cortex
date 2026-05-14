@@ -29,7 +29,7 @@ const Page = () => {
             {/* <h3 className="text-xl font-bold mb-3" data-aos="fade-up" data-aos-duration="1000"> */}
             <h3 className="text-xl font-bold mb-3 dark:text-white text-black" data-aos="fade-up" data-aos-duration="1000">
 
-              Web Development
+              Web Development 
             </h3>
             <p className="dark:text-gray-400 text-gray-600 " data-aos="fade-up" data-aos-duration="1000">
               Modern, fast and scalable websites designed to grow your business.

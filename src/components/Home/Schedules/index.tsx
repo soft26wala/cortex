@@ -1,7 +1,7 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { conferences, intermissions } from "../../../app/api/data";
+import { conferences, intermissions } from "../../../api/data";
 
 const Schedules = () => {
   return (

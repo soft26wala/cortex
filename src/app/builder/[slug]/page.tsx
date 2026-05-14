@@ -26,9 +26,9 @@ import {
 } from "lucide-react"
 import { useFlow } from "@/hooks/useFlow"
 import { useChatPreview } from "@/hooks/useChatPreview"
-import NodeCard from "../../../components/builder/NodeCard"
-import EditPanel from "../../../components/builder/EditPanel"
-import ChatPreview from "../../../components/builder/ChatPreview"
+import NodeCard from "../../../components/builderold/NodeCard"
+import EditPanel from "../../../components/builderold/EditPanel"
+import ChatPreview from "../../../components/builderold/ChatPreview"
 import { Block, BlockType, ButtonAction, FlowButton, FlowNode } from "@/types/flow"
 import { useParams } from "next/navigation"
 

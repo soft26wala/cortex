@@ -2,7 +2,7 @@ import React from "react";
 import BoxSlider from "../../SharedComponent/BoxSlider";
 import Image from "next/image";
 import Link from "next/link";
-import { conferences } from "../../../app/api/data";
+import { conferences } from "../../../api/data";
 
 const Upcoming = () => {
   return (

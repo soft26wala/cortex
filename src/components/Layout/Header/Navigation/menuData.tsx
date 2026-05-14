@@ -3,7 +3,7 @@ import { HeaderItem } from "@/types/menu";
 export const headerData: HeaderItem[] = [
   { label: "Home", href: "/" },
   { label: "Events", href: "/events" },
-  { label: "Courses", href: "/courses" },
+  { label: "KillTechnical", href: "/killTechnical/app" },
   { label: "About us", href: "/about_us" },
   
   // {

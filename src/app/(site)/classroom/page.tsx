@@ -2,7 +2,7 @@
 
 import HeroSub from "@/components/SharedComponent/HeroSub";
 import React, { useEffect, useState } from "react";
-import SplitPane from "@/app/api/SplitPane";
+import SplitPane from "@/api/SplitPane";
 import axios from "axios";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation"; // 2. Fixed import
