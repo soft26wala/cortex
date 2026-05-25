@@ -2,6 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 @import "@/Style/style.css";
+@import "@/components/Products/ProductsSection.module.css";
 
 html {
   scroll-behavior: smooth;

@@ -16,6 +16,7 @@ export default function Head() {
       "https://www.instagram.com/cortestack",
       "https://www.linkedin.com/in/cortex-web-solutions-349459399"
     ],
+
   };
 
   return (

@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import dynamic from "next/dynamic";
 import Navbar from "../components/navbar";
+// import Navbar from "../components/navbar";
 import Hero from "../components/hero";
 import NoiseBackground from "../components/noise-background";
 

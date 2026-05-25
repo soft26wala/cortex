@@ -3,10 +3,11 @@ import { HeaderItem } from "@/types/menu";
 export const headerData: HeaderItem[] = [
   { label: "Home", href: "/" },
   { label: "Events", href: "/events" },
-  { label: "KillTechnical", href: "/killTechnical/app" },
+  { label: "Kill Technical", href: "/killTechnical/app" },
   { label: "Proptis", href: "/killTechnical/app" },
   { label: "About us", href: "/about_us" },
-  
+  { label: " Products", href: "/products" },
+
   // {
   //   label: "Bootcamp",
   //   href: "/blog",
@@ -15,6 +16,6 @@ export const headerData: HeaderItem[] = [
   //     { label: "Online KODEX", href: "/blog/blog_1" },
   //   ],
   // },
-  
+
   // { label: "Classroom", href: "/classroom" },
 ];  

@@ -9,6 +9,7 @@ import Upcoming from '@/components/Home/Upcoming';
 import Testimonials from '@/components/Home/Testimonials';
 import TicketSection from '@/components/Home/TicketSection';
 import ServicesSection from '@/components/ServicesSection';
+import TeamSection from '@/components/Home/TeamSection';
 export const metadata: Metadata = {
   title: "Cortex Web Solutions",
 };
@@ -19,12 +20,13 @@ export default function Home() {
       <Hero />
 
       <ThumbnailCarousel />
-      <ServicesSection/><br /><br />
-      <TicketSection/> <br /> <br />
-      <EventTicket/>
-      <Highlight/>
+      <ServicesSection /><br /><br />
+      <TicketSection /> <br /> <br />
+      <EventTicket />
+      <Highlight />
       {/* <Upcoming/> */}
-      <Testimonials/>
+      <TeamSection />
+      <Testimonials />
     </main>
   )
 }

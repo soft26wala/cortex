@@ -1,0 +1,287 @@
+// prisma/schema.prisma
+// ═════════════════════════════════════════════════════════════════════
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// USERS (admins / agency owners)
+// ─────────────────────────────────────────────────────────────────────
+
+model User {
+  id             String    @id @default(uuid())
+  email          String    @unique
+  passwordHash   String    @map("password_hash")
+  name           String
+  role           String    @default("admin") // superadmin, admin, viewer
+  isActive       Boolean   @default(true)    @map("is_active")
+  
+  clients        Client[]
+  flows          Flow[]
+  
+  createdAt      DateTime  @default(now())  @map("created_at")
+  updatedAt      DateTime  @updatedAt       @map("updated_at")
+
+  @@map("users")
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// PLANS (pricing tiers)
+// ─────────────────────────────────────────────────────────────────────
+
+model Plan {
+  id                    String   @id @default(uuid())
+  name                  String   // Starter, Pro, Business
+  monthlyMessageLimit   Int      @map("monthly_message_limit")
+  maxFlows              Int      @map("max_flows")
+  maxContacts           Int      @map("max_contacts")
+  aiNodesEnabled        Boolean  @default(false) @map("ai_nodes_enabled")
+  broadcastEnabled      Boolean  @default(false) @map("broadcast_enabled")
+  priceUsdCents         Int      @default(0)    @map("price_usd_cents")
+
+  clients               Client[]
+  
+  createdAt             DateTime @default(now())  @map("created_at")
+
+  @@map("plans")
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// CLIENTS (WhatsApp business accounts)
+// ─────────────────────────────────────────────────────────────────────
+
+model Client {
+  id               String    @id @default(uuid())
+  userId           String    @map("user_id")
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  planId           String    @map("plan_id")
+  plan             Plan      @relation(fields: [planId], references: [id])
+  
+  name             String
+  slug             String    @unique
+  phoneNumberId    String    @unique @map("phone_number_id")
+  waBusinessId     String    @map("wa_business_id")
+  accessToken      String    @map("access_token") // encrypted in DB
+  verifyToken      String    @map("verify_token")
+  
+  // Billing
+  messagesSentThisMonth   Int    @default(0) @map("messages_sent_this_month")
+  billingCycleStart       DateTime @default(now()) @map("billing_cycle_start")
+  planExpiresAt           DateTime? @map("plan_expires_at")
+  isActive                Boolean  @default(true) @map("is_active")
+  
+  timezone         String   @default("UTC")
+  
+  flows            Flow[]
+  contacts         Contact[]
+  sessions         Session[]
+  messages         Message[]
+  broadcasts       Broadcast[]
+  
+  createdAt        DateTime @default(now())  @map("created_at")
+  updatedAt        DateTime @updatedAt       @map("updated_at")
+
+  @@index([userId])
+  @@index([phoneNumberId])
+  @@map("clients")
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// FLOWS (automation workflows)
+// ─────────────────────────────────────────────────────────────────────
+
+model Flow {
+  id          String   @id @default(uuid())
+  clientId    String   @map("client_id")
+  client      Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  
+  userId      String   @map("user_id")
+  user        User     @relation(fields: [userId], references: [id])
+  
+  name        String
+  description String?
+  isActive    Boolean  @default(true) @map("is_active")
+  version     Int      @default(1)
+  
+  data        Json     // Full flow graph: {nodes, edges}
+  compiled    Json?    // Cached Meta Flow JSON
+  
+  sessions    Session[]
+  messages    Message[]
+  broadcasts  Broadcast[]
+  
+  createdAt   DateTime @default(now())  @map("created_at")
+  updatedAt   DateTime @updatedAt       @map("updated_at")
+
+  @@unique([clientId, name])
+  @@index([clientId])
+  @@index([isActive])
+  @@map("flows")
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// CONTACTS (WhatsApp users/customers)
+// ─────────────────────────────────────────────────────────────────────
+
+model Contact {
+  id          String   @id @default(uuid())
+  clientId    String   @map("client_id")
+  client      Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  
+  phone       String   // E.164 format
+  name        String?
+  email       String?
+  tags        String[] @default([])
+  attributes  Json     @default("{}")  // CRM fields
+  
+  optedIn     Boolean  @default(true) @map("opted_in")
+  optedInAt   DateTime? @map("opted_in_at")
+  lastSeen    DateTime? @map("last_seen")
+  
+  sessions    Session[]
+  messages    Message[]
+  
+  createdAt   DateTime @default(now())  @map("created_at")
+  updatedAt   DateTime @updatedAt       @map("updated_at")
+
+  @@unique([clientId, phone])
+  @@index([clientId])
+  @@index([tags])
+  @@map("contacts")
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// SESSIONS (active user conversations)
+// ─────────────────────────────────────────────────────────────────────
+
+model Session {
+  id              String   @id @default(uuid())
+  clientId        String   @map("client_id")
+  client          Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  
+  contactId       String?  @map("contact_id")
+  contact         Contact? @relation(fields: [contactId], references: [id], onDelete: SetNull)
+  
+  phone           String
+  
+  flowId          String?  @map("flow_id")
+  flow            Flow?    @relation(fields: [flowId], references: [id], onDelete: SetNull)
+  
+  currentNodeId   String?  @map("current_node_id")
+  state           Json     @default("{}")  // Variables, form data
+  
+  status          String   @default("active")
+  // active, waiting_input, completed, expired
+  
+  expiresAt       DateTime @default(dbgenerated("NOW() + INTERVAL '24 hours'")) @map("expires_at")
+  
+  createdAt       DateTime @default(now())  @map("created_at")
+  updatedAt       DateTime @updatedAt       @map("updated_at")
+
+  @@unique([clientId, phone])
+  @@index([clientId])
+  @@index([status])
+  @@map("sessions")
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// MESSAGES (message logs)
+// ─────────────────────────────────────────────────────────────────────
+
+model Message {
+  id              String   @id @default(uuid())
+  clientId        String   @map("client_id")
+  client          Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  
+  contactId       String?  @map("contact_id")
+  contact         Contact? @relation(fields: [contactId], references: [id], onDelete: SetNull)
+  
+  sessionId       String?  @map("session_id")
+  session         Session? @relation(fields: [sessionId], references: [id], onDelete: SetNull)
+  
+  flowId          String?  @map("flow_id")
+  flow            Flow?    @relation(fields: [flowId], references: [id], onDelete: SetNull)
+  
+  direction       String   // inbound, outbound
+  type            String   // text, image, button, interactive, template
+  content         Json
+  
+  waMessageId     String?  @unique @map("wa_message_id")  // Meta's ID for status tracking
+  status          String   @default("queued")
+  // queued, sent, delivered, read, failed
+  
+  error           String?
+  
+  createdAt       DateTime @default(now())  @map("created_at")
+
+  @@index([clientId])
+  @@index([contactId])
+  @@index([waMessageId])
+  @@map("messages")
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// BROADCASTS
+// ─────────────────────────────────────────────────────────────────────
+
+model Broadcast {
+  id              String   @id @default(uuid())
+  clientId        String   @map("client_id")
+  client          Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  
+  name            String
+  templateName    String?  @map("template_name")
+  
+  flowId          String?  @map("flow_id")
+  flow            Flow?    @relation(fields: [flowId], references: [id], onDelete: SetNull)
+  
+  targetTags      String[] @default([])  @map("target_tags")
+  targetPhones    String[] @default([])  @map("target_phones")
+  
+  totalCount      Int      @default(0) @map("total_count")
+  sentCount       Int      @default(0) @map("sent_count")
+  failedCount     Int      @default(0) @map("failed_count")
+  
+  status          String   @default("draft")
+  // draft, scheduled, running, completed, cancelled, paused
+  
+  scheduledAt     DateTime? @map("scheduled_at")
+  startedAt       DateTime? @map("started_at")
+  completedAt     DateTime? @map("completed_at")
+  
+  createdAt       DateTime @default(now())  @map("created_at")
+
+  @@index([clientId])
+  @@map("broadcasts")
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// ANALYTICS EVENTS
+// ─────────────────────────────────────────────────────────────────────
+
+model AnalyticsEvent {
+  id              BigInt   @id @default(autoincrement())
+  clientId        String   @map("client_id")
+  
+  eventType       String   @map("event_type")
+  flowId          String?  @map("flow_id")
+  nodeId          String?  @map("node_id")
+  contactId       String?  @map("contact_id")
+  
+  metadata        Json?
+  
+  createdAt       DateTime @default(now())  @map("created_at")
+
+  @@index([clientId, createdAt(sort: Desc)])
+  @@index([eventType, createdAt(sort: Desc)])
+  @@map("analytics_events")
+}
+</parameter>
+<parameter name="path">/mnt/user-data/outputs/prisma.schema</parameter>

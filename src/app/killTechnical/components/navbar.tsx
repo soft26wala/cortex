@@ -25,9 +25,9 @@ export default function Navbar() {
     >
       <div className="container mx-auto px-4 md:px-8">
         <div className="flex items-center justify-between">
-          <Link href="/" className="text-white font-bold text-2xl tracking-tighter">
+          <a href="/" className="text-white font-bold text-2xl tracking-tighter">
             Kill Technical<span className="text-neutral-400">.</span>
-          </Link>
+          </a>
 
           <nav className="hidden md:flex items-center space-x-8">
             <Link
@@ -68,14 +68,14 @@ export default function Navbar() {
               </Link> */}
             </div>
                <div className="my-color mx-2">
-              <Link
+              <a
                 href="/"
                 className="transition-colors text-sm uppercase tracking-widest"
               >
                 <button className="px-5 py-2 text-sm uppercase tracking-widest transition-colors">
                  Cortex Web Solutions
                 </button>
-              </Link>
+              </a>
             </div>
           </div>
 
