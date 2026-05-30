@@ -1,0 +1,8 @@
+# Must configure BEFORE running
+WHATSAPP_APP_SECRET=your_meta_secret
+WEBHOOK_VERIFY_TOKEN=your_verify_token
+JWT_SECRET=min_32_chars_long_secret_key
+JWT_REFRESH_SECRET=another_32_char_secret
+ENCRYPTION_KEY=32_hex_characters_for_aes256
+ENCRYPTION_IV=16_hex_characters
+OPENAI_API_KEY=sk-proj-xxx (optional but needed for AI nodes)
