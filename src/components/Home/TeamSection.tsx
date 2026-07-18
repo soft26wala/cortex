@@ -52,15 +52,15 @@ const teamMembers = [
     }
   },
 
-  {
-    name: "Jaipal",
-    roles: ["UI/UX Designer"],
-    image: "/images/hero/jaipal.jpeg",
-    socials: {
-      dribbble: "#",
-      linkedin: "#"
-    }
-  },
+  // {
+  //   name: "Jaipal",
+  //   roles: ["UI/UX Designer"],
+  //   image: "/images/hero/jaipal.jpeg",
+  //   socials: {
+  //     dribbble: "#",
+  //     linkedin: "#"
+  //   }
+  // },
 
 
 
