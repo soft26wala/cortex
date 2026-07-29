@@ -1,285 +1,254 @@
 "use client";
 import React, { useState } from "react";
 import Link from "next/link";
-import styles from "./ProductsSection.module.css";
+import { motion, AnimatePresence } from "framer-motion";
+import { ExternalLink, Sparkles, CheckCircle2, Layers, Filter } from "lucide-react";
 
-const products = [
+export interface PortfolioProject {
+  id: string;
+  title: string;
+  website: string;
+  category: "Healthcare" | "Industrial" | string;
+  categoryLabel: string;
+  status: "Live" | "In Development";
+  description: string;
+  tags: string[];
+  accentColor: string;
+  screenshotUrl?: string;
+}
+
+export const REAL_PROJECTS: PortfolioProject[] = [
   {
-    id: "01",
-    name: "Cortex CMS",
-    category: "CONTENT MANAGEMENT",
+    id: "anant-ayurveda",
+    title: "Anant Ayurveda",
+    website: "https://www.anantayurvedaa.com/",
+    category: "Healthcare",
+    categoryLabel: "Healthcare / Ayurveda",
+    status: "Live",
     description:
-      "A powerful headless CMS built for speed and flexibility. Manage your content, media, and workflows with an intuitive drag-and-drop builder designed for modern teams.",
-    tags: ["Next.js", "Node.js", "MongoDB"],
-    bg: "#102C46",
-    textColor: "#FFFFFF",
-    accentColor: "#46C4FF",
-    liveUrl: "#",
-    showcaseUrl: "#",
-    imageUrl: "/images/products/cms-preview.png",
-    imageSide: "right",
+      "Modern healthcare platform for holistic Ayurvedic treatments, wellness consultations, and authentic natural wellness products.",
+    tags: ["Next.js", "React", "Tailwind CSS", "Node.js"],
+    accentColor: "#10b981", // Emerald Green
+    screenshotUrl: "https://api.microlink.io/?url=https%3A%2F%2Fwww.anantayurvedaa.com%2F&screenshot=true&embed=screenshot.url",
   },
   {
-    id: "02",
-    name: "Cortex Learner",
-    category: "E-LEARNING PLATFORM",
+    id: "gk-enterprise",
+    title: "GK Enterprise",
+    website: "https://www.gkenterpris.com/",
+    category: "Industrial",
+    categoryLabel: "Industrial Products",
+    status: "Live",
     description:
-      "An interactive online learning platform with live sessions, course management, quizzes, and certifications — all in one sleek experience.",
-    tags: ["React", "Django", "PostgreSQL"],
-    bg: "#1C7C52",
-    textColor: "#FFFFFF",
-    accentColor: "#7DF9C2",
-    liveUrl: "#",
-    showcaseUrl: "#",
-    imageUrl: "/images/products/learner-preview.png",
-    imageSide: "left",
-  },
-  {
-    id: "03",
-    name: "Cortex Events",
-    category: "EVENT MANAGEMENT",
-    description:
-      "End-to-end event management software that handles ticketing, registrations, schedules, speaker management, and real-time analytics.",
-    tags: ["Next.js", "Stripe", "Prisma"],
-    bg: "#F2EC1D",
-    textColor: "#102C46",
-    accentColor: "#102C46",
-    liveUrl: "#",
-    showcaseUrl: "#",
-    imageUrl: "/images/products/events-preview.png",
-    imageSide: "right",
-  },
-  {
-    id: "04",
-    name: "Cortex Analytics",
-    category: "DATA & ANALYTICS",
-    description:
-      "Visualize your business data with beautiful dashboards, smart reports, and real-time KPIs. Built for enterprises that demand clarity.",
-    tags: ["TypeScript", "D3.js", "Redis"],
-    bg: "#2F73F2",
-    textColor: "#FFFFFF",
-    accentColor: "#EFFBFF",
-    liveUrl: "#",
-    showcaseUrl: "#",
-    imageUrl: "/images/products/analytics-preview.png",
-    imageSide: "left",
+      "Enterprise B2B portal for premium industrial tools, machinery, and manufacturing supply chain solutions.",
+    tags: ["Next.js", "TypeScript", "Tailwind CSS", "REST API"],
+    accentColor: "#3b82f6", // Electric Blue
+    screenshotUrl: "https://api.microlink.io/?url=https%3A%2F%2Fwww.gkenterpris.com%2F&screenshot=true&embed=screenshot.url",
   },
 ];
 
-const ArrowIcon = ({ color = "currentColor" }: { color?: string }) => (
-  <svg
-    width="20"
-    height="20"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke={color}
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M7 17L17 7" />
-    <path d="M7 7h10v10" />
-  </svg>
-);
+const CATEGORIES = ["All", "Healthcare", "Industrial"];
 
-const ProductCard = ({ product, index }: { product: (typeof products)[0]; index: number }) => {
-  const [hovered, setHovered] = useState(false);
-  const isLeft = product.imageSide === "left";
+export default function ProductsSection() {
+  const [activeCategory, setActiveCategory] = useState("All");
+
+  const filteredProjects = REAL_PROJECTS.filter(
+    (project) => activeCategory === "All" || project.category === activeCategory
+  );
 
   return (
-    <div
-      className="products-card dark:bg-darkmode bg-orange-50 mt-24"
-      style={{ backgroundColor: product.bg }}
-      data-aos="fade-up"
-      data-aos-delay={index * 100}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-    >
-      <div
-        className={`products-card-inner ${isLeft ? "products-card-reverse" : ""}`}
-      >
-        {/* Text Content */}
-        <div className="products-card-content">
-          <div className="products-card-meta">
-            <span
-              className="products-category"
-              style={{ color: product.accentColor }}
-            >
-              {product.category}
-            </span>
-            <span
-              className="products-number"
-              style={{ color: product.accentColor, opacity: 0.5 }}
-            >
-              {product.id}
-            </span>
-          </div>
+    <section className="py-24 bg-[#050507] text-white px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+      {/* Background Radial Glow */}
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[700px] h-[350px] bg-blue-600/10 rounded-full blur-[150px] pointer-events-none" />
 
-          <h2
-            className="products-card-title"
-            style={{ color: product.textColor }}
-          >
-            {product.name}
-          </h2>
-
-          <p
-            className="products-card-description"
-            style={{ color: product.textColor, opacity: 0.8 }}
-          >
-            {product.description}
-          </p>
-
-          {/* Tags */}
-          <div className="products-tags">
-            {product.tags.map((tag) => (
-              <span
-                key={tag}
-                className="products-tag"
-                style={{
-                  borderColor: product.accentColor,
-                  color: product.accentColor,
-                }}
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
-
-          {/* CTA Buttons */}
-          <div className="products-cta">
-            <Link
-              href={product.liveUrl}
-              className="products-btn-primary"
-              style={{
-                backgroundColor: product.accentColor,
-                color: product.bg,
-              }}
-            >
-              <span>See Live</span>
-              <ArrowIcon color={product.bg} />
-            </Link>
-            <Link
-              href={product.showcaseUrl}
-              className="products-btn-outline"
-              style={{
-                borderColor: product.accentColor,
-                color: product.accentColor,
-              }}
-            >
-              <span>Learn More</span>
-            </Link>
-          </div>
-        </div>
-
-        {/* Image / Visual */}
-        <div
-          className={`products-card-visual ${hovered ? "products-card-visual-hovered" : ""}`}
+      <div className="max-w-7xl mx-auto relative z-10">
+        
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="text-center max-w-3xl mx-auto mb-12"
         >
-          <div
-            className="products-mock-screen"
-            style={{ borderColor: `${product.accentColor}33` }}
-          >
-            <div className="products-mock-bar">
-              <span style={{ backgroundColor: "#ff5f57" }} />
-              <span style={{ backgroundColor: "#febc2e" }} />
-              <span style={{ backgroundColor: "#28c840" }} />
-            </div>
-            <div
-              className="products-mock-content"
-              style={{ backgroundColor: `${product.accentColor}15` }}
+          <span className="px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-semibold uppercase tracking-widest inline-flex items-center gap-2">
+            <Sparkles size={14} className="text-blue-400 animate-pulse" />
+            Client Showcase & Portfolio
+          </span>
+          
+          <h2 className="text-4xl sm:text-5xl font-black text-white tracking-tight mt-4 mb-4">
+            Real Projects.{" "}
+            <span className="bg-gradient-to-r from-blue-400 via-indigo-300 to-cyan-400 bg-clip-text text-transparent">
+              Real Impact.
+            </span>
+          </h2>
+          
+          <p className="text-zinc-400 text-sm sm:text-base leading-relaxed">
+            Explore live digital platforms designed and engineered by Cortex Web Solutions for industry leaders.
+          </p>
+        </motion.div>
+
+        {/* Filter Tabs */}
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="flex items-center justify-center gap-2 mb-16 flex-wrap"
+        >
+          {CATEGORIES.map((cat) => (
+            <button
+              key={cat}
+              onClick={() => setActiveCategory(cat)}
+              className={`px-5 py-2 rounded-xl text-xs font-bold transition-all border ${
+                activeCategory === cat
+                  ? "bg-blue-600 text-white border-blue-500 shadow-lg shadow-blue-600/30"
+                  : "bg-zinc-900/80 text-zinc-400 border-zinc-800 hover:text-white hover:border-zinc-700"
+              }`}
             >
-              {/* Abstract UI lines */}
-              <div className="products-mock-lines">
-                {[80, 60, 90, 45, 70].map((w, i) => (
+              {cat === "All" ? "All Projects" : cat}
+            </button>
+          ))}
+        </motion.div>
+
+        {/* Project Cards Grid */}
+        <AnimatePresence mode="wait">
+          {filteredProjects.length > 0 ? (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {filteredProjects.map((project, index) => (
+                <motion.div
+                  key={project.id}
+                  layout
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  className="group relative rounded-3xl bg-zinc-900/90 border border-zinc-800 hover:border-zinc-700 p-6 sm:p-8 flex flex-col justify-between shadow-2xl transition duration-500 overflow-hidden"
+                >
+                  {/* Glowing Hover Gradient Border */}
                   <div
-                    key={i}
-                    className="products-mock-line"
+                    className="absolute inset-0 opacity-0 group-hover:opacity-100 transition duration-700 pointer-events-none blur-2xl"
                     style={{
-                      width: `${w}%`,
-                      backgroundColor: product.accentColor,
-                      opacity: 0.3 + i * 0.1,
-                      animationDelay: `${i * 0.2}s`,
+                      background: `radial-gradient(circle at top right, ${project.accentColor}30 0%, transparent 70%)`,
                     }}
                   />
-                ))}
-                <div
-                  className="products-mock-box"
-                  style={{ backgroundColor: `${product.accentColor}40` }}
-                />
-              </div>
-              {/* Floating badge */}
-              <div
-                className="products-mock-badge"
-                style={{
-                  backgroundColor: product.accentColor,
-                  color: product.bg,
-                }}
-              >
-                <span className="products-mock-badge-dot" />
-                Live Product
-              </div>
+
+                  <div>
+                    {/* Top Row: Category Label & Live Badge */}
+                    <div className="flex items-center justify-between mb-4">
+                      <span
+                        className="text-[11px] font-bold uppercase tracking-wider px-3 py-1 rounded-full border"
+                        style={{
+                          borderColor: `${project.accentColor}40`,
+                          color: project.accentColor,
+                          backgroundColor: `${project.accentColor}15`,
+                        }}
+                      >
+                        {project.categoryLabel}
+                      </span>
+
+                      {/* Floating Live Badge */}
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[11px] font-bold uppercase tracking-wider">
+                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+                        Live Website
+                      </span>
+                    </div>
+
+                    {/* Screenshot Preview Container */}
+                    <div className="relative rounded-2xl overflow-hidden bg-zinc-950 border border-zinc-800/80 mb-6 aspect-video group-hover:border-zinc-700 transition">
+                      <img
+                        src={project.screenshotUrl}
+                        alt={`${project.title} screenshot`}
+                        loading="lazy"
+                        className="w-full h-full object-cover object-top transform group-hover:scale-105 transition duration-700"
+                        onError={(e) => {
+                          // Fallback styled placeholder if screenshot fails to load
+                          const target = e.target as HTMLImageElement;
+                          target.style.display = "none";
+                        }}
+                      />
+                      
+                      {/* Fallback Display if image doesn't load */}
+                      <div className="absolute inset-0 bg-gradient-to-br from-zinc-900 via-zinc-950 to-black p-6 flex flex-col justify-between -z-10">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-mono text-zinc-500">{project.website}</span>
+                          <span className="w-3 h-3 rounded-full bg-emerald-500" />
+                        </div>
+                        <div>
+                          <h3 className="text-2xl font-black text-white">{project.title}</h3>
+                          <p className="text-xs text-zinc-400 mt-1">{project.categoryLabel}</p>
+                        </div>
+                      </div>
+
+                      {/* Hover Overlay Button */}
+                      <div className="absolute inset-0 bg-black/50 backdrop-blur-xs opacity-0 group-hover:opacity-100 transition duration-300 flex items-center justify-center">
+                        <a
+                          href={project.website}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="px-5 py-2.5 bg-white text-zinc-900 font-bold text-xs rounded-xl shadow-xl flex items-center gap-2 hover:bg-zinc-100 transition transform hover:scale-105"
+                        >
+                          Visit Website <ExternalLink size={14} />
+                        </a>
+                      </div>
+                    </div>
+
+                    {/* Project Title & Description */}
+                    <h3 className="text-2xl font-bold text-white mb-2 group-hover:text-blue-400 transition-colors">
+                      {project.title}
+                    </h3>
+                    
+                    <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed mb-6">
+                      {project.description}
+                    </p>
+
+                    {/* Tech Stack Tags */}
+                    <div className="flex flex-wrap gap-2 mb-6">
+                      {project.tags.map((tag) => (
+                        <span
+                          key={tag}
+                          className="px-2.5 py-1 rounded-lg text-xs font-medium bg-zinc-950 border border-zinc-800 text-zinc-300"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Visit Website CTA */}
+                  <div className="pt-4 border-t border-zinc-800/80 flex items-center justify-between">
+                    <span className="text-xs text-zinc-500 font-mono truncate max-w-[200px]">
+                      {project.website.replace("https://", "").replace("/", "")}
+                    </span>
+
+                    <a
+                      href={project.website}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition shadow-lg shadow-blue-600/30 active:scale-95"
+                    >
+                      Visit Website <ExternalLink size={14} />
+                    </a>
+                  </div>
+
+                </motion.div>
+              ))}
             </div>
-          </div>
-        </div>
+          ) : (
+            /* Empty State for Future Categories */
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="p-12 bg-zinc-900/60 border border-zinc-800 rounded-3xl text-center max-w-md mx-auto"
+            >
+              <Layers size={32} className="text-zinc-500 mx-auto mb-3" />
+              <h3 className="text-lg font-bold text-white mb-1">More Projects Coming Soon</h3>
+              <p className="text-xs text-zinc-400">
+                We are constantly shipping new digital platforms. Check back soon!
+              </p>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
       </div>
-    </div>
+    </section>
   );
-};
-
-const ProductsSection = () => {
-  return (
-    <div className="products-wrapper dark:bg-darkmode bg-orange-50">
-      {/* Hero Header */}
-      <div className="products-hero" data-aos="fade-up">
-        <p className="products-hero-label">Our Products</p>
-        <h1 className="products-hero-title">
-          Crafting seamless digital products <br className="hidden md:block" />
-          with a{" "}
-          <span className="products-hero-highlight">detail-driven approach</span>
-        </h1>
-        <p className="products-hero-sub">
-          Explore the suite of tools and platforms we&apos;ve built to empower
-          businesses, educators, and event organizers worldwide.
-        </p>
-      </div>
-
-      {/* Stats Row */}
-      <div className="products-stats" data-aos="fade-up" data-aos-delay="100">
-        {[
-          { value: "4+", label: "Products Launched" },
-          { value: "500+", label: "Happy Clients" },
-          { value: "98%", label: "Satisfaction Rate" },
-          { value: "24/7", label: "Support Available" },
-        ].map((stat) => (
-          <div key={stat.label} className="products-stat-item">
-            <span className="products-stat-value">{stat.value}</span>
-            <span className="products-stat-label">{stat.label}</span>
-          </div>
-        ))}
-      </div>
-
-      {/* Products Cards */}
-      <div className="products-grid">
-        {products.map((product, index) => (
-          <ProductCard key={product.id} product={product} index={index} />
-        ))}
-      </div>
-
-      {/* CTA Section */}
-      <div className="products-cta-section" data-aos="fade-up">
-        <h2 className="products-cta-title dark:text-white">
-          Have a project in mind?
-        </h2>
-        <p className="products-cta-desc">
-          Let&apos;s build something amazing together. Our team is ready to
-          craft your next digital product.
-        </p>
-        <Link href="/contact" className="products-cta-btn btn_primary">
-          Let&apos;s Work Together &nbsp; →
-        </Link>
-      </div>
-    </div>
-  );
-};
-
-export default ProductsSection;
+}

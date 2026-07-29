@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import Image from "next/image";
+import { Lens } from "@/registry/magicui/lens";
 
 const ServicesSection = ({ showTitle = true }) => {
   const services = [
@@ -61,40 +62,24 @@ const ServicesSection = ({ showTitle = true }) => {
         {services.map((service) => (
           <div
             key={service.id}
-            // className="relative group rounded-2xl overflow-hidden border dark:border-white/10 dark:bg-white/5 bg-backdrop-blur-[10px] backdrop-blur-xl hover:scale-105 transition duration-500"
             className="relative group rounded-2xl overflow-hidden 
                       border border-black/10 dark:border-white/10 
                       bg-white/70 dark:bg-white/5 
                       backdrop-blur-xl 
                       transition duration-500 shadow-lg 
-                      transform-gpu 
-                      hover:scale-105 
-                      hover:-translate-y-3 
-                      hover:rotate-x-6 hover:rotate-y-6"
-            data-aos="fade-left"
+                      hover:shadow-2xl hover:-translate-y-2"
+            data-aos="fade-up"
             data-aos-duration="800"
           >
-            {/* Glow Effect */}
-            {/* <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition duration-500 bg-gradient-to-br from-blue-500/20 to-purple-500/20"></div> */}
-            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition duration-500 
-bg-gradient-to-br from-blue-500/30 via-purple-500/20 to-pink-500/20 blur-xl"></div>
-
-            {/* Image */}
-            <div className="relative aspect-video overflow-hidden">
-              <Image
-                src={service.image}
-                alt={service.name}
-                width={500}
-                height={350}
-                // className="w-full h-full object-contain p-6 transition duration-500 group-hover:scale-110"
-                className="w-full h-full object-contain p-6 
-transition duration-700 
-group-hover:scale-110 
-group-hover:-translate-y-2"
-                data-aos="fade-right"
-                data-aos-delay="200"
-                data-aos-duration="1000"
-              />
+            {/* Image with Magic UI Lens effect */}
+            <div className="relative p-3 bg-zinc-100/50 dark:bg-zinc-800/40 border-b border-black/5 dark:border-white/5">
+              <Lens zoomFactor={2} lensSize={140} ariaLabel={service.name}>
+                <img
+                  src={service.image}
+                  alt={service.name}
+                  className="w-full h-48 object-contain p-2 transition duration-500"
+                />
+              </Lens>
             </div>
 
             {/* Content */}
@@ -106,11 +91,11 @@ group-hover:-translate-y-2"
                 </h3>
 
                 {service.status === "available" ? (
-                  <span className="text-xs bg-green-500/20 text-green-400 px-3 py-1 rounded-full">
+                  <span className="text-xs bg-green-500/20 text-green-400 px-3 py-1 rounded-full font-medium">
                     Available
                   </span>
                 ) : (
-                  <span className="text-xs bg-yellow-500/20 text-yellow-400 px-3 py-1 rounded-full">
+                  <span className="text-xs bg-yellow-500/20 text-yellow-400 px-3 py-1 rounded-full font-medium">
                     Coming
                   </span>
                 )}
@@ -123,17 +108,17 @@ group-hover:-translate-y-2"
               {service.status === "available" ? (
                 <button
                   onClick={() => handleWhatsApp(service.name)}
-                  // className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white py-2 rounded-lg font-medium hover:opacity-90 transition"
                   className="w-full bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 
+text-white py-2.5 rounded-xl font-medium 
 shadow-lg shadow-green-500/20 
-hover:shadow-green-500/40 transition"
+hover:shadow-green-500/40 transition active:scale-95 flex items-center justify-center gap-2"
                 >
                   Chat on WhatsApp
                 </button>
               ) : (
                 <button
                   disabled
-                  className="w-full bg-white/10 text-gray-400 py-2 rounded-lg font-medium cursor-not-allowed"
+                  className="w-full bg-white/10 text-gray-400 py-2.5 rounded-xl font-medium cursor-not-allowed"
                 >
                   Coming Soon 🚀
                 </button>

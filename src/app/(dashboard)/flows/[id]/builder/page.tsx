@@ -1,167 +1,283 @@
-// app/(dashboard)/flows/page.tsx
+// app/(dashboard)/flows/[id]/builder/page.tsx
 'use client'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
+import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import {
-  Plus, GitBranch, Search, MoreVertical,
-  Trash2, Copy, ToggleLeft, ToggleRight, Loader2
+  ArrowLeft, Save, Check, Loader2, Eye, EyeOff, Sparkles,
+  ToggleLeft, ToggleRight, GitBranch, AlertCircle, Download, Upload
 } from 'lucide-react'
 import { api } from '@/lib/api'
 import { useSessionStore } from '@/store/session.store'
+import { useFlowStore } from '@/store/flow.store'
+import { FlowCanvas } from '@/components/builder/FlowCanvas'
+import { NodePalette } from '@/components/builder/NodePalette'
+import { PropertyPanel } from '@/components/builder/PropertyPanel'
+import { WhatsAppPreview } from '@/components/builder/WhatsAppPreview'
+import { cn } from '@/lib/utils'
 
-export default function FlowsPage() {
+export default function FlowBuilderPage() {
+  const params = useParams()
+  const router = useRouter()
+  const flowIdParam = (params?.id as string) ?? 'new'
   const { currentClientId } = useSessionStore()
-  const [flows, setFlows]   = useState<any[]>([])
-  const [search, setSearch] = useState('')
-  const [loading, setLoading] = useState(true)
-  const [menuId, setMenuId] = useState<string | null>(null)
 
-  const load = () => {
+  const {
+    flowId, flowName, nodes, edges, isDirty, isSaving,
+    setFlow, setFlowName, markSaving, markClean
+  } = useFlowStore()
+
+  const [isActive, setIsActive] = useState(true)
+  const [showPreview, setShowPreview] = useState(true)
+  const [loading, setLoading] = useState(true)
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
+  const [errorMsg, setErrorMsg] = useState('')
+
+  // Load flow data on mount or when param/clientId changes
+  useEffect(() => {
     if (!currentClientId) return
     setLoading(true)
-    api.get(`/flows?clientId=${currentClientId}`)
-      .then(setFlows)
-      .finally(() => setLoading(false))
-  }
-  useEffect(() => { load() }, [currentClientId])
 
-  const toggleActive = async (id: string, current: boolean) => {
-    await api.patch(`/flows/${id}`, { isActive: !current })
-    setFlows(prev => prev.map(f => f.id === id ? { ...f, is_active: !current } : f))
+    if (flowIdParam === 'new') {
+      // Setup default starter flow
+      const defaultNodes = [
+        {
+          id: 'trigger_node_1',
+          type: 'trigger',
+          position: { x: 250, y: 100 },
+          data: {
+            type: 'trigger',
+            label: 'Trigger Node',
+            triggers: ['hi', 'hello', 'start', 'order']
+          }
+        },
+        {
+          id: 'msg_node_1',
+          type: 'message',
+          position: { x: 250, y: 250 },
+          data: {
+            type: 'message',
+            label: 'Welcome Message',
+            text: 'Hello! Welcome to Cortex Web Solutions. How can we help you today?'
+          }
+        }
+      ]
+      const defaultEdges = [
+        {
+          id: 'etrigger_node_1-msg_node_1',
+          source: 'trigger_node_1',
+          target: 'msg_node_1',
+          type: 'smoothstep',
+          animated: true
+        }
+      ]
+      setFlow('new', 'New WhatsApp Flow', defaultNodes as any, defaultEdges as any)
+      setIsActive(true)
+      setLoading(false)
+    } else {
+      api.get(`/flows/${flowIdParam}`)
+        .then((res: any) => {
+          if (res) {
+            setFlow(
+              res.id ? String(res.id) : flowIdParam,
+              res.name || 'Untitled Flow',
+              res.data?.nodes || [],
+              res.data?.edges || []
+            )
+            setIsActive(res.is_active ?? true)
+          }
+        })
+        .catch((err: any) => {
+          console.error('Failed to load flow:', err)
+          setErrorMsg('Failed to load flow data')
+        })
+        .finally(() => setLoading(false))
+    }
+  }, [flowIdParam, currentClientId, setFlow])
+
+  const handleSave = useCallback(async () => {
+    if (!currentClientId) return
+    setSaveStatus('saving')
+    markSaving(true)
+    setErrorMsg('')
+
+    try {
+      const payload = {
+        id: flowIdParam !== 'new' && !isNaN(Number(flowIdParam)) ? Number(flowIdParam) : undefined,
+        name: flowName || 'Untitled Flow',
+        data: { nodes, edges },
+        clientId: currentClientId,
+        isActive,
+      }
+
+      const res = await api.post('/flows', payload)
+      if (res && res.id) {
+        if (flowIdParam === 'new') {
+          router.replace(`/flows/${res.id}/builder`)
+        }
+        setFlow(String(res.id), res.name, res.data?.nodes || nodes, res.data?.edges || edges)
+      }
+      markClean()
+      setSaveStatus('saved')
+      setTimeout(() => setSaveStatus('idle'), 2500)
+    } catch (err: any) {
+      console.error('Save error:', err)
+      setErrorMsg(err.message || 'Failed to save flow')
+      setSaveStatus('error')
+    } finally {
+      markSaving(false)
+    }
+  }, [currentClientId, flowIdParam, flowName, nodes, edges, isActive, markSaving, markClean, setFlow, router])
+
+  const handleExportJSON = () => {
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({ name: flowName, nodes, edges }, null, 2))
+    const downloadAnchor = document.createElement('a')
+    downloadAnchor.setAttribute("href", dataStr)
+    downloadAnchor.setAttribute("download", `${flowName.toLowerCase().replace(/\s+/g, '_')}_flow.json`)
+    document.body.appendChild(downloadAnchor)
+    downloadAnchor.click()
+    downloadAnchor.remove()
   }
 
-  const duplicate = async (flow: any) => {
-    await api.post('/flows', {
-      clientId: currentClientId,
-      name: `${flow.name} (copy)`,
-      data: flow.data,
-    })
-    load()
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-full min-h-[500px] bg-zinc-50 dark:bg-[#050507]">
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 className="animate-spin text-emerald-500" size={32} />
+          <p className="text-sm font-semibold text-zinc-400">Loading Cortex Visual Flow Builder…</p>
+        </div>
+      </div>
+    )
   }
-
-  const deleteFlow = async (id: string) => {
-    if (!confirm('Delete this flow?')) return
-    await api.delete(`/flows/${id}`)
-    setFlows(prev => prev.filter(f => f.id !== id))
-  }
-
-  const filtered = flows.filter(f => f.name.toLowerCase().includes(search.toLowerCase()))
 
   return (
-    <div className="p-6 max-w-6xl mx-auto space-y-5">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">Flows</h1>
-          <p className="text-sm text-zinc-500 mt-0.5">{flows.length} automation flows</p>
-        </div>
-        <Link href={`/flows/new/builder`}
-          className="flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-sm font-medium transition-colors">
-          <Plus size={15} /> New Flow
-        </Link>
-      </div>
-
-      <div className="relative">
-        <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" />
-        <input value={search} onChange={e => setSearch(e.target.value)}
-          placeholder="Search flows…"
-          className="w-full pl-9 pr-4 py-2.5 text-sm bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl focus:outline-none focus:border-emerald-400 transition-colors" />
-      </div>
-
-      {loading ? (
-        <div className="flex items-center justify-center py-16">
-          <Loader2 size={24} className="animate-spin text-emerald-500" />
-        </div>
-      ) : filtered.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 gap-4 text-zinc-400">
-          <div className="w-16 h-16 rounded-2xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
-            <GitBranch size={28} className="opacity-30" />
-          </div>
-          <div className="text-center">
-            <p className="text-sm font-medium text-zinc-500">No flows yet</p>
-            <p className="text-xs mt-1">Create your first automation flow</p>
-          </div>
-          <Link href="/flows/new/builder"
-            className="flex items-center gap-2 px-4 py-2 bg-emerald-500 text-white rounded-xl text-sm font-medium">
-            <Plus size={14} /> Create Flow
+    <div className="flex flex-col h-[calc(100vh-4rem)] bg-zinc-50 dark:bg-[#050507] overflow-hidden select-none">
+      {/* Top Header Bar */}
+      <header className="h-14 bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 px-4 flex items-center justify-between flex-shrink-0 z-20 shadow-sm">
+        <div className="flex items-center gap-3">
+          <Link
+            href="/flows"
+            className="p-2 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 transition-colors"
+            title="Back to Flows"
+          >
+            <ArrowLeft size={18} />
           </Link>
+
+          <div className="h-5 w-px bg-zinc-200 dark:bg-zinc-800" />
+
+          <div className="flex items-center gap-2">
+            <GitBranch size={16} className="text-emerald-500 flex-shrink-0" />
+            <input
+              type="text"
+              value={flowName}
+              onChange={(e) => setFlowName(e.target.value)}
+              placeholder="Flow Name"
+              className="bg-transparent font-bold text-zinc-900 dark:text-zinc-100 text-sm focus:outline-none focus:ring-1 focus:ring-emerald-500 rounded px-1.5 py-0.5"
+            />
+          </div>
+
+          {isDirty && (
+            <span className="text-[10px] font-bold text-amber-600 bg-amber-50 dark:bg-amber-900/30 px-2 py-0.5 rounded-full border border-amber-500/30">
+              Unsaved Changes
+            </span>
+          )}
         </div>
-      ) : (
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filtered.map(flow => (
-            <div key={flow.id}
-              className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-5 hover:shadow-md transition-shadow group relative">
-              {/* Menu */}
-              <div className="absolute top-4 right-4">
-                <button onClick={() => setMenuId(menuId === flow.id ? null : flow.id)}
-                  className="p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-400 transition-colors">
-                  <MoreVertical size={14} />
-                </button>
-                {menuId === flow.id && (
-                  <div className="absolute right-0 top-8 z-10 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl shadow-lg py-1 w-40">
-                    {[
-                      { icon: Copy,        label: 'Duplicate',    action: () => duplicate(flow) },
-                      { icon: Trash2,      label: 'Delete',       action: () => deleteFlow(flow.id), danger: true },
-                    ].map(({ icon: Icon, label, action, danger }) => (
-                      <button key={label} onClick={() => { action(); setMenuId(null) }}
-                        className={`w-full flex items-center gap-2.5 px-3 py-2 text-sm transition-colors ${
-                          danger ? 'text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20' : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800'
-                        }`}>
-                        <Icon size={13} />{label}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
 
-              <div className="flex items-start gap-3 mb-4">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center flex-shrink-0">
-                  <GitBranch size={16} className="text-white" />
-                </div>
-                <div className="flex-1 min-w-0 pr-6">
-                  <h3 className="font-semibold text-zinc-900 dark:text-zinc-100 truncate">{flow.name}</h3>
-                  <p className="text-xs text-zinc-400 mt-0.5">
-                    v{flow.version} · {flow.data?.nodes?.length ?? 0} nodes
-                  </p>
-                </div>
-              </div>
+        {/* Right Controls */}
+        <div className="flex items-center gap-3">
+          {errorMsg && (
+            <span className="text-xs text-red-500 flex items-center gap-1 font-medium">
+              <AlertCircle size={13} /> {errorMsg}
+            </span>
+          )}
 
-              {/* Trigger preview */}
-              <div className="mb-4 flex flex-wrap gap-1">
-                {(flow.data?.nodes ?? [])
-                  .flatMap((n: any) => n.triggers ?? [])
-                  .slice(0, 4)
-                  .map((t: string, i: number) => (
-                    <span key={i} className="px-2 py-0.5 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 rounded-full text-[10px] font-medium">
-                      {t}
-                    </span>
-                  ))
-                }
-              </div>
+          {/* Export JSON */}
+          <button
+            onClick={handleExportJSON}
+            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+            title="Export Flow JSON"
+          >
+            <Download size={14} /> Export JSON
+          </button>
 
-              <div className="flex items-center justify-between">
-                <button onClick={() => toggleActive(flow.id, flow.is_active)}
-                  className={`flex items-center gap-1.5 text-xs font-medium transition-colors ${
-                    flow.is_active ? 'text-emerald-600' : 'text-zinc-400'
-                  }`}>
-                  {flow.is_active
-                    ? <ToggleRight size={16} className="text-emerald-500" />
-                    : <ToggleLeft size={16} />
-                  }
-                  {flow.is_active ? 'Active' : 'Inactive'}
-                </button>
-                <Link href={`/flows/${flow.id}/builder`}
-                  className="text-xs font-medium text-emerald-600 hover:text-emerald-700 transition-colors">
-                  Edit →
-                </Link>
-              </div>
+          {/* Active Toggle */}
+          <button
+            onClick={() => setIsActive(!isActive)}
+            className={cn(
+              'flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-xl transition-all border',
+              isActive
+                ? 'text-emerald-600 bg-emerald-50 dark:bg-emerald-900/30 border-emerald-500/30'
+                : 'text-zinc-400 bg-zinc-100 dark:bg-zinc-800 border-zinc-300 dark:border-zinc-700'
+            )}
+          >
+            {isActive ? <ToggleRight size={16} className="text-emerald-500" /> : <ToggleLeft size={16} />}
+            {isActive ? 'Active' : 'Inactive'}
+          </button>
 
-              <p className="text-[10px] text-zinc-400 mt-3">
-                Updated {new Date(flow.updated_at).toLocaleDateString()}
-              </p>
+          {/* Toggle Live Preview */}
+          <button
+            onClick={() => setShowPreview(!showPreview)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors border border-zinc-200 dark:border-zinc-800"
+          >
+            {showPreview ? <EyeOff size={14} /> : <Eye size={14} />}
+            {showPreview ? 'Hide Preview' : 'WhatsApp Preview'}
+          </button>
+
+          {/* Save Button */}
+          <button
+            onClick={handleSave}
+            disabled={saveStatus === 'saving'}
+            className={cn(
+              'flex items-center gap-2 px-4 py-1.5 rounded-xl text-xs font-bold text-white transition-all shadow-md active:scale-95',
+              saveStatus === 'saved'
+                ? 'bg-emerald-600'
+                : saveStatus === 'error'
+                ? 'bg-red-500'
+                : 'bg-emerald-500 hover:bg-emerald-600'
+            )}
+          >
+            {saveStatus === 'saving' ? (
+              <Loader2 size={14} className="animate-spin" />
+            ) : saveStatus === 'saved' ? (
+              <Check size={14} />
+            ) : (
+              <Save size={14} />
+            )}
+            {saveStatus === 'saving'
+              ? 'Saving…'
+              : saveStatus === 'saved'
+              ? 'Saved!'
+              : 'Save Flow'}
+          </button>
+        </div>
+      </header>
+
+      {/* Editor Body */}
+      <div className="flex-1 flex overflow-hidden relative">
+        {/* Left Palette */}
+        <NodePalette />
+
+        {/* Center Canvas */}
+        <div className="flex-1 relative">
+          <FlowCanvas />
+        </div>
+
+        {/* Right Sidebar: Property Panel or WhatsApp Preview */}
+        {showPreview ? (
+          <div className="w-80 flex-shrink-0 border-l border-zinc-200 dark:border-zinc-800 flex flex-col bg-white dark:bg-zinc-900 shadow-xl">
+            <div className="px-4 py-2.5 border-b border-zinc-100 dark:border-zinc-800 flex items-center justify-between bg-zinc-50/50 dark:bg-zinc-950/40">
+              <span className="text-xs font-bold text-zinc-700 dark:text-zinc-300 flex items-center gap-1.5">
+                <Sparkles size={14} className="text-emerald-500" /> WhatsApp Live Simulator
+              </span>
             </div>
-          ))}
-        </div>
-      )}
+            <div className="flex-1 overflow-hidden">
+              <WhatsAppPreview />
+            </div>
+          </div>
+        ) : (
+          <PropertyPanel />
+        )}
+      </div>
     </div>
   )
 }

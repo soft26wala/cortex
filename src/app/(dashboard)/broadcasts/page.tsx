@@ -74,7 +74,7 @@ export default function BroadcastsPage() {
   }, [token])
 
   const cancel = async (id: string) => {
-    await api.post(`/broadcasts/${id}/cancel`)
+    await api.post(`/broadcasts/${id}/cancel`, {})
     load()
   }
 

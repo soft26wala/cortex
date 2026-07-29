@@ -1,198 +1,206 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { Check, Link, Zap } from "lucide-react"
-import { Icon } from "@iconify/react";
-import { useEffect, useRef, useState } from "react";
-import Callback from "./Callback";
+import { Check, Zap } from "lucide-react"
+import { useEffect, useRef, useState } from "react"
+import Callback from "./Callback"
+import { Icon } from "@iconify/react"
 
 export default function Pricing() {
-  const [iscbUpOpen, setIsCbUpOpen] = useState(false);
-    const callbackRef = useRef<HTMLDivElement>(null);
+  const [iscbUpOpen, setIsCbUpOpen] = useState(false)
+  const callbackRef = useRef<HTMLDivElement>(null)
 
-    const handleClickOutside = (event: MouseEvent) => {
+  const handleClickOutside = (event: MouseEvent) => {
+    if (
+      callbackRef.current &&
+      !callbackRef.current.contains(event.target as Node)
+    ) {
+      setIsCbUpOpen(false)
+    }
+  }
 
-
-        // Close Callback Modal
-        if (
-            callbackRef.current &&
-            !callbackRef.current.contains(event.target as Node)
-        ) {
-            setIsCbUpOpen(false);
-        }
-
-    };
-
-    useEffect(() => {
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => {
-            document.removeEventListener("mousedown", handleClickOutside);
-        };
-    }, [iscbUpOpen]);
-
-    // close popup on outside click
-    const handleOutsideClick = (e: MouseEvent) => {
-        if (callbackRef.current && !callbackRef.current.contains(e.target as Node)) {
-            setIsCbUpOpen(false);
-        }
-    };
-
-    useEffect(() => {
-        if (iscbUpOpen) {
-            document.addEventListener("mousedown", handleOutsideClick);
-        }
-        return () => document.removeEventListener("mousedown", handleOutsideClick);
-    }, [iscbUpOpen]);
-
-
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside)
+    }
+  }, [iscbUpOpen])
 
   const plans = [
     {
       name: "INDIAN STOCK MARKET",
       description: "Master The Art of Indian Stock Trading",
       price: 4999,
-      features: ["Online & Offline classes", "Mastery on Equity", "futures & Options", " Backtesting", "Operator psychology", "Add Telegram Premi Group Access","Reavling price action trap","Smart Money Concept"],
-      cta: "Buy Now",
+      features: [
+        "Online & Offline classes",
+        "Mastery on Equity",
+        "Futures & Options",
+        "Backtesting",
+        "Operator psychology",
+        "Telegram Premium Access",
+        "Revealing Price Action Trap",
+        "Smart Money Concept",
+      ],
+      cta: "Enroll Now",
       popular: false,
-      color: "#22c55e", // Green Power
+      color: "#22c55e",
     },
     {
       name: "ALL IN ONE TRADING PROGRAM",
       description: "Learn Indian, Forex & Crypto Trading",
       price: 8999,
-      features: ["All in one ", "Advanced strategy", "Backtestingt", "3 Sigma stragedy", "Personalmentorship", "One on One doubt session", "Advanced stragedy","PERSONAL MENTORSHIP"],
-      cta: "Buy Now",
+      features: [
+        "All in One Access",
+        "Advanced Strategy",
+        "Backtesting Suite",
+        "3 Sigma Strategy",
+        "Personal Mentorship",
+        "1-on-1 Doubt Sessions",
+        "XAU/USD Mastery",
+        "PERSONAL MENTORSHIP",
+      ],
+      cta: "Enroll Now",
       popular: true,
-      color: "#3b82f6", // Blue Power
+      color: "#3b82f6",
     },
     {
       name: "FOREX TRADING PLATFORM",
-      description: "Develop Forex Operator Mindset Through Psychology & Strategy",
+      description: "Develop Forex Operator Mindset Through Strategy",
       price: 4999,
-      features: ["0 to Hero", "Basic knowledge", "Advanced trading strategy", "astery on funded account", "Backtesting", "Live Trading Session", "XAU/USD Mastery","PRICE ACTION", ],
-      cta: "Buy Now",
+      features: [
+        "0 to Hero",
+        "Basic & Advanced Knowledge",
+        "Mastery on Funded Accounts",
+        "Backtesting",
+        "Live Trading Sessions",
+        "XAU/USD Mastery",
+        "Price Action Mastery",
+      ],
+      cta: "Enroll Now",
       popular: false,
-      color: "#ef4444", // Red Power
+      color: "#ef4444",
     },
     {
       name: "CRYPTO MARKET MASTERY",
       description: "Professional Crypto Trading, Strategy & Psychology",
       price: 4999,
-      features: ["Everything in Basic", "How to find best crypto", "How to trade in crypto", "3 Backtesting", "Operators psychology", "How to make a crypto mastery","Live trading session","BTC advanced strategy"],
-      cta: "Buy Now",
+      features: [
+        "Everything in Basic",
+        "Find High Potential Crypto",
+        "Trade Execution & Risk Control",
+        "Backtesting & Analytics",
+        "Operators Psychology",
+        "Live Trading Sessions",
+        "BTC Advanced Strategy",
+      ],
+      cta: "Enroll Now",
       popular: false,
-      color: "#ec4899", // Pink Power
+      color: "#ec4899",
     },
   ]
 
   return (
-    <section id="pricing" className="py-24 relative overflow-hidden bg-black">
+    <section id="pricing" className="py-24 relative overflow-hidden bg-[#050507]">
       <div className="container mx-auto px-4 md:px-8 relative z-10">
-        <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold tracking-tighter text-white">
-            Course Pricing <br />
-            <span className="text-white/50 text-3xl">Unleash Your Potential</span>
+        
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="mb-16 text-center max-w-2xl mx-auto"
+        >
+          <span className="px-3.5 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-semibold uppercase tracking-widest">
+            Course Pricing & Programs
+          </span>
+          <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-white mt-4">
+            Unleash Your Potential
           </h2>
+          <p className="text-zinc-400 text-sm mt-2">
+            Structured trading programs designed to take you from beginner to profitable trader.
+          </p>
         </motion.div>
 
-        <div className="flex md:grid md:grid-cols-4 gap-8 overflow-x-auto pb-12 snap-x scrollbar-hide">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {plans.map((plan, index) => (
-            <div
+            <motion.div
               key={index}
-              className="relative p-[2px] overflow-hidden group min-w-[85%] md:min-w-full snap-center"
+              initial={{ opacity: 0, y: 25 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
+              className="relative p-[2px] overflow-hidden group rounded-3xl apple-liquid-glass apple-liquid-card transition duration-500 shadow-2xl flex flex-col justify-between"
             >
-              {/* 1. ALWAYS ROTATING ENERGY BORDER */}
+              {/* Rotating Energy Border */}
               <motion.div
                 animate={{ rotate: 360 }}
-                transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-                className="absolute inset-[-200%] opacity-100"
+                transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
+                className="absolute inset-[-200%] opacity-20 group-hover:opacity-100 transition duration-500 pointer-events-none"
                 style={{
-                  background: `conic-gradient(from 0deg, transparent, ${plan.color}, transparent 20%, ${plan.color}, transparent 50%)`,
+                  background: `conic-gradient(from 0deg, transparent, ${plan.color}, transparent 30%, ${plan.color}, transparent 60%)`,
                 }}
               />
 
-              {/* Card Main Body */}
-              <div className="relative bg-[#050505] p-8 h-full z-10 flex flex-col">
-                
-                {/* 2. CENTER POWER ORB (The "Bulb" Effect) */}
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full pointer-events-none z-0 overflow-hidden">
-                  <motion.div
-                    animate={{ scale: [1, 1.2, 1], opacity: [0.2, 0.4, 0.2] }}
-                    transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-40 h-40 rounded-full blur-[60px]"
-                    style={{ backgroundColor: plan.color }}
-                  />
-                  {/* The Bright Core (White Center) */}
-                  <motion.div
-                    animate={{ opacity: [0.4, 0.8, 0.4] }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-white rounded-full shadow-[0_0_20px_10px_#fff]"
-                    style={{ boxShadow: `0_0_30px_15px_#fff, 0_0_60px_30px_${plan.color}` }}
-                  />
-                </div>
+              {/* Card Body */}
+              <div className="relative bg-[#08080c] p-7 rounded-[22px] h-full z-10 flex flex-col justify-between">
+                <div>
+                  
+                  {plan.popular && (
+                    <div className="mb-3">
+                      <span className="px-3 py-1 bg-blue-500/20 text-blue-400 border border-blue-500/30 text-[10px] font-extrabold uppercase tracking-widest rounded-full">
+                        ★ Most Popular
+                      </span>
+                    </div>
+                  )}
 
-                <div className="relative z-10">
-                  <h3 className="text-xl font-bold text-white mb-2">{plan.name}</h3>
+                  <h3 className="text-lg font-bold text-white mb-2 leading-snug">{plan.name}</h3>
+                  <p className="text-xs text-zinc-400 mb-5">{plan.description}</p>
+
                   <div className="flex items-baseline mb-6">
-                    <span className="text-4xl font-black text-white" style={{ textShadow: `0 0 20px ${plan.color}` }}>₹{plan.price}</span>
-                    <span className="text-white/40 ml-2">/-</span>
+                    <span className="text-3xl font-black text-white" style={{ textShadow: `0 0 15px ${plan.color}66` }}>
+                      ₹{plan.price.toLocaleString('en-IN')}
+                    </span>
+                    <span className="text-zinc-500 text-xs ml-1">/-</span>
                   </div>
 
-                  <ul className="space-y-4 mb-8">
+                  <ul className="space-y-3 mb-8">
                     {plan.features.map((f, i) => (
-                      <li key={i} className="flex items-center text-sm text-white/70">
-                        <Check className="w-4 h-4 mr-2" style={{ color: plan.color }} /> {f}
+                      <li key={i} className="flex items-center text-xs text-zinc-300">
+                        <Check className="w-3.5 h-3.5 mr-2 flex-shrink-0" style={{ color: plan.color }} />
+                        <span className="truncate">{f}</span>
                       </li>
                     ))}
                   </ul>
-
-                  {/* 3. SUPERPOWER BUTTON */}
-                  <button
-                    className="w-full mt-auto relative py-4 bg-transparent border-2 overflow-hidden group/btn transition-all duration-300"
-                    style={{ borderColor: plan.color }}
-                     onClick={() => {
-                setIsCbUpOpen(true); // Open the callback modal
-              }}
-                  >
-                    <motion.div
-                      animate={{ x: ["-100%", "200%"] }}
-                      transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                      className="absolute top-0 h-full w-20 skew-x-[-20deg] opacity-50"
-                      style={{ background: `linear-gradient(90deg, transparent, white, transparent)` }}
-                    />
-                    <span className="relative z-10 text-white font-bold tracking-[3px] uppercase text-[10px] flex items-center justify-center gap-2">
-                      <Zap className="w-3 h-3 fill-current" /> {plan.cta}
-                    </span>
-                    {/* Button Glow on Hover */}
-                    <div className="absolute inset-0 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300" style={{ backgroundColor: plan.color, filter: 'blur(20px)' }} />
-                  </button>
                 </div>
+
+                <button
+                  className="w-full relative py-3 rounded-xl bg-zinc-900 border text-white font-bold text-xs uppercase tracking-wider overflow-hidden group/btn transition-all duration-300 active:scale-95"
+                  style={{ borderColor: plan.color }}
+                  onClick={() => setIsCbUpOpen(true)}
+                >
+                  <span className="relative z-10 flex items-center justify-center gap-2">
+                    <Zap className="w-3.5 h-3.5 fill-current" /> {plan.cta}
+                  </span>
+                </button>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
       </div>
 
-      {/* Request Callback Modal Rendering */}
-        {iscbUpOpen && (
-          <div
-            ref={callbackRef}
-            className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center z-50 !m-0"
-          >
-            <div className="relative mx-auto w-full max-w-md overflow-hidden rounded-lg bg-black px-8 py-14 text-center">
-              <button
-                onClick={() => setIsCbUpOpen(false)} 
-                className=" hover:bg-gray-200 dark:hover:bg-gray-700 p-1 rounded-full absolute top-16 -right-3 mr-8 mt-8"
-                aria-label="Close Request Callback Modal"
-              >
-                <Icon icon="ic:round-close" className="text-2xl dark:text-white" />
-              </button>
-              {/* Assuming RequestCallback can take a prop to handle its closing */}
-              
-              <Callback signUpOpen={(value: boolean) => setIsCbUpOpen(value)} />
-            </div>
+      {/* Callback Modal */}
+      {iscbUpOpen && (
+        <div className="fixed top-0 left-0 w-full h-full bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div ref={callbackRef} className="relative w-full max-w-md bg-zinc-900 border border-zinc-800 p-8 rounded-2xl shadow-2xl">
+            <button
+              onClick={() => setIsCbUpOpen(false)}
+              className="absolute top-4 right-4 text-zinc-400 hover:text-white"
+            >
+              <Icon icon="ic:round-close" className="text-2xl" />
+            </button>
+            <Callback signUpOpen={(value: boolean) => setIsCbUpOpen(value)} />
           </div>
-        )}
+        </div>
+      )}
     </section>
   )
 }

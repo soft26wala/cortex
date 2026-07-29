@@ -5,7 +5,9 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { headerData } from "../Header/Navigation/menuData";
 import Logo from "./Logo";
 import HeaderLink from "../Header/Navigation/HeaderLink";
+import { Menu } from "lucide-react";
 import MobileHeaderLink from "../Header/Navigation/MobileHeaderLink";
+import MobileDrawer from "./Navigation/MobileDrawer";
 import Signin from "@/components/Auth/SignIn";
 import SignUp from "@/components/Auth/SignUp";
 import { useTheme } from "next-themes";
@@ -81,14 +83,6 @@ const Header: React.FC = () => {
     ) {
       setIsCbUpOpen(false);
     }
-    // Close Mobile Menu
-    if (
-      mobileMenuRef.current &&
-      !mobileMenuRef.current.contains(event.target as Node) &&
-      navbarOpen
-    ) {
-      setNavbarOpen(false);
-    }
   };
 
   useEffect(() => {
@@ -124,16 +118,25 @@ const Header: React.FC = () => {
     <>
       <div className="relative"></div>
       <header
-        className={`fixed h-24 top-0 py-1 z-50 w-full transition-all 
-  backdrop-blur-xl 
-  border-b border-white/10 
+        className={`fixed top-0 left-0 z-[9999] w-full h-24 transition-all duration-500
   ${sticky
-            ? "bg-white/70 dark:bg-white/5 shadow-lg"
-            : "bg-transparent"
+            ? `
+        bg-white/10
+        dark:bg-black/10
+        backdrop-blur-3xl
+        border-b
+        border-white/20
+        dark:border-white/10
+        shadow-[0_8px_40px_rgba(0,0,0,0.18)]
+        supports-[backdrop-filter]:bg-white/5
+      `
+            : `
+        bg-transparent
+      `
           }`}
       >
-        <div className="container">
-          <div className="flex items-center justify-between py-6">
+        <div className="container h-full">
+          <div className="flex h-full items-center justify-between">
             <Logo />
             <ul className="hidden lg:flex flex-grow items-center justify-center space-x-6">
 
@@ -147,7 +150,7 @@ const Header: React.FC = () => {
               <button
                 aria-label="Toggle theme"
                 onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-                className="flex h-8 w-8 items-center justify-center text-body-color duration-300 dark:text-white"
+                className="hidden lg:flex h-8 w-8 items-center justify-center text-body-color duration-300 dark:text-white"
               >
                 <svg
                   viewBox="0 0 16 16"
@@ -232,127 +235,33 @@ const Header: React.FC = () => {
                 </div>
               )}
               <button
-                onClick={() => setNavbarOpen(!navbarOpen)}
-                className="block lg:hidden p-2 rounded-lg"
-                aria-label="Toggle mobile menu"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setNavbarOpen(!navbarOpen);
+                }}
+                className="lg:hidden flex items-center justify-center w-10 h-10 rounded-xl"
               >
-                <span className="block w-6 h-0.5 bg-black dark:bg-white"></span>
-                <span className="block w-6 h-0.5 bg-black dark:bg-white mt-1.5"></span>
-                <span className="block w-6 h-0.5 bg-black dark:bg-white mt-1.5"></span>
-              </button>
-            </div>
-          </div>
-        </div>
-        {navbarOpen && (
-          <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 z-40" />
-        )}
-
-        <div
-          ref={mobileMenuRef}
-          className={`lg:hidden fixed top-0 right-0 h-full w-full bg-white dark:bg-darkmode shadow-lg transform transition-transform duration-300 max-w-64 ${navbarOpen ? "translate-x-0" : "translate-x-full"
-            } z-50`}
-        >
-          <div className="flex items-center justify-between p-4">
-            <h2 className="text-lg font-bold text-black dark:text-SlateBlueText">
-              Menu
-            </h2>
-            <button
-              onClick={() => setNavbarOpen(false)}
-              aria-label="Close mobile menu"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                className="dark:text-SlateBlueText"
-              >
-                <path
-                  fill="none"
-                  stroke="currentColor"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M6 18L18 6M6 6l12 12"
+                <Menu
+                  size={22}
+                  strokeWidth={2.4}
+                  className="text-white dark:text-white"
                 />
-              </svg>
-            </button>
-          </div>
-          <nav className="flex flex-col items-start p-4">
-            {headerData.map((item, index) => (
-              /* MobileHeaderLink now receives setNavbarOpen */
-              <MobileHeaderLink key={index} item={item} setNavbarOpen={setNavbarOpen} />
-            ))}
-
-            {/* Mobile Request Callback Button */}
-            <p
-              onClick={() => {
-                setIsCbUpOpen(true); // Open the callback modal
-                setNavbarOpen(false); // Close the mobile menu
-              }}
-              className="w-full text-left bg-transparent py-2 rounded-lg hover:bg-blue-600 hover:text-white p-0"
-            >
-              Request Callback
-            </p>
-
-            {!isLoggedIn ? (
-              <>
-                <div className="mt-4 flex flex-col space-y-4 w-full">
-                  <Link
-                    href="#"
-                    className="bg-transparent border border-solid border-primary text-primary px-4 py-2 rounded-lg hover:bg-blue-600 hover:text-white"
-                    onClick={() => {
-                      setIsSignInOpen(true);
-                      setNavbarOpen(false);
-                    }}
-                  >
-                    Sign In
-                  </Link>
-                  <Link
-                    href="#"
-                    className="bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-                    onClick={() => {
-                      setIsSignUpOpen(true);
-                      setNavbarOpen(false);
-                    }}
-                  >
-                    Sign Up
-                  </Link>
-                </div>
-              </>
-            ) : (
-              /* Agar login HAI to Logout dikhao */
-              <button
-                onClick={() => handleLogout()}
-                className="hidden lg:block bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-all"
-              >
-                Logout
               </button>
-            )}
-          </nav>
-        </div>
-
-        {/* Request Callback Modal Rendering */}
-        {iscbUpOpen && (
-          <div
-            ref={callbackRef}
-            className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center z-50 !m-0"
-          >
-            <div className="relative mx-auto w-full max-w-md overflow-hidden rounded-lg bg-white px-8 py-14 text-center dark:bg-darklight">
-              <button
-                onClick={() => setIsCbUpOpen(false)}
-                className=" hover:bg-gray-200 dark:hover:bg-gray-700 p-1 rounded-full absolute -top-5 -right-3 mr-8 mt-8"
-                aria-label="Close Request Callback Modal"
-              >
-                <Icon icon="ic:round-close" className="text-2xl dark:text-white" />
-              </button>
-              {/* Assuming RequestCallback can take a prop to handle its closing */}
-
-              <Callback signUpOpen={(value: boolean) => setIsCbUpOpen(value)} />
             </div>
           </div>
-        )
-        }
+        </div>
+
+        {/* Apple VisionOS Style Animated Mobile Drawer */}
+        <MobileDrawer
+          isOpen={navbarOpen}
+          onClose={() => setNavbarOpen(false)}
+          headerData={headerData}
+          isLoggedIn={isLoggedIn}
+          user={session?.user || manualUser}
+          onOpenSignIn={() => setIsSignInOpen(true)}
+          onOpenSignUp={() => setIsSignUpOpen(true)}
+          onLogout={handleLogout}
+        />
 
         {/* Successsful Login Alert */}
         <div className={`fixed top-6 end-1/2 translate-x-1/2 z-50 ${authDialog?.isSuccessDialogOpen == true ? "block" : "hidden"}`}>

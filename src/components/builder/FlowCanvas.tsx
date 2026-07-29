@@ -3,8 +3,7 @@
 import ReactFlow, {
   Background, Controls, MiniMap, Panel,
   useNodesState, useEdgesState, addEdge,
-  type NodeTypes, type EdgeTypes,
-  type Connection, type OnConnectStartParams,
+  type NodeTypes, type Connection,
   BackgroundVariant,
 } from 'reactflow'
 import 'reactflow/dist/style.css'
@@ -32,7 +31,7 @@ const nodeTypes: NodeTypes = {
 
 export function FlowCanvas() {
   const { nodes, edges, addEdge: storeAddEdge,
-          deleteNode, setSelectedNode, addNode } = useFlowStore()
+          setSelectedNode, addNode } = useFlowStore()
 
   const [rfNodes, setRfNodes, onNodesChange] = useNodesState(nodes)
   const [rfEdges, setRfEdges, onEdgesChange] = useEdgesState(edges)
@@ -44,8 +43,14 @@ export function FlowCanvas() {
   useEffect(() => { setRfEdges(edges) }, [edges])
 
   const onConnect = useCallback((params: Connection) => {
-    setRfEdges(es => addEdge({ ...params, type: 'smoothstep' }, es))
-    storeAddEdge({ ...params, id: `e${params.source}-${params.target}`, type: 'smoothstep' } as any)
+    const edgeConfig = {
+      ...params,
+      type: 'smoothstep',
+      animated: true,
+      style: { stroke: '#10b981', strokeWidth: 2 }
+    }
+    setRfEdges(es => addEdge(edgeConfig, es))
+    storeAddEdge({ ...params, id: `e${params.source}-${params.target}`, ...edgeConfig } as any)
   }, [])
 
   const onDrop = useCallback((event: React.DragEvent) => {
@@ -62,7 +67,7 @@ export function FlowCanvas() {
   }, [])
 
   return (
-    <div ref={reactFlowWrapper} className="w-full h-full">
+    <div ref={reactFlowWrapper} className="w-full h-full relative overflow-hidden bg-zinc-50 dark:bg-[#08080c]">
       <ReactFlow
         nodes={rfNodes}
         edges={rfEdges}
@@ -77,11 +82,15 @@ export function FlowCanvas() {
         nodeTypes={nodeTypes}
         deleteKeyCode="Delete"
         fitView
-        className="bg-zinc-50 dark:bg-zinc-950"
+        className="bg-transparent"
       >
-        <Background variant={BackgroundVariant.Dots} gap={20} size={1} />
-        <Controls />
-        <MiniMap nodeColor="#6366f1" maskColor="rgba(0,0,0,0.05)" />
+        <Background variant={BackgroundVariant.Dots} gap={24} size={1.2} color="rgba(100, 116, 139, 0.2)" />
+        <Controls className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl shadow-lg p-1 text-zinc-700 dark:text-zinc-300" />
+        <MiniMap
+          nodeColor="#10b981"
+          maskColor="rgba(0,0,0,0.1)"
+          className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl overflow-hidden shadow-lg"
+        />
       </ReactFlow>
     </div>
   )
