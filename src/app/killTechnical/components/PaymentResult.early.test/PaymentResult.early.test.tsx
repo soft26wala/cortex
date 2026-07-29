@@ -8,6 +8,8 @@ jest.mock("next/navigation", () => ({
   useSearchParams: jest.fn(),
 }));
 
+const mockUseSearchParams = require("next/navigation").useSearchParams as any;
+
 jest.mock("@iconify/react", () => ({
   Icon: (props: any) => <svg data-testid="icon" {...props} />,
 }));

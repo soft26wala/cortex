@@ -58,6 +58,7 @@
   "devDependencies": {
     "@types/aos": "^3.0.7",
     "@types/canvas-confetti": "^1.9.0",
+    "@types/jest": "^30.0.0",
     "@types/js-cookie": "^3.0.6",
     "@types/node": "^20",
     "@types/papaparse": "^5.5.2",

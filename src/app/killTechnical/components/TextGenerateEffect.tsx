@@ -57,7 +57,7 @@ export const TextGenerateEffect = memo(function TextGenerateEffect({
             <motion.span
               key={word + idx}
               custom={idx}
-              variants={variants}
+              variants={variants as any}
               initial="hidden"
               animate={isInView ? "visible" : "hidden"}
               className="inline-block mr-[0.25em]"
@@ -111,7 +111,7 @@ export const ContentGenerateEffect = memo(function ContentGenerateEffect({
   return (
     <motion.div
       ref={ref}
-      variants={variants}
+      variants={variants as any}
       initial="hidden"
       animate={isInView ? "visible" : "hidden"}
       className={className}

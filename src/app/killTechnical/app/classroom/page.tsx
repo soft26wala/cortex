@@ -13,7 +13,7 @@ export default function Classroom() {
     const cleanupCanvas = initCandleCanvas('candleCanvas');
     return () => {
       // Clean up the canvas when the component unmounts
-      cleanupCanvas();
+      cleanupCanvas?.();
     };
   }, []);
 
