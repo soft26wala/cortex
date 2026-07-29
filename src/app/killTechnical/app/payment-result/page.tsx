@@ -1,20 +1,16 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { Icon } from "@iconify/react";
 import Link from "next/link";
 import Navbar from "../../components/navbar";
 
-// payment-result?status=SUCCESS&tid=89834
-const PaymentResult = () => {
+function PaymentResultContent() {
   const searchParams = useSearchParams();
-  // Status hum URL se lenge (e.g., ?status=SUCCESS ya ?status=PENDING)
   const status = searchParams.get("status"); 
   const tid = searchParams.get("tid");
 
   return (
-       <>  <Navbar />
-    
     <div className="min-h-screen bg-white dark:bg-[#0a0a0a] flex items-center justify-center p-6">
       <div className="max-w-md w-full bg-gray-50 dark:bg-[#111] p-10 rounded-[2rem] border border-gray-200 dark:border-white/5 shadow-2xl text-center mt-16">
         
@@ -62,8 +58,16 @@ const PaymentResult = () => {
         </div>
       </div>
     </div>
-    </> 
   );
-};
+}
 
-export default PaymentResult;
+export default function PaymentResult() {
+  return (
+    <>
+      <Navbar />
+      <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading payment details...</div>}>
+        <PaymentResultContent />
+      </Suspense>
+    </>
+  );
+}
