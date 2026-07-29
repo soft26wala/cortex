@@ -1,10 +1,20 @@
 "use client";
 import React from "react";
-import Image from "next/image";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
-import { Sparkles, ArrowUpRight, Zap, CheckCircle2, Shield, Star } from "lucide-react";
+import { Sparkles, ArrowUpRight, Zap } from "lucide-react";
 import './style.css';
+
+const Hero3DCanvas = dynamic(() => import('./Hero3DCanvas'), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-[420px] sm:h-[500px] lg:h-[560px] flex flex-col items-center justify-center gap-3">
+      <div className="w-12 h-12 rounded-full border-2 border-blue-500/20 border-t-blue-500 animate-spin" />
+      <span className="text-xs font-semibold uppercase tracking-widest text-blue-500/80">Loading 3D Core...</span>
+    </div>
+  ),
+});
 
 const Hero = () => {
   return (
@@ -15,10 +25,10 @@ const Hero = () => {
 
       <div className="container mx-auto px-4 relative z-10">
         <div className="grid lg:grid-cols-12 grid-cols-1 items-center gap-12">
-          
+
           {/* Left Column: Text & CTAs */}
           <div className="lg:col-span-7 space-y-6">
-            
+
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -107,42 +117,14 @@ const Hero = () => {
 
           </div>
 
-          {/* Right Column: Founder Cards Showcase */}
+          {/* Right Column: 3D Interactive AI Core Showcase */}
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="lg:col-span-5 lg:flex hidden items-center justify-center gap-4 relative"
+            className="lg:col-span-5 flex items-center justify-center relative w-full"
           >
-            <div className="bg-gradient-to-br from-blue-500 to-indigo-600 relative rounded-3xl overflow-hidden w-full shadow-2xl p-1 border border-white/20 transform hover:-translate-y-2 transition duration-500">
-              <Image
-                src="/images/hero/anmol.png"
-                alt="Anmol Singh - Founder"
-                width={300}
-                height={380}
-                quality={100}
-                className="w-full h-auto object-cover rounded-2xl"
-              />
-              <div className="bg-yellow-400/90 backdrop-blur-md rounded-2xl shadow-xl py-2.5 px-4 absolute top-6 -left-6 border border-white/40">
-                <p className="text-sm font-extrabold text-yellow-950">Anmol Singh</p>
-                <p className="text-xs font-bold text-yellow-900">Co-Founder & Tech Lead</p>
-              </div>
-            </div>
-
-            <div className="bg-gradient-to-br from-emerald-500 to-teal-600 relative rounded-3xl overflow-hidden w-full shadow-2xl p-1 border border-white/20 mt-20 transform hover:-translate-y-2 transition duration-500">
-              <Image
-                src="/images/hero/gavi.png"
-                alt="Gurvinder - Co-Founder"
-                width={300}
-                height={380}
-                quality={100}
-                className="w-full h-auto object-cover rounded-2xl"
-              />
-              <div className="bg-emerald-400/90 backdrop-blur-md rounded-2xl shadow-xl py-2.5 px-4 absolute top-6 -right-6 border border-white/40">
-                <p className="text-sm font-extrabold text-emerald-950">Gurvinder</p>
-                <p className="text-xs font-bold text-emerald-900">Co-Founder & Architect</p>
-              </div>
-            </div>
+            <Hero3DCanvas />
           </motion.div>
 
         </div>
