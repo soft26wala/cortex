@@ -4,12 +4,13 @@ export const headerData: HeaderItem[] = [
   { label: "Home", href: "/" },
   {
     label: "WhatsApp Bot",
-    href: "/flows",
+    href: "/dashboard",
     submenu: [
-      { label: "Bot Builder", href: "/flows" },
       { label: "Dashboard", href: "/dashboard" },
+      { label: "Bot Builder", href: "/flows" },
       { label: "Broadcasts", href: "/broadcasts" },
       { label: "Contacts", href: "/contacts" },
+      { label: "Analytics", href: "/analytics" },
       { label: "API Settings", href: "/settings" },
     ],
   },
