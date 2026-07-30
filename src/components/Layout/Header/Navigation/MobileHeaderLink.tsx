@@ -70,7 +70,7 @@ const MobileHeaderLink: React.FC<MobileHeaderLinkProps> = ({ item, setNavbarOpen
                   onClick={() => handleSubmenuNavigate(subItem.href)}
                   className="w-full text-left px-3.5 py-2.5 text-xs font-medium
                    text-zinc-700 dark:text-zinc-300 hover:text-blue-500 dark:hover:text-blue-400
-                    hover:bg-white dark:hover:bg-zinc-900 rounded-xl transition-color ml-[-1rem]"
+                    hover:bg-white dark:hover:bg-zinc-900 rounded-xl transition-color"
                 >
                   {subItem.label}
                 </button>

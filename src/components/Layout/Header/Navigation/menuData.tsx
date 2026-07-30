@@ -4,14 +4,13 @@ export const headerData: HeaderItem[] = [
   { label: "Home", href: "/" },
   {
     label: "WhatsApp Bot",
-    href: "/dashboard",
+    href: "/whatsapp-bot",
     submenu: [
-      { label: "Dashboard", href: "/dashboard" },
-      { label: "Bot Builder", href: "/flows" },
+      { label: "Bot Overview", href: "/whatsapp-bot" },
+      { label: "Interactive Demo", href: "/whatsapp-bot/demo" },
+      { label: "Bot Admin Panel", href: "/whatsapp-bot/admin" },
       { label: "Broadcasts", href: "/broadcasts" },
-      { label: "Contacts", href: "/contacts" },
-      { label: "Analytics", href: "/analytics" },
-      { label: "API Settings", href: "/settings" },
+      { label: "Analytics & Logs", href: "/whatsapp-bot/admin" },
     ],
   },
   { label: "Events", href: "/events" },
@@ -27,7 +26,26 @@ export const headerData: HeaderItem[] = [
     ],
   },
   { label: "About us", href: "/about_us" },
-  { label: " Products", href: "/products" },
+  {
+    label: " Products",
+    href: "/products",
+    submenu: [
+      { label: "All Products", href: "/products" },
+      { label: "News Portal CMS", href: "/projects/news-portal" },
+      { label: "EdTech LMS", href: "/projects/edtech" },
+      { label: "WhatsApp Bot", href: "/whatsapp-bot" },
+      { label: "Proptis Real Estate", href: "/proptis" },
+    ],
+  },
+  {
+    label: "Projects",
+    href: "/projects",
+    submenu: [
+      { label: "All Projects", href: "/projects" },
+      { label: "Anant Ayurveda", href: "/projects" },
+      { label: "GK Enterprise", href: "/projects" },
+    ],
+  },
 
   // {
   //   label: "Bootcamp",

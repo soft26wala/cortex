@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useRef, useMemo, Suspense } from 'react'
+import React, { useRef, useMemo, Suspense, useEffect } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { useGLTF, Float, ContactShadows, OrbitControls } from '@react-three/drei'
 import * as THREE from 'three'
@@ -11,8 +11,15 @@ function CortexModel() {
   const { scene } = useGLTF(MODEL_PATH)
   const groupRef = useRef<THREE.Group>(null!)
 
-  // Clone scene so materials/geometries are distinct
+  const screenRef = useRef<THREE.Object3D | null>(null);
   const clonedScene = useMemo(() => scene.clone(true), [scene])
+
+  useEffect(() => {
+    screenRef.current =
+      clonedScene.getObjectByName("other\\Headsmd") ?? null;
+  }, [clonedScene]);
+
+  // Clone scene so materials/geometries are distinct
 
   useFrame((state, delta) => {
     if (!groupRef.current) return
@@ -30,7 +37,35 @@ function CortexModel() {
     // Breathing pulse scale animation
     const breath = 1 + Math.sin(elapsedTime * 2) * 0.02
     groupRef.current.scale.set(1.4 * breath, 1.4 * breath, 1.4 * breath)
+
+    if (screenRef.current) {
+      const targetY = pointer.x * 0.25;
+      const targetX = -pointer.y * 0.15;
+
+      screenRef.current.rotation.y = THREE.MathUtils.lerp(
+        screenRef.current.rotation.y,
+        targetY,
+        delta * 6
+      );
+
+      screenRef.current.rotation.x = THREE.MathUtils.lerp(
+        screenRef.current.rotation.x,
+        targetX,
+        delta * 6
+      );
+    }
   })
+
+
+  useEffect(() => {
+    clonedScene.traverse((obj) => {
+      if (obj.name.toLowerCase().includes("screen") ||
+        obj.name.toLowerCase().includes("face") ||
+        obj.name.toLowerCase().includes("head")) {
+        console.log(obj.name);
+      }
+    });
+  }, [clonedScene]);
 
   return (
     <Float
@@ -38,7 +73,7 @@ function CortexModel() {
       rotationIntensity={0.3}
       floatIntensity={0.6}
     >
-      <group ref={groupRef} position={[0, -0.2, 0]}>
+      <group ref={groupRef} position={[0, -2.8, 0]}>
         <primitive object={clonedScene} />
       </group>
     </Float>
@@ -79,6 +114,10 @@ function NeuralParticles({ count = 140 }: { count?: number }) {
       pointsRef.current.rotation.x += delta * 0.02
     }
   })
+
+
+
+
 
   return (
     <points ref={pointsRef}>
@@ -122,7 +161,7 @@ function LoadingFallback() {
 
 export default function Hero3DCanvas() {
   return (
-    <div className="relative w-full h-[420px] sm:h-[500px] lg:h-[560px] flex items-center justify-center overflow-hidden">
+    <div className="relative w-full h-[420px] sm:h-[500px] lg:h-[560px] flex items-end justify-center overflow-hidden">
       {/* Background Soft Glow Aura */}
       <div className="absolute inset-0 bg-radial from-blue-500/10 via-cyan-500/5 to-transparent blur-3xl pointer-events-none" />
 
