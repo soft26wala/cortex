@@ -102,7 +102,7 @@ const Hero = () => {
               className="pt-6 border-t border-zinc-200 dark:border-zinc-800/80 grid grid-cols-3 gap-4"
             >
               <div>
-                <p className="text-2xl font-black text-zinc-900 dark:text-white">100+</p>
+                <p className="text-2xl font-black text-zinc-900 dark:text-white">2+</p>
                 <p className="text-xs text-zinc-500 dark:text-zinc-400">Projects Shipped</p>
               </div>
               <div>

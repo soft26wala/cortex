@@ -1,13 +1,13 @@
-.imgbr{
+.imgbr {
         border-radius: 0 157px;
 }
 
-.imgbl{
+.imgbl {
         border-radius: 157px 0;
 }
 
-.nesc{
+.nesc {
         display: block;
-    top: 60px !important;
-    position: relative;
+        top: 60px !important;
+        position: relative;
 }
