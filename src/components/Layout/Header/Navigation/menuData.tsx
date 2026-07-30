@@ -10,7 +10,6 @@ export const headerData: HeaderItem[] = [
       { label: "Customer SaaS Portal", href: "/whatsapp-bot/dashboard" },
       { label: "Interactive Demo", href: "/whatsapp-bot/demo" },
       { label: "Bot Admin Panel", href: "/whatsapp-bot/admin" },
-      { label: "Broadcasts", href: "/broadcasts" },
     ],
   },
   { label: "Events", href: "/events" },

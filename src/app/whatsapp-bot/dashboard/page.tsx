@@ -386,7 +386,19 @@ export default function CustomerBotDashboard() {
         {/* Tab 2: Keyword Rules */}
         {activeTab === 'keywords' && (
           <div className="p-6 sm:p-8 rounded-3xl bg-slate-900/80 border border-slate-800 space-y-6">
-            <h2 className="text-xl font-bold text-white">Isolated Keyword Auto-Reply Rules</h2>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+              <div>
+                <h2 className="text-xl font-bold text-white">Bot Auto-Reply & Trigger Rules Builder</h2>
+                <p className="text-xs text-slate-400 mt-1">Configure automated keyword triggers, button options, and instant responses saved in PostgreSQL.</p>
+              </div>
+
+              <Link
+                href="/flows"
+                className="px-4 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs shadow-md shadow-purple-600/30 flex items-center gap-2"
+              >
+                <Sparkles className="w-4 h-4" /> Open Visual Flow Canvas Builder &rarr;
+              </Link>
+            </div>
 
             {statusMsg && (
               <div className="p-3 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs font-semibold">
@@ -397,31 +409,33 @@ export default function CustomerBotDashboard() {
             <form onSubmit={handleAddKeyword} className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <input
                 type="text"
+                required
                 placeholder="Keyword (e.g. price, support)"
                 value={newKeyword}
                 onChange={(e) => setNewKeyword(e.target.value)}
-                className="bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-white"
+                className="bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-emerald-500"
               />
               <input
                 type="text"
+                required
                 placeholder="Automated Response Payload..."
                 value={newResponse}
                 onChange={(e) => setNewResponse(e.target.value)}
-                className="bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-white"
+                className="bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-emerald-500"
               />
-              <button type="submit" className="py-3 rounded-xl bg-emerald-600 text-white font-bold text-xs">
-                Add Keyword Rule
+              <button type="submit" className="py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md shadow-emerald-600/30">
+                Save Rule to Database
               </button>
             </form>
 
             <div className="divide-y divide-slate-800 pt-4">
               {keywords.map((k) => (
-                <div key={k.id} className="py-3 flex items-center justify-between">
+                <div key={k.id} className="py-3.5 flex items-center justify-between">
                   <div>
                     <span className="font-mono text-emerald-400 font-bold text-xs">"{k.keyword}"</span>
-                    <p className="text-xs text-slate-300 mt-0.5">{k.responseContent?.text}</p>
+                    <p className="text-xs text-slate-300 mt-1">{k.responseContent?.text}</p>
                   </div>
-                  <span className="text-xs text-slate-500">Triggers: {k.triggerCount}</span>
+                  <span className="text-xs text-slate-500 font-mono">Triggers: {k.triggerCount}</span>
                 </div>
               ))}
             </div>

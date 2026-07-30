@@ -72,7 +72,8 @@ export default function WhatsAppBotLandingPage() {
       period: '/month',
       description: 'Ideal for small businesses automated quick auto-replies.',
       features: ['1 WhatsApp Account', '50 Keyword Trigger Rules', '1,000 Auto-Replies / mo', 'Basic Analytics', 'Standard Support'],
-      cta: 'Get Started',
+      cta: 'Configure Real Bot',
+      link: '/whatsapp-bot/dashboard?plan=starter',
       popular: false
     },
     {
@@ -81,7 +82,8 @@ export default function WhatsAppBotLandingPage() {
       period: '/month',
       description: 'Complete flow builder and broadcast engine for growing teams.',
       features: ['3 WhatsApp Accounts', 'Unlimited Keyword Rules', '25,000 Auto-Replies / mo', 'Visual Flow Canvas Builder', 'Bulk Broadcast Engine', 'Live Webhook Logs', 'Priority 24/7 Support'],
-      cta: 'Start Free Demo',
+      cta: 'Build Real Bot & Replies',
+      link: '/whatsapp-bot/dashboard?plan=pro',
       popular: true
     },
     {
@@ -90,7 +92,8 @@ export default function WhatsAppBotLandingPage() {
       period: '/month',
       description: 'Dedicated cloud infrastructure with Meta Graph API integration.',
       features: ['Unlimited WhatsApp Accounts', 'Custom AI Agent Integration', 'Unlimited Auto-Replies', 'Multi-Agent Live Chat Inbox', 'Dedicated Database Pool', 'SLA Guarantee'],
-      cta: 'Contact Sales',
+      cta: 'Connect Meta Cloud API',
+      link: '/whatsapp-bot/dashboard?plan=enterprise',
       popular: false
     }
   ]
@@ -267,7 +270,7 @@ export default function WhatsAppBotLandingPage() {
                 </div>
 
                 <Link
-                  href="/whatsapp-bot/demo"
+                  href={p.link || "/whatsapp-bot/dashboard"}
                   className={`w-full py-3 rounded-xl font-bold text-xs text-center transition-all ${
                     p.popular
                       ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-600/30'
