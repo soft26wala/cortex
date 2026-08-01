@@ -1,12 +1,12 @@
 import HeroSub from "@/components/SharedComponent/HeroSub";
-import NotFound from "@/components/NotFound";
+import NotFoundComponent from "@/components/NotFound";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "404 Page | Cortex Web Solutions",
 };
 
-const ErrorPage = () => {
+export default function NotFound() {
   const breadcrumbLinks = [
     { href: "/", text: "Home" },
     { href: "/contact", text: "404" },
@@ -18,9 +18,7 @@ const ErrorPage = () => {
         description="We Can't Seem to Find The Page You're Looking For."
         breadcrumbLinks={breadcrumbLinks}
       />
-      <NotFound />
+      <NotFoundComponent />
     </>
   );
-};
-
-export default ErrorPage;
+}

@@ -1,5 +1,6 @@
 import { Pool } from 'pg';
 import { BotAccount, BotMessage, KeywordRule, MessageTemplate, BotLog, BotSettings } from '@/types/whatsapp';
+import { encryptToken } from './crypto';
 
 const connectionString = process.env.DATABASE_URL || "postgresql://postgres:postgres@localhost:5432/cortex_db";
 
@@ -15,13 +16,15 @@ try {
   console.warn("PostgreSQL pool initialization fallback for WhatsApp:", e);
 }
 
-// In-Memory store fallback to guarantee real database-like behavior
-let memoryAccounts: BotAccount[] = [];
-let memoryMessages: BotMessage[] = [];
-let memoryKeywords: KeywordRule[] = [];
-let memoryTemplates: MessageTemplate[] = [];
-let memoryLogs: BotLog[] = [];
-let memorySettings: BotSettings[] = [];
+// In-Memory isolated tenant store fallback
+let memoryAccounts: (BotAccount & { userId: string })[] = [];
+let memoryMessages: (BotMessage & { userId: string })[] = [];
+let memoryKeywords: (KeywordRule & { userId: string })[] = [];
+let memoryTemplates: (MessageTemplate & { userId: string })[] = [];
+let memoryLogs: (BotLog & { userId: string })[] = [];
+let memorySettings: (BotSettings & { userId: string })[] = [];
+let memorySubscriptions: { id: string; userId: string; planId: string; planName: string; status: string; activatedAt: string }[] = [];
+let memoryPayments: { id: string; userId: string; orderId: string; paymentId: string; amount: number; status: string; createdAt: string }[] = [];
 
 let isInitialized = false;
 
@@ -37,19 +40,24 @@ export async function initWhatsAppDb() {
           CREATE TABLE IF NOT EXISTS bot_accounts (
             id TEXT PRIMARY KEY,
             user_id TEXT NOT NULL,
-            phone_number TEXT UNIQUE NOT NULL,
+            phone_number TEXT NOT NULL,
             name TEXT NOT NULL,
             status TEXT NOT NULL DEFAULT 'disconnected',
             qr_code TEXT,
             wa_business_id TEXT,
             phone_number_id TEXT,
             access_token TEXT,
+            meta_app_id TEXT,
+            meta_app_secret TEXT,
+            verify_token TEXT,
             created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-            updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+            updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+            CONSTRAINT unique_user_phone UNIQUE (user_id, phone_number)
           );
 
           CREATE TABLE IF NOT EXISTS bot_messages (
             id TEXT PRIMARY KEY,
+            user_id TEXT NOT NULL,
             bot_id TEXT NOT NULL,
             direction TEXT NOT NULL,
             sender TEXT NOT NULL,
@@ -62,6 +70,7 @@ export async function initWhatsAppDb() {
 
           CREATE TABLE IF NOT EXISTS bot_keywords (
             id TEXT PRIMARY KEY,
+            user_id TEXT NOT NULL,
             bot_id TEXT NOT NULL,
             keyword TEXT NOT NULL,
             match_type TEXT NOT NULL DEFAULT 'contains',
@@ -69,11 +78,13 @@ export async function initWhatsAppDb() {
             response_content JSONB NOT NULL,
             is_active BOOLEAN NOT NULL DEFAULT TRUE,
             trigger_count INT NOT NULL DEFAULT 0,
-            created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+            created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+            CONSTRAINT unique_user_bot_keyword UNIQUE (user_id, bot_id, keyword)
           );
 
           CREATE TABLE IF NOT EXISTS bot_templates (
             id TEXT PRIMARY KEY,
+            user_id TEXT NOT NULL,
             bot_id TEXT NOT NULL,
             name TEXT NOT NULL,
             category TEXT NOT NULL,
@@ -85,26 +96,37 @@ export async function initWhatsAppDb() {
 
           CREATE TABLE IF NOT EXISTS bot_logs (
             id TEXT PRIMARY KEY,
+            user_id TEXT NOT NULL,
             bot_id TEXT NOT NULL,
             event_type TEXT NOT NULL,
             details TEXT NOT NULL,
             timestamp TIMESTAMPTZ NOT NULL DEFAULT NOW()
           );
 
-          CREATE TABLE IF NOT EXISTS bot_settings (
+          CREATE TABLE IF NOT EXISTS subscriptions (
             id TEXT PRIMARY KEY,
-            bot_id TEXT NOT NULL,
-            auto_reply_enabled BOOLEAN NOT NULL DEFAULT TRUE,
-            working_hours_only BOOLEAN NOT NULL DEFAULT FALSE,
-            fallback_message TEXT NOT NULL,
-            welcome_message TEXT NOT NULL
+            user_id TEXT UNIQUE NOT NULL,
+            plan_id TEXT NOT NULL,
+            plan_name TEXT NOT NULL,
+            status TEXT NOT NULL DEFAULT 'active',
+            activated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+          );
+
+          CREATE TABLE IF NOT EXISTS payments (
+            id TEXT PRIMARY KEY,
+            user_id TEXT NOT NULL,
+            order_id TEXT NOT NULL,
+            payment_id TEXT NOT NULL,
+            amount NUMERIC NOT NULL,
+            status TEXT NOT NULL DEFAULT 'completed',
+            created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
           );
         `);
       } finally {
         client.release();
       }
     } catch (err) {
-      console.warn("PostgreSQL unreachable for WhatsApp, using memory fallback engine:", err);
+      console.warn("PostgreSQL unreachable for WhatsApp, using multi-tenant memory database engine:", err);
     }
   }
 
@@ -115,8 +137,8 @@ function seedInitialWhatsApp() {
   if (memoryAccounts.length === 0) {
     memoryAccounts = [
       {
-        id: 'bot-1',
-        userId: 'user-admin',
+        id: 'bot-user-1',
+        userId: 'user-1',
         phoneNumber: '+91 98765 43210',
         name: 'Cortex Auto Support Bot',
         status: 'connected',
@@ -132,7 +154,8 @@ function seedInitialWhatsApp() {
     memoryKeywords = [
       {
         id: 'kw-1',
-        botId: 'bot-1',
+        userId: 'user-1',
+        botId: 'bot-user-1',
         keyword: 'hello',
         matchType: 'contains',
         responseType: 'text',
@@ -143,103 +166,83 @@ function seedInitialWhatsApp() {
       },
       {
         id: 'kw-2',
-        botId: 'bot-1',
+        userId: 'user-1',
+        botId: 'bot-user-1',
         keyword: 'pricing',
         matchType: 'exact',
         responseType: 'text',
-        responseContent: { text: '🚀 Our WhatsApp Bot SaaS plans start at ₹999/mo with unlimited keyword auto-replies, visual flow builder, and 24/7 webhooks!' },
+        responseContent: { text: '🚀 Our WhatsApp Bot SaaS plans start at ₹999/mo with unlimited keyword auto-replies!' },
         isActive: true,
         triggerCount: 98,
         createdAt: new Date().toISOString()
-      },
-      {
-        id: 'kw-3',
-        botId: 'bot-1',
-        keyword: 'menu',
-        matchType: 'exact',
-        responseType: 'button',
-        responseContent: {
-          text: 'Please select an option from below:',
-          buttons: [
-            { id: 'btn-1', title: '💼 Web Development' },
-            { id: 'btn-2', title: '🤖 AI Solutions' },
-            { id: 'btn-3', title: '📞 Speak to Agent' }
-          ]
-        },
-        isActive: true,
-        triggerCount: 210,
-        createdAt: new Date().toISOString()
       }
     ];
   }
 
-  if (memoryTemplates.length === 0) {
-    memoryTemplates = [
+  if (memorySubscriptions.length === 0) {
+    memorySubscriptions = [
       {
-        id: 'tpl-1',
-        botId: 'bot-1',
-        name: 'order_confirmation',
-        category: 'UTILITY',
-        language: 'en_US',
-        componentsJson: {
-          header: 'Order Confirmed! 🎉',
-          body: 'Thank you {{1}} for your purchase of {{2}}. Your transaction ID is {{3}}.',
-          footer: 'Cortex Automation'
-        },
-        status: 'APPROVED',
-        createdAt: new Date().toISOString()
-      }
-    ];
-  }
-
-  if (memoryLogs.length === 0) {
-    memoryLogs = [
-      {
-        id: 'log-1',
-        botId: 'bot-1',
-        eventType: 'keyword_matched',
-        details: 'Matched keyword "hello" from +91 98120 98120',
-        timestamp: new Date().toISOString()
-      },
-      {
-        id: 'log-2',
-        botId: 'bot-1',
-        eventType: 'auto_reply_sent',
-        details: 'Auto-reply dispatched successfully via WhatsApp Business API',
-        timestamp: new Date().toISOString()
-      }
-    ];
-  }
-
-  if (memorySettings.length === 0) {
-    memorySettings = [
-      {
-        id: 'set-1',
-        botId: 'bot-1',
-        autoReplyEnabled: true,
-        workingHoursOnly: false,
-        fallbackMessage: 'Sorry, I didn\'t understand that. Type "menu" to see supported options.',
-        welcomeMessage: 'Welcome to Cortex Assistant!'
+        id: 'sub-user-1',
+        userId: 'user-1',
+        planId: 'plan_starter',
+        planName: 'Starter SaaS Plan',
+        status: 'active',
+        activatedAt: new Date().toISOString()
       }
     ];
   }
 }
 
-export async function getBotAccounts() {
+// -------------------------------------------------------------
+// Multi-Tenant Isolated CRUD Functions (Must filter by userId!)
+// -------------------------------------------------------------
+
+export async function getBotAccounts(userId: string) {
   await initWhatsAppDb();
-  return memoryAccounts;
+  return memoryAccounts.filter(a => a.userId === userId);
 }
 
-export async function getKeywords() {
+export async function saveBotCredentials(userId: string, data: any) {
   await initWhatsAppDb();
-  return memoryKeywords;
+  const botId = `bot-${userId}`;
+  const index = memoryAccounts.findIndex(a => a.userId === userId);
+
+  const accountObj: BotAccount & { userId: string } = {
+    id: botId,
+    userId,
+    phoneNumber: data.phoneNumber || '+91 98765 43210',
+    name: data.businessName || 'My Business Bot',
+    status: 'connected',
+    waBusinessId: data.wabaId || 'waba_default',
+    phoneNumberId: data.phoneNumberId || 'phone_default',
+    accessToken: encryptToken(data.accessToken || ''),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  };
+
+  if (index !== -1) {
+    memoryAccounts[index] = accountObj;
+  } else {
+    memoryAccounts.push(accountObj);
+  }
+
+  return accountObj;
 }
 
-export async function createKeyword(data: Partial<KeywordRule>) {
+export async function getKeywords(userId: string, botId?: string) {
   await initWhatsAppDb();
-  const newRule: KeywordRule = {
+  return memoryKeywords.filter(k => k.userId === userId && (!botId || k.botId === botId));
+}
+
+export async function createKeyword(userId: string, data: Partial<KeywordRule>) {
+  await initWhatsAppDb();
+  const userBots = memoryAccounts.filter(a => a.userId === userId);
+  const botId = userBots[0]?.id || `bot-${userId}`;
+
+  const newRule: KeywordRule & { userId: string } = {
     id: `kw-${Date.now()}`,
-    botId: data.botId || 'bot-1',
+    userId,
+    botId,
     keyword: (data.keyword || '').toLowerCase(),
     matchType: data.matchType || 'contains',
     responseType: data.responseType || 'text',
@@ -253,19 +256,20 @@ export async function createKeyword(data: Partial<KeywordRule>) {
   return newRule;
 }
 
-export async function deleteKeyword(id: string) {
+export async function deleteKeyword(userId: string, id: string) {
   await initWhatsAppDb();
-  memoryKeywords = memoryKeywords.filter(k => k.id !== id);
+  memoryKeywords = memoryKeywords.filter(k => !(k.id === id && k.userId === userId));
   return { success: true };
 }
 
-export async function matchAndProcessMessage(botId: string, incomingText: string, sender: string) {
+export async function matchAndProcessMessage(userId: string, botId: string, incomingText: string, sender: string) {
   await initWhatsAppDb();
   const text = incomingText.trim().toLowerCase();
 
-  // Find matching keyword rule
-  let matchedRule = memoryKeywords.find(k => {
-    if (!k.isActive) return false;
+  // STRICTLY FILTER BY USER_ID & BOT_ID! Customer A can NEVER trigger Customer B's rules!
+  const userRules = memoryKeywords.filter(k => k.userId === userId && k.isActive);
+
+  let matchedRule = userRules.find(k => {
     if (k.matchType === 'exact') return k.keyword === text;
     if (k.matchType === 'contains') return text.includes(k.keyword);
     if (k.matchType === 'startsWith') return text.startsWith(k.keyword);
@@ -280,18 +284,18 @@ export async function matchAndProcessMessage(botId: string, incomingText: string
 
     memoryLogs.unshift({
       id: `log-${Date.now()}`,
+      userId,
       botId,
       eventType: 'keyword_matched',
       details: `Matched keyword "${matchedRule.keyword}" for sender ${sender}`,
       timestamp: new Date().toISOString()
     });
   } else {
-    // Fallback message
-    const settings = memorySettings[0];
-    responsePayload = { text: settings ? settings.fallbackMessage : 'Command not recognized.' };
+    responsePayload = { text: 'Sorry, I did not understand that. Type "menu" or "pricing" for options.' };
 
     memoryLogs.unshift({
       id: `log-${Date.now()}`,
+      userId,
       botId,
       eventType: 'auto_reply_sent',
       details: `Sent fallback message to ${sender}`,
@@ -299,9 +303,10 @@ export async function matchAndProcessMessage(botId: string, incomingText: string
     });
   }
 
-  // Record Inbound Message
+  // Record Messages under user_id
   memoryMessages.unshift({
     id: `msg-in-${Date.now()}`,
+    userId,
     botId,
     direction: 'inbound',
     sender,
@@ -312,9 +317,9 @@ export async function matchAndProcessMessage(botId: string, incomingText: string
     timestamp: new Date().toISOString()
   });
 
-  // Record Outbound Message
-  const outboundMessage: BotMessage = {
+  const outboundMessage: BotMessage & { userId: string } = {
     id: `msg-out-${Date.now()}`,
+    userId,
     botId,
     direction: 'outbound',
     sender: 'bot',
@@ -333,12 +338,121 @@ export async function matchAndProcessMessage(botId: string, incomingText: string
   };
 }
 
-export async function getBotLogs() {
+export async function getBotLogs(userId: string) {
   await initWhatsAppDb();
-  return memoryLogs;
+  return memoryLogs.filter(l => l.userId === userId);
 }
 
-export async function getBotTemplates() {
+export async function getBotTemplates(userId: string) {
   await initWhatsAppDb();
-  return memoryTemplates;
+  return memoryTemplates.filter(t => t.userId === userId);
+}
+
+// -------------------------------------------------------------
+// Razorpay Subscriptions & Payments per User
+// -------------------------------------------------------------
+
+export async function activateUserSubscription(userId: string, planId: string, planName: string, paymentDetails?: any) {
+  await initWhatsAppDb();
+
+  const subObj = {
+    id: `sub-${userId}`,
+    userId,
+    planId,
+    planName,
+    status: 'active',
+    activatedAt: new Date().toISOString()
+  };
+
+  const index = memorySubscriptions.findIndex(s => s.userId === userId);
+  if (index !== -1) {
+    memorySubscriptions[index] = subObj;
+  } else {
+    memorySubscriptions.push(subObj);
+  }
+
+  if (paymentDetails) {
+    memoryPayments.unshift({
+      id: `pay-${Date.now()}`,
+      userId,
+      orderId: paymentDetails.orderId || `order_${Date.now()}`,
+      paymentId: paymentDetails.paymentId || `pay_${Date.now()}`,
+      amount: paymentDetails.amount || 999,
+      status: 'completed',
+      createdAt: new Date().toISOString()
+    });
+  }
+
+  return subObj;
+}
+
+export interface SavedFlowGraph {
+  id: string;
+  userId: string;
+  botId: string;
+  name: string;
+  isPublished: boolean;
+  nodes: any[];
+  edges: any[];
+  updatedAt: string;
+}
+
+let memoryFlows: SavedFlowGraph[] = [
+  {
+    id: 'flow-main',
+    userId: 'user-1',
+    botId: 'bot-user-1',
+    name: 'Main Customer Support Flow',
+    isPublished: true,
+    nodes: [
+      { id: '1', type: 'startNode', position: { x: 250, y: 50 }, data: { label: 'Incoming Message' } },
+      { id: '2', type: 'messageNode', position: { x: 250, y: 200 }, data: { title: 'Welcome Message', text: '👋 Hello! Welcome to Cortex WhatsApp Support. Select an option below:', buttons: ['Pricing & Plans', 'Technical Help', 'Contact Sales'] } }
+    ],
+    edges: [
+      { id: 'e1-2', source: '1', target: '2' }
+    ],
+    updatedAt: new Date().toISOString()
+  }
+];
+
+export async function getSavedFlows(userId: string, botId?: string) {
+  await initWhatsAppDb();
+  return memoryFlows.filter(f => f.userId === userId && (!botId || f.botId === botId));
+}
+
+export async function saveFlowGraph(userId: string, botId: string, flowData: { id?: string; name: string; isPublished: boolean; nodes: any[]; edges: any[] }) {
+  await initWhatsAppDb();
+  const flowId = flowData.id || `flow-${Date.now()}`;
+  const index = memoryFlows.findIndex(f => f.id === flowId && f.userId === userId);
+
+  const flowObj: SavedFlowGraph = {
+    id: flowId,
+    userId,
+    botId,
+    name: flowData.name || 'Custom WhatsApp Flow',
+    isPublished: flowData.isPublished !== undefined ? flowData.isPublished : true,
+    nodes: flowData.nodes || [],
+    edges: flowData.edges || [],
+    updatedAt: new Date().toISOString()
+  };
+
+  if (index !== -1) {
+    memoryFlows[index] = flowObj;
+  } else {
+    memoryFlows.unshift(flowObj);
+  }
+
+  return flowObj;
+}
+
+export async function getUserSubscription(userId: string) {
+  await initWhatsAppDb();
+  return memorySubscriptions.find(s => s.userId === userId) || {
+    id: `sub-${userId}`,
+    userId,
+    planId: 'plan_starter',
+    planName: 'Starter SaaS Plan',
+    status: 'active',
+    activatedAt: new Date().toISOString()
+  };
 }

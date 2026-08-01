@@ -6,9 +6,24 @@ import { HeaderItem } from '../../../../types/menu'
 import { usePathname } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 
-const HeaderLink: React.FC<{ item: HeaderItem }> = ({ item }) => {
+interface HeaderLinkProps {
+  item: HeaderItem;
+  onOpenModal?: (type: string) => void;
+}
+
+const HeaderLink: React.FC<HeaderLinkProps> = ({ item, onOpenModal }) => {
   const [submenuOpen, setSubmenuOpen] = useState(false)
   const path = usePathname()
+
+  const handleClick = (e: React.MouseEvent) => {
+    if (item.href === "#products-modal") {
+      e.preventDefault();
+      onOpenModal?.("products");
+    } else if (item.href === "#whatsapp-modal") {
+      e.preventDefault();
+      onOpenModal?.("whatsapp");
+    }
+  }
 
   const handleMouseEnter = () => {
     if (item.submenu) {
@@ -22,26 +37,27 @@ const HeaderLink: React.FC<{ item: HeaderItem }> = ({ item }) => {
 
   return (
     <li
-      className={`relative ${item.label === 'Speakers' ? 'xl:block hidden' : 'block'}`}
+      className="relative block"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
       <Link
         href={item.href}
-        className={`text-base py-3 flex items-center gap-1 font-normal transition-colors ${
+        onClick={handleClick}
+        className={`text-xs px-3 py-2 flex items-center gap-1 font-semibold rounded-full transition-all ${
           path === item.href
-            ? 'text-primary dark:!text-primary font-semibold'
-            : 'text-zinc-900 dark:text-white hover:text-blue-500 dark:hover:text-blue-400'
-        } ${path.startsWith(`/${item.label.toLowerCase()}`) ? 'text-primary dark:!text-primary' : ''}`}
+            ? 'text-[#00D4FF] bg-white/[0.08]'
+            : 'text-zinc-300 hover:text-white hover:bg-white/[0.05]'
+        }`}
       >
         {item.label}
         {item.submenu && (
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            width="1.2em"
-            height="1.2em"
+            width="1.1em"
+            height="1.1em"
             viewBox="0 0 24 24"
-            className={`transition-transform duration-200 ${submenuOpen ? 'rotate-180 text-blue-500' : ''}`}
+            className={`transition-transform duration-200 ${submenuOpen ? 'rotate-180 text-[#00D4FF]' : ''}`}
           >
             <path
               fill="none"
@@ -62,20 +78,18 @@ const HeaderLink: React.FC<{ item: HeaderItem }> = ({ item }) => {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -6, scale: 0.96 }}
             transition={{ duration: 0.18, ease: 'easeOut' }}
-            /* pt-2.5 serves as an invisible hover bridge touching top-full */
-            className="absolute top-full left-0 pt-2.5 z-50 w-64 pointer-events-auto"
+            className="absolute top-full left-0 pt-2 z-50 w-56 pointer-events-auto"
           >
-            {/* Apple Liquid Glass Dropdown Box */}
-            <div className="apple-liquid-glass rounded-2xl shadow-2xl p-2 border border-white/20 dark:border-white/10 overflow-hidden">
+            <div className="rounded-2xl bg-[#0B0B0B] border border-white/[0.1] shadow-2xl p-2">
               {item.submenu.map((subItem, index) => (
                 <Link
                   key={index}
                   href={subItem.href}
                   onClick={() => setSubmenuOpen(false)}
-                  className={`block px-3.5 py-2.5 text-xs font-semibold rounded-xl transition-all ${
+                  className={`block px-3 py-2 text-xs font-semibold rounded-xl transition-all ${
                     path === subItem.href
-                      ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30'
-                      : 'text-zinc-800 dark:text-zinc-200 hover:bg-blue-500/10 hover:text-blue-600 dark:hover:text-blue-400'
+                      ? 'bg-[#6C63FF] text-white'
+                      : 'text-zinc-300 hover:bg-white/[0.08] hover:text-white'
                   }`}
                 >
                   {subItem.label}

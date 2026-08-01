@@ -68,6 +68,8 @@ function LazyLoad({ children }: { children: React.ReactNode }) {
   return <div ref={ref}>{inView ? children : null}</div>;
 }
 
+const YouTubeLiveSection = dynamic(() => import("../components/YouTubeLiveSection"));
+
 export default function Home() {
   return (
     <main className="bg-black text-white min-h-[7500px]">
@@ -75,6 +77,9 @@ export default function Home() {
       <NoiseBackground />
       <Navbar />
       <Hero />
+      <LazyLoad>
+        <YouTubeLiveSection />
+      </LazyLoad>
       <LazyLoad>
         <Features />
       </LazyLoad>

@@ -65,7 +65,7 @@ export async function POST(req: NextRequest) {
           console.log(`📩 Webhook Ingested message from ${from}: "${incomingText}"`);
 
           // Process Auto Reply via Rule Engine
-          const result = await matchAndProcessMessage("bot-1", incomingText, `+${from}`);
+          const result = await matchAndProcessMessage("user-1", "bot-1", incomingText, `+${from}`);
 
           // If valid Meta credentials exist, send message via Meta Graph API
           const accessToken = process.env.META_ACCESS_TOKEN;

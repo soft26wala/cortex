@@ -19,6 +19,14 @@ import { NextAuthProvider } from "./providers";
 // import ChatBot from "@/components/ChatBot";
 import TicketSection from "@/components/Home/TicketSection";
 
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Cortex Web Solutions • Luxury Enterprise SaaS & AI Platforms",
+  description: "Cortex Web Solutions builds high-converting web applications, automated WhatsApp AI agents, and enterprise cloud software.",
+  metadataBase: new URL("https://cortestack.com"),
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{

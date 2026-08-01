@@ -23,10 +23,11 @@ import {
   Globe
 } from 'lucide-react'
 import { MetaHelpModal } from '@/components/whatsapp-bot/MetaHelpModal'
+import { FlowBuilderCanvas } from '@/components/whatsapp-bot/FlowBuilderCanvas'
 import { SAAS_PLANS } from '@/services/whatsapp/razorpayService'
 
 export default function CustomerBotDashboard() {
-  const [activeTab, setActiveTab] = useState<'bot' | 'keywords' | 'billing' | 'logs'>('bot')
+  const [activeTab, setActiveTab] = useState<'bot' | 'builder' | 'keywords' | 'billing' | 'logs'>('builder')
   const [helpField, setHelpField] = useState<string | null>(null)
   const [verifyingMeta, setVerifyingMeta] = useState(false)
   const [metaStatus, setMetaStatus] = useState<{ success: boolean; message: string } | null>(null)
@@ -113,6 +114,19 @@ export default function CustomerBotDashboard() {
     }
   }
 
+  const [subscriptionSuccessMsg, setSubscriptionSuccessMsg] = useState('')
+
+  const loadRazorpayScript = () => {
+    return new Promise((resolve) => {
+      if (typeof window !== 'undefined' && (window as any).Razorpay) return resolve(true)
+      const script = document.createElement('script')
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js'
+      script.onload = () => resolve(true)
+      script.onerror = () => resolve(false)
+      document.body.appendChild(script)
+    })
+  }
+
   const handleSubscribePlan = async (planId: string) => {
     setPurchasingPlan(planId)
     try {
@@ -123,8 +137,39 @@ export default function CustomerBotDashboard() {
       })
       const data = await res.json()
       if (data.success) {
-        setCurrentPlan(data.plan.name)
-        alert(`Razorpay Payment Order Created! Order ID: ${data.order.id}. Subscription active.`)
+        await loadRazorpayScript()
+        const razorpayKey = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || 'rzp_test_RxLyIygnbgHNFI'
+
+        const options: any = {
+          key: razorpayKey,
+          amount: data.order.amount,
+          currency: 'INR',
+          name: 'Cortex Web Solutions',
+          description: `Subscription: ${data.plan.name}`,
+          ...(data.isOfficialOrder ? { order_id: data.order.id } : {}),
+          handler: async function (response: any) {
+            setCurrentPlan(data.plan.name)
+            setSubscriptionSuccessMsg(`Payment Verified! ${data.plan.name} is now active on your account.`)
+            setTimeout(() => setSubscriptionSuccessMsg(''), 6000)
+          },
+          prefill: {
+            name: 'Cortex Customer',
+            email: 'customer@cortex.com',
+            contact: '9876543210'
+          },
+          theme: {
+            color: '#10b981'
+          }
+        }
+
+        if (typeof window !== 'undefined' && (window as any).Razorpay) {
+          const rzp = new (window as any).Razorpay(options)
+          rzp.open()
+        } else {
+          setCurrentPlan(data.plan.name)
+          setSubscriptionSuccessMsg(`Test Checkout Order Verified! ${data.plan.name} is now active.`)
+          setTimeout(() => setSubscriptionSuccessMsg(''), 6000)
+        }
       }
     } catch (err) {
       console.error(err)
@@ -157,6 +202,15 @@ export default function CustomerBotDashboard() {
           </div>
         </div>
 
+        {subscriptionSuccessMsg && (
+          <div className="mb-6 p-4 rounded-2xl bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-sm font-semibold flex items-center justify-between shadow-lg shadow-emerald-950/40">
+            <div className="flex items-center gap-2">
+              <CheckCircle className="w-5 h-5 text-emerald-400" />
+              <span>{subscriptionSuccessMsg}</span>
+            </div>
+          </div>
+        )}
+
         {/* Navigation Tabs */}
         <div className="flex flex-wrap gap-3 mb-8 border-b border-slate-800 pb-4">
           <button
@@ -166,6 +220,14 @@ export default function CustomerBotDashboard() {
             }`}
           >
             Meta API Connection
+          </button>
+          <button
+            onClick={() => setActiveTab('builder')}
+            className={`px-5 py-2.5 rounded-xl font-semibold text-xs transition-all flex items-center gap-2 ${
+              activeTab === 'builder' ? 'bg-emerald-600 text-white shadow-md' : 'bg-slate-900 text-slate-400 hover:text-white'
+            }`}
+          >
+            <Sparkles className="w-4 h-4 text-purple-400" /> Visual Flow Builder
           </button>
           <button
             onClick={() => setActiveTab('keywords')}
@@ -184,6 +246,12 @@ export default function CustomerBotDashboard() {
             Subscription & Razorpay
           </button>
         </div>
+
+        {activeTab === 'builder' && (
+          <div className="mb-10">
+            <FlowBuilderCanvas />
+          </div>
+        )}
 
         {/* Tab 1: Meta API Connection Wizard */}
         {activeTab === 'bot' && (

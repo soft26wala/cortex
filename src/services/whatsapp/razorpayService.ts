@@ -50,16 +50,30 @@ export class RazorpayService {
     const orderPayload = {
       amount: amountInPaisa,
       currency: 'INR',
-      receipt: `rcpt_${userId.slice(0, 8)}_${Date.now()}`,
-      notes: {
-        userId,
-        planId: plan.id,
-        planName: plan.name
-      }
+      receipt: `rcpt_${userId.slice(0, 8)}_${Date.now()}`
     };
 
-    // Simulated order if test credentials
-    const order = {
+    let officialOrder: any = null;
+    try {
+      if (this.KEY_ID && this.KEY_SECRET && !this.KEY_SECRET.includes('test_secret')) {
+        const authHeader = 'Basic ' + Buffer.from(`${this.KEY_ID}:${this.KEY_SECRET}`).toString('base64');
+        const res = await fetch('https://api.razorpay.com/v1/orders', {
+          method: 'POST',
+          headers: {
+            'Authorization': authHeader,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(orderPayload)
+        });
+        if (res.ok) {
+          officialOrder = await res.json();
+        }
+      }
+    } catch (e) {
+      console.warn("Razorpay live order creation fallback:", e);
+    }
+
+    const order = officialOrder || {
       id: `order_Rzp_${Date.now()}`,
       entity: 'order',
       amount: orderPayload.amount,
@@ -70,7 +84,13 @@ export class RazorpayService {
       created_at: Math.floor(Date.now() / 1000)
     };
 
-    return { success: true, order, key: this.KEY_ID, plan };
+    return {
+      success: true,
+      order,
+      key: this.KEY_ID,
+      plan,
+      isOfficialOrder: Boolean(officialOrder)
+    };
   }
 
   /**

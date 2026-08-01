@@ -1,32 +1,44 @@
-import React from 'react'
+import React from "react";
 import { Metadata } from "next";
-import Hero from '@/components/Home/Hero';
-import ThumbnailCarousel from '@/components/Home/Conferences';
-import WorkSpeakers from '@/components/Home/WorkSpeakers';
-import EventTicket from '@/components/Home/EventTicket';
-import Highlight from '@/components/Home/YearHighlight/page';
-import Upcoming from '@/components/Home/Upcoming';
-import Testimonials from '@/components/Home/Testimonials';
-import TicketSection from '@/components/Home/TicketSection';
-import ServicesSection from '@/components/ServicesSection';
-import TeamSection from '@/components/Home/TeamSection';
+import Hero from "@/components/Home/Hero";
+import TrustedCompanies from "@/components/Home/TrustedCompanies";
+import AIFeatures from "@/components/Home/AIFeatures";
+import ProductShowcase from "@/components/Home/ProductShowcase";
+import InteractiveDashboard from "@/components/Home/InteractiveDashboard";
+import AutomationFeatures from "@/components/Home/AutomationFeatures";
+import Benefits from "@/components/Home/Benefits";
+import WorkflowTimeline from "@/components/Home/WorkflowTimeline";
+import Integrations from "@/components/Home/Integrations";
+import SecurityShowcase from "@/components/Home/SecurityShowcase";
+import PerformanceMetrics from "@/components/Home/PerformanceMetrics";
+import LuxuryTestimonials from "@/components/Home/LuxuryTestimonials";
+import LuxuryPricing from "@/components/Home/LuxuryPricing";
+import LuxuryFAQ from "@/components/Home/LuxuryFAQ";
+import FinalCTA from "@/components/Home/FinalCTA";
+
 export const metadata: Metadata = {
-  title: "Cortex Web Solutions",
+  title: "Cortex Web Solutions • Luxury Enterprise SaaS & AI Platforms",
+  description: "Cortex Web Solutions builds high-converting web applications, automated WhatsApp AI agents, and enterprise cloud software for market leaders.",
 };
 
 export default function Home() {
   return (
-    <main className='dark:bg-darkmode bg-orange-50'>
+    <main className="bg-[#050505] text-white min-h-screen selection:bg-[#6C63FF]/30 selection:text-white">
       <Hero />
-
-      <ThumbnailCarousel />
-      <ServicesSection /><br /><br />
-      <TicketSection /> <br /> <br />
-      <EventTicket />
-      <Highlight />
-      {/* <Upcoming/> */}
-      <TeamSection />
-      <Testimonials />
+      <TrustedCompanies />
+      <AIFeatures />
+      <ProductShowcase />
+      <InteractiveDashboard />
+      <AutomationFeatures />
+      <Benefits />
+      <WorkflowTimeline />
+      <Integrations />
+      <SecurityShowcase />
+      <PerformanceMetrics />
+      <LuxuryTestimonials />
+      <LuxuryPricing />
+      <LuxuryFAQ />
+      <FinalCTA />
     </main>
-  )
+  );
 }

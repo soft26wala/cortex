@@ -105,28 +105,28 @@ const productsList: SoftwareProduct[] = [
 
 export default function ProductsPage() {
   return (
-    <div className="relative min-h-screen pt-28 pb-20 overflow-hidden bg-slate-950 text-white selection:bg-blue-500 selection:text-white">
+    <div className="relative min-h-screen pt-32 pb-24 overflow-hidden bg-[#050505] text-white selection:bg-[#6C63FF]/30 selection:text-white bg-noise bg-grid-pattern">
       {/* Background Ambient Glows */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[700px] h-[350px] bg-blue-600/10 rounded-full blur-[150px] pointer-events-none" />
-      <div className="absolute top-2/3 right-1/4 w-[500px] h-[500px] bg-purple-600/10 rounded-full blur-[140px] pointer-events-none" />
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[700px] h-[350px] bg-[#6C63FF]/15 rounded-full blur-[150px] pointer-events-none" />
+      <div className="absolute top-2/3 right-1/4 w-[500px] h-[500px] bg-[#00D4FF]/10 rounded-full blur-[140px] pointer-events-none" />
 
-      <div className="container mx-auto px-4 max-w-7xl relative z-10">
+      <div className="container mx-auto px-6 max-w-7xl relative z-10">
         {/* Page Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="text-center max-w-3xl mx-auto mb-16"
+          className="text-center max-w-3xl mx-auto mb-20"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-semibold uppercase tracking-widest mb-6">
-            <Sparkles className="w-4 h-4 text-blue-400 animate-pulse" />
-            Software Products & Digital Solutions
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#111111] border border-white/[0.08] text-[#00D4FF] text-xs font-semibold uppercase tracking-widest mb-6">
+            <Sparkles className="w-4 h-4 text-[#6C63FF] animate-pulse" />
+            Flagship Software Showroom
           </div>
-          <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight mb-6 bg-gradient-to-r from-white via-slate-200 to-blue-400 bg-clip-text text-transparent">
+          <h1 className="text-4xl sm:text-6xl font-black tracking-tight mb-6 bg-gradient-to-r from-white via-zinc-200 to-[#6C63FF] bg-clip-text text-transparent">
             Our Digital Products Suite
           </h1>
-          <p className="text-slate-400 text-base sm:text-lg leading-relaxed">
-            Explore ready-to-deploy, high-performance software platforms built by Cortex Web Solutions — from CMS and LMS platforms to WhatsApp automation engines.
+          <p className="text-zinc-400 text-base sm:text-lg leading-relaxed">
+            Explore ready-to-deploy, enterprise-grade software platforms built by Cortex Web Solutions — from CMS and LMS platforms to WhatsApp automation engines.
           </p>
         </motion.div>
 
@@ -139,35 +139,37 @@ export default function ProductsPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: idx * 0.1 }}
             >
-              <CortexNeuralCard className="h-full bg-slate-900/70 border border-slate-800 hover:border-blue-500/40 transition-all duration-500 p-6 sm:p-8 flex flex-col justify-between">
+              <div className="h-full rounded-3xl bg-[#0B0B0B] border border-white/[0.08] hover:border-[#6C63FF]/50 transition-all duration-500 p-6 sm:p-8 flex flex-col justify-between group shadow-2xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-[#6C63FF]/5 rounded-full blur-[80px] pointer-events-none group-hover:bg-[#00D4FF]/10 transition-colors" />
+
                 <div>
                   {/* Product Image */}
-                  <div className="relative h-60 w-full rounded-2xl overflow-hidden mb-6 group bg-slate-950">
+                  <div className="relative h-60 w-full rounded-2xl overflow-hidden mb-6 group bg-[#050505] border border-white/[0.08]">
                     <img
                       src={product.image}
                       alt={product.name}
                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/30 to-transparent" />
-                    <span className="absolute top-4 left-4 px-3 py-1 text-xs font-bold rounded-full bg-blue-600 text-white shadow-md">
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#0B0B0B] via-transparent to-transparent opacity-80" />
+                    <span className="absolute top-4 left-4 px-3.5 py-1 text-xs font-bold rounded-full bg-[#6C63FF] text-white shadow-lg">
                       {product.category}
                     </span>
                   </div>
 
                   {/* Title & Tagline */}
-                  <h2 className="text-2xl font-bold text-white group-hover:text-blue-400 transition-colors mb-1">
+                  <h2 className="text-2xl font-bold text-white group-hover:text-[#00D4FF] transition-colors mb-1">
                     {product.name}
                   </h2>
-                  <p className="text-xs font-semibold text-blue-400 mb-3">{product.tagline}</p>
-                  <p className="text-slate-300 text-xs sm:text-sm leading-relaxed mb-6">
+                  <p className="text-xs font-semibold text-[#00D4FF] mb-3">{product.tagline}</p>
+                  <p className="text-zinc-400 text-xs sm:text-sm leading-relaxed mb-6">
                     {product.description}
                   </p>
 
                   {/* Key Features */}
                   <div className="mb-6 space-y-2">
                     {product.features.map((feat, i) => (
-                      <div key={i} className="flex items-center gap-2 text-xs text-slate-300">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+                      <div key={i} className="flex items-center gap-2 text-xs text-zinc-300">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-[#4ADE80] shrink-0" />
                         <span>{feat}</span>
                       </div>
                     ))}
@@ -179,7 +181,7 @@ export default function ProductsPage() {
                       {product.techStack.map((tech) => (
                         <span
                           key={tech}
-                          className="px-2.5 py-1 text-xs font-medium rounded-lg bg-slate-950 border border-slate-800 text-slate-300"
+                          className="px-2.5 py-1 text-xs font-mono rounded-lg bg-[#111111] border border-white/[0.06] text-zinc-400"
                         >
                           {tech}
                         </span>
@@ -189,10 +191,10 @@ export default function ProductsPage() {
                 </div>
 
                 {/* Actions */}
-                <div className="pt-4 border-t border-slate-800 flex items-center justify-between gap-4">
+                <div className="pt-4 border-t border-white/[0.08] flex items-center justify-between gap-4">
                   <Link
                     href={product.link}
-                    className="flex-1 py-2.5 px-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-xs shadow-md shadow-blue-600/30 transition-all flex items-center justify-center gap-2"
+                    className="flex-1 py-3 px-4 rounded-full bg-gradient-to-r from-[#6C63FF] to-[#00D4FF] hover:shadow-[0_0_25px_rgba(108,99,255,0.4)] text-white font-bold text-xs shadow-md transition-all flex items-center justify-center gap-2"
                   >
                     <ExternalLink className="w-4 h-4" /> Launch Product
                   </Link>
@@ -200,13 +202,13 @@ export default function ProductsPage() {
                   {product.adminLink && (
                     <Link
                       href={product.adminLink}
-                      className="py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs border border-slate-700 transition-all flex items-center justify-center gap-2"
+                      className="py-3 px-4 rounded-full bg-[#111111] hover:bg-[#181818] text-zinc-300 hover:text-white font-semibold text-xs border border-white/[0.08] transition-all flex items-center justify-center gap-2"
                     >
                       <Layers className="w-4 h-4" /> Admin Portal
                     </Link>
                   )}
                 </div>
-              </CortexNeuralCard>
+              </div>
             </motion.div>
           ))}
         </div>
