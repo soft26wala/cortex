@@ -11,6 +11,7 @@ import WorkflowTimeline from "@/components/Home/WorkflowTimeline";
 import Integrations from "@/components/Home/Integrations";
 import SecurityShowcase from "@/components/Home/SecurityShowcase";
 import PerformanceMetrics from "@/components/Home/PerformanceMetrics";
+import LuxuryTeam from "@/components/Home/LuxuryTeam";
 import LuxuryTestimonials from "@/components/Home/LuxuryTestimonials";
 import LuxuryPricing from "@/components/Home/LuxuryPricing";
 import LuxuryFAQ from "@/components/Home/LuxuryFAQ";
@@ -35,6 +36,7 @@ export default function Home() {
       <Integrations />
       <SecurityShowcase />
       <PerformanceMetrics />
+      <LuxuryTeam />
       <LuxuryTestimonials />
       <LuxuryPricing />
       <LuxuryFAQ />

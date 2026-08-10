@@ -132,16 +132,31 @@ export default function MobileDrawer({
                     Login
                   </button>
                 ) : (
-                  <button
-                    onClick={() => {
-                      onLogout()
-                      onClose()
-                    }}
-                    className="p-2 bg-red-500/10 text-red-500 hover:bg-red-500/20 rounded-lg text-xs font-bold transition"
-                    title="Logout"
-                  >
-                    <LogOut size={16} />
-                  </button>
+                  <div className="flex items-center gap-2">
+                    {((user?.role || "").toString().toLowerCase() === "admin" ||
+                      user?.email?.toLowerCase().includes("admin") ||
+                      user?.email?.toLowerCase() === "anmolsingh26ff@gmail.com" ||
+                      user?.email?.toLowerCase() === "anmol@cortexwebsolutions.com") && (
+                      <Link
+                        href="/admin/projects"
+                        onClick={onClose}
+                        className="px-3 py-1.5 bg-amber-500/10 text-amber-400 border border-amber-500/30 hover:bg-amber-500/20 rounded-lg text-xs font-bold transition flex items-center gap-1"
+                        title="Admin Dashboard"
+                      >
+                        <ShieldCheck size={14} className="text-amber-400" /> Admin Panel
+                      </Link>
+                    )}
+                    <button
+                      onClick={() => {
+                        onLogout();
+                        onClose();
+                      }}
+                      className="p-2 bg-red-500/10 text-red-500 hover:bg-red-500/20 rounded-lg text-xs font-bold transition"
+                      title="Logout"
+                    >
+                      <LogOut size={16} />
+                    </button>
+                  </div>
                 )}
               </div>
             </div>

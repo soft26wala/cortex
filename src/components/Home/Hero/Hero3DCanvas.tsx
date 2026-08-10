@@ -14,7 +14,7 @@ function CortexModel() {
   const screenRef = useRef<THREE.Object3D | null>(null);
   const clonedScene = useMemo(() => scene.clone(true), [scene])
 
-  useEffect(() => {
+        useEffect(() => {
     screenRef.current =
       clonedScene.getObjectByName("other\\Headsmd") ?? null;
   }, [clonedScene]);

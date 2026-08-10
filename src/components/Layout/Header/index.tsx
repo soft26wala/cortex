@@ -5,7 +5,7 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { headerData } from "../Header/Navigation/menuData";
 import Logo from "./Logo";
 import HeaderLink from "../Header/Navigation/HeaderLink";
-import { Menu } from "lucide-react";
+import { Menu, ShieldCheck, User, ChevronDown, LogOut, Cpu } from "lucide-react";
 import MobileHeaderLink from "../Header/Navigation/MobileHeaderLink";
 import MobileDrawer from "./Navigation/MobileDrawer";
 import Signin from "@/components/Auth/SignIn";
@@ -20,10 +20,9 @@ import RequestCallback from "./Navigation/RequestCallback";
 import Callback from "@/components/Auth/Callback";
 import { useSession, signOut, getSession } from "next-auth/react";
 
-
-
 import WhatsApp3DModal from "@/components/modals/WhatsApp3DModal";
 import Products3DModal from "@/components/modals/Products3DModal";
+import IndependenceDayCelebration from "@/components/IndependenceDay/IndependenceDayCelebration";
 
 const Header: React.FC = () => {
   const pathUrl = usePathname();
@@ -40,10 +39,12 @@ const Header: React.FC = () => {
   const [iscbUpOpen, setIsCbUpOpen] = useState(false);
   const [isWhatsAppModalOpen, setIsWhatsAppModalOpen] = useState(false);
   const [isProductsModalOpen, setIsProductsModalOpen] = useState(false);
+  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
 
   const signInRef = useRef<HTMLDivElement>(null);
   const signUpRef = useRef<HTMLDivElement>(null);
   const callbackRef = useRef<HTMLDivElement>(null);
+  const profileDropdownRef = useRef<HTMLDivElement>(null);
   const [manualUser, setManualUser] = useState<any>(null);
 
   useEffect(() => {
@@ -54,6 +55,15 @@ const Header: React.FC = () => {
   }, []);
 
   const isLoggedIn = status === "authenticated" || !!manualUser;
+  const currentUser = session?.user || manualUser;
+  const userRole = (currentUser?.role || "").toString().toLowerCase().trim();
+  const userEmail = (currentUser?.email || "").toString().toLowerCase().trim();
+
+  const isAdmin =
+    userRole === "admin" ||
+    userEmail.includes("admin") ||
+    userEmail === "anmolsingh26ff@gmail.com" ||
+    userEmail === "anmol@cortexwebsolutions.com";
 
   const handleScroll = () => {
     setSticky(window.scrollY >= 80);
@@ -69,6 +79,9 @@ const Header: React.FC = () => {
     if (callbackRef.current && !callbackRef.current.contains(event.target as Node)) {
       setIsCbUpOpen(false);
     }
+    if (profileDropdownRef.current && !profileDropdownRef.current.contains(event.target as Node)) {
+      setIsProfileDropdownOpen(false);
+    }
   };
 
   useEffect(() => {
@@ -78,7 +91,7 @@ const Header: React.FC = () => {
       window.removeEventListener("scroll", handleScroll);
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [navbarOpen, isSignInOpen, isSignUpOpen, iscbUpOpen]);
+  }, [navbarOpen, isSignInOpen, isSignUpOpen, iscbUpOpen, isProfileDropdownOpen]);
 
   const authDialog = useContext(AuthDialogContext);
 
@@ -136,51 +149,111 @@ const Header: React.FC = () => {
                   >
                     Get Started
                   </button>
+                </>
+              ) : (
+                <div className="relative hidden lg:block" ref={profileDropdownRef}>
+                  {/* User Profile Menu Trigger */}
+                  <button
+                    onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
+                    className="flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-[#0B0B0F] border border-white/[0.1] hover:border-[#6C63FF]/50 transition-all cursor-pointer shadow-lg group"
+                  >
+                    <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-[#6C63FF] to-[#00D4FF] p-0.5 flex-shrink-0">
+                      <div className="w-full h-full bg-[#0B0B0F] rounded-full flex items-center justify-center overflow-hidden">
+                        {currentUser?.photo ? (
+                          <img src={currentUser.photo} alt="Avatar" className="w-full h-full object-cover" />
+                        ) : (
+                          <span className="font-extrabold text-[#00D4FF] text-[11px]">
+                            {currentUser?.name ? currentUser.name.charAt(0).toUpperCase() : "U"}
+                          </span>
+                        )}
+                      </div>
+                    </div>
 
-                  {/* Sign In Modal */}
-                  {isSignInOpen && (
-                    <div
-                      ref={signInRef}
-                      className="fixed inset-0 w-full h-full bg-black/80 backdrop-blur-xl flex items-center justify-center z-50 p-4"
-                    >
-                      <div className="relative mx-auto w-full max-w-md overflow-hidden rounded-3xl bg-[#0B0B0B] border border-white/[0.1] p-8 text-center shadow-2xl">
-                        <button
-                          onClick={() => setIsSignInOpen(false)}
-                          className="hover:bg-white/10 p-2 rounded-full absolute top-4 right-4 transition-colors"
-                          aria-label="Close Sign In Modal"
+                    <span className="text-xs font-bold text-white group-hover:text-[#00D4FF] transition-colors max-w-[110px] truncate">
+                      {currentUser?.name || "My Account"}
+                    </span>
+
+                    <ChevronDown size={14} className={`text-zinc-400 transition-transform duration-300 ${isProfileDropdownOpen ? "rotate-180 text-[#00D4FF]" : ""}`} />
+                  </button>
+
+                  {/* Profile Dropdown Menu */}
+                  {isProfileDropdownOpen && (
+                    <div className="absolute right-0 top-full mt-3 w-72 p-5 rounded-3xl bg-[#0B0B0F]/95 border border-white/[0.12] shadow-[0_20px_50px_rgba(0,0,0,0.9)] backdrop-blur-2xl z-50 text-left space-y-4 animate-in fade-in slide-in-from-top-2 duration-200">
+                      {/* User Header */}
+                      <div className="flex items-center gap-3 pb-3 border-b border-white/[0.08]">
+                        <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#6C63FF] to-[#00D4FF] p-0.5 flex-shrink-0">
+                          <div className="w-full h-full bg-[#0B0B0F] rounded-[14px] flex items-center justify-center overflow-hidden">
+                            {currentUser?.photo ? (
+                              <img src={currentUser.photo} alt="Avatar" className="w-full h-full object-cover" />
+                            ) : (
+                              <span className="font-extrabold text-[#00D4FF] text-base">
+                                {currentUser?.name ? currentUser.name.charAt(0).toUpperCase() : "U"}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        <div className="overflow-hidden">
+                          <div className="font-bold text-white text-sm truncate">{currentUser?.name || "Valued Account"}</div>
+                          <div className="text-[11px] text-zinc-400 truncate">{currentUser?.email || "client@cortex.com"}</div>
+                          <span
+                            className={`inline-block mt-1 px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${
+                              isAdmin
+                                ? "bg-amber-500/20 text-amber-400 border border-amber-500/30"
+                                : "bg-[#6C63FF]/20 text-[#00D4FF] border border-[#6C63FF]/30"
+                            }`}
+                          >
+                            {isAdmin ? "Super Admin" : "Client Account"}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Navigation Links */}
+                      <div className="space-y-1 text-xs font-semibold">
+                        <Link
+                          href="/Service"
+                          onClick={() => setIsProfileDropdownOpen(false)}
+                          className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-zinc-300 hover:text-white hover:bg-white/[0.06] transition-all"
                         >
-                          <Icon icon="ic:round-close" className="text-xl text-white" />
+                          <Cpu size={15} className="text-[#00D4FF]" />
+                          <span>My Projects & Services (/Service)</span>
+                        </Link>
+
+                        {/* Admin Control Panel Link (For Admins) */}
+                        {isAdmin && (
+                          <Link
+                            href="/admin/projects"
+                            onClick={() => setIsProfileDropdownOpen(false)}
+                            className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-amber-400 bg-amber-500/10 border border-amber-500/30 hover:bg-amber-500/20 transition-all font-bold shadow-[0_0_15px_rgba(245,158,11,0.15)]"
+                          >
+                            <ShieldCheck size={16} className="text-amber-400" />
+                            <span>Admin Control Panel (/admin/projects)</span>
+                          </Link>
+                        )}
+
+                        <Link
+                          href="/profile"
+                          onClick={() => setIsProfileDropdownOpen(false)}
+                          className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-zinc-300 hover:text-white hover:bg-white/[0.06] transition-all"
+                        >
+                          <User size={15} className="text-emerald-400" />
+                          <span>Account & Security Settings</span>
+                        </Link>
+                      </div>
+
+                      {/* Logout Action inside Profile Dropdown */}
+                      <div className="pt-3 border-t border-white/[0.08]">
+                        <button
+                          onClick={() => {
+                            setIsProfileDropdownOpen(false);
+                            handleLogout();
+                          }}
+                          className="w-full py-2.5 px-4 rounded-xl bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-400 text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer"
+                        >
+                          <LogOut size={14} /> Log Out of Account
                         </button>
-                        <Signin signInOpen={(value: boolean) => setIsSignInOpen(value)} />
                       </div>
                     </div>
                   )}
-                </>
-              ) : (
-                <button
-                  onClick={() => handleLogout()}
-                  className="hidden lg:inline-flex items-center justify-center px-4 py-2 text-xs font-semibold text-red-400 bg-red-500/10 border border-red-500/20 rounded-full hover:bg-red-500/20 transition-all"
-                >
-                  Logout
-                </button>
-              )}
-
-              {/* Sign Up Modal */}
-              {isSignUpOpen && (
-                <div
-                  ref={signUpRef}
-                  className="fixed inset-0 w-full h-full bg-black/80 backdrop-blur-xl flex items-center justify-center z-50 p-4"
-                >
-                  <div className="relative mx-auto w-full max-w-md overflow-hidden rounded-3xl bg-[#0B0B0B] border border-white/[0.1] p-8 text-center shadow-2xl">
-                    <button
-                      onClick={() => setIsSignUpOpen(false)}
-                      className="hover:bg-white/10 p-2 rounded-full absolute top-4 right-4 transition-colors"
-                      aria-label="Close Sign Up Modal"
-                    >
-                      <Icon icon="ic:round-close" className="text-xl text-white" />
-                    </button>
-                    <SignUp signUpOpen={(value: boolean) => setIsSignUpOpen(value)} />
-                  </div>
                 </div>
               )}
 
@@ -208,22 +281,69 @@ const Header: React.FC = () => {
           onOpenSignUp={() => setIsSignUpOpen(true)}
           onLogout={handleLogout}
         />
-
-        {/* Alerts */}
-        <div className={`fixed top-6 end-1/2 translate-x-1/2 z-50 ${authDialog?.isSuccessDialogOpen == true ? "block" : "hidden"}`}>
-          <SuccessfullLogin />
-        </div>
-        <div className={`fixed top-6 end-1/2 translate-x-1/2 z-50 ${authDialog?.isFailedDialogOpen == true ? "block" : "hidden"}`}>
-          <FailedLogin />
-        </div>
-        <div className={`fixed top-6 end-1/2 translate-x-1/2 z-50 ${authDialog?.isUserRegistered == true ? "block" : "hidden"}`}>
-          <UserRegistered />
-        </div>
-
-        {/* 3D Glass Modals */}
-        <WhatsApp3DModal isOpen={isWhatsAppModalOpen} onClose={() => setIsWhatsAppModalOpen(false)} />
-        <Products3DModal isOpen={isProductsModalOpen} onClose={() => setIsProductsModalOpen(false)} />
       </header>
+
+      {/* Global Fixed Sign In Modal (Outside Header) */}
+      {isSignInOpen && (
+        <div
+          ref={signInRef}
+          className="fixed inset-0 z-[999999] w-screen h-screen bg-black/85 backdrop-blur-2xl flex items-center justify-center p-4 overflow-y-auto"
+        >
+          <div className="relative mx-auto my-auto w-full max-w-md max-h-[90vh] overflow-y-auto rounded-3xl bg-[#0B0B0F] border border-white/[0.12] p-7 text-center shadow-[0_20px_60px_rgba(0,0,0,0.9)] custom-scrollbar">
+            <button
+              onClick={() => setIsSignInOpen(false)}
+              className="hover:bg-white/10 p-2 rounded-full absolute top-4 right-4 text-zinc-400 hover:text-white transition-colors"
+              aria-label="Close Sign In Modal"
+            >
+              <Icon icon="ic:round-close" className="text-xl" />
+            </button>
+            <Signin signInOpen={(value: boolean) => setIsSignInOpen(value)} />
+          </div>
+        </div>
+      )}
+
+      {/* Global Fixed Sign Up Modal (Outside Header) */}
+      {isSignUpOpen && (
+        <div
+          ref={signUpRef}
+          className="fixed inset-0 z-[999999] w-screen h-screen bg-black/85 backdrop-blur-2xl flex items-center justify-center p-4 overflow-y-auto"
+        >
+          <div className="relative mx-auto my-auto w-full max-w-md max-h-[90vh] overflow-y-auto rounded-3xl bg-[#0B0B0F] border border-white/[0.12] p-7 text-center shadow-[0_20px_60px_rgba(0,0,0,0.9)] custom-scrollbar">
+            <button
+              onClick={() => setIsSignUpOpen(false)}
+              className="hover:bg-white/10 p-2 rounded-full absolute top-4 right-4 text-zinc-400 hover:text-white transition-colors"
+              aria-label="Close Sign Up Modal"
+            >
+              <Icon icon="ic:round-close" className="text-xl" />
+            </button>
+            <SignUp signUpOpen={(value: boolean) => setIsSignUpOpen(value)} />
+          </div>
+        </div>
+      )}
+
+      {/* Alerts */}
+      <div className={`fixed top-6 end-1/2 translate-x-1/2 z-[9999999] ${authDialog?.isSuccessDialogOpen == true ? "block" : "hidden"}`}>
+        <SuccessfullLogin />
+      </div>
+      <div className={`fixed top-6 end-1/2 translate-x-1/2 z-[9999999] ${authDialog?.isFailedDialogOpen == true ? "block" : "hidden"}`}>
+        <FailedLogin />
+      </div>
+      <div className={`fixed top-6 end-1/2 translate-x-1/2 z-[9999999] ${authDialog?.isUserRegistered == true ? "block" : "hidden"}`}>
+        <UserRegistered />
+      </div>
+
+      <WhatsApp3DModal
+        isOpen={isWhatsAppModalOpen}
+        onClose={() => setIsWhatsAppModalOpen(false)}
+      />
+
+      <Products3DModal
+        isOpen={isProductsModalOpen}
+        onClose={() => setIsProductsModalOpen(false)}
+      />
+
+      {/* 15th August Independence Day Patriotic Celebration Floating Badge */}
+      <IndependenceDayCelebration />
     </>
   );
 };
