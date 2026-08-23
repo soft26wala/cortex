@@ -22,6 +22,7 @@ import {
   FolderKanban,
   Check,
   RefreshCw,
+  Upload,
 } from "lucide-react";
 
 interface TeamMember {
@@ -64,11 +65,12 @@ export default function AdminTeamPage() {
   const [twitter, setTwitter] = useState("");
   const [github, setGithub] = useState("");
   const [email, setEmail] = useState("");
+  const [uploading, setUploading] = useState(false);
 
   const fetchTeam = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/team");
+      const res = await fetch("/api/team", { cache: "no-store" });
       const json = await res.json();
       if (json.success && Array.isArray(json.data)) {
         setMembers(json.data);
@@ -77,6 +79,35 @@ export default function AdminTeamPage() {
       console.error("Failed to load team data:", err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleFileUpload = async (file: File, mode: "create" | "edit") => {
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      const json = await res.json();
+      if (json.success && json.url) {
+        if (mode === "create") {
+          setImage(json.url);
+        } else if (editingMember) {
+          setEditingMember({ ...editingMember, image: json.url });
+        }
+      } else {
+        alert(json.error || "Upload failed");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error uploading image");
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -312,7 +343,7 @@ export default function AdminTeamPage() {
                 {/* Header Badge */}
                 <div className="flex items-center justify-between mb-4">
                   <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-white/[0.04] border border-white/[0.08] text-zinc-300">
-                    {member.highlight ? (
+                    {member.highlight || member.badge?.toLowerCase().includes("founder") ? (
                       <Crown size={12} className="text-amber-400" />
                     ) : (
                       <ShieldCheck size={12} className="text-[#00D4FF]" />
@@ -456,14 +487,38 @@ export default function AdminTeamPage() {
               </div>
 
               <div>
-                <label className="font-bold text-zinc-300 block mb-1">Profile Image Path / URL</label>
-                <input
-                  type="text"
-                  placeholder="e.g. /images/hero/anmolin.png or https://..."
-                  value={image}
-                  onChange={(e) => setImage(e.target.value)}
-                  className="w-full p-3 rounded-xl bg-[#14141F] border border-white/[0.08] text-white"
-                />
+                <label className="font-bold text-zinc-300 block mb-1">
+                  Profile Image (Upload File to Cloudinary / Local or Paste URL)
+                </label>
+                <div className="flex items-center gap-3 mb-2">
+                  {image && (
+                    <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-zinc-900 border border-white/20 flex-shrink-0">
+                      <img src={image} alt="Preview" className="w-full h-full object-cover" />
+                    </div>
+                  )}
+                  <input
+                    type="text"
+                    placeholder="https://res.cloudinary.com/... or /images/..."
+                    value={image}
+                    onChange={(e) => setImage(e.target.value)}
+                    className="flex-1 p-3 rounded-xl bg-[#14141F] border border-white/[0.08] text-white"
+                  />
+                  <label className="py-3 px-4 rounded-xl bg-gradient-to-r from-[#6C63FF] to-[#00D4FF] hover:opacity-90 text-white text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-all whitespace-nowrap">
+                    <Upload size={14} />
+                    {uploading ? "Uploading..." : "Upload Image"}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        if (e.target.files?.[0]) handleFileUpload(e.target.files[0], "create");
+                      }}
+                    />
+                  </label>
+                </div>
+                <p className="text-[10px] text-zinc-500">
+                  Tip: Uploading a picture will save it to Cloudinary / Local storage and auto-fill the URL.
+                </p>
               </div>
 
               <div>
@@ -615,13 +670,38 @@ export default function AdminTeamPage() {
               </div>
 
               <div>
-                <label className="font-bold text-zinc-300 block mb-1">Profile Image URL</label>
-                <input
-                  type="text"
-                  value={editingMember.image}
-                  onChange={(e) => setEditingMember({ ...editingMember, image: e.target.value })}
-                  className="w-full p-3 rounded-xl bg-[#14141F] border border-white/[0.08] text-white"
-                />
+                <label className="font-bold text-zinc-300 block mb-1">
+                  Profile Image (Upload File to Cloudinary / Local or Paste URL)
+                </label>
+                <div className="flex items-center gap-3 mb-2">
+                  {editingMember.image && (
+                    <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-zinc-900 border border-white/20 flex-shrink-0">
+                      <img src={editingMember.image} alt="Preview" className="w-full h-full object-cover" />
+                    </div>
+                  )}
+                  <input
+                    type="text"
+                    placeholder="https://res.cloudinary.com/... or /images/..."
+                    value={editingMember.image}
+                    onChange={(e) => setEditingMember({ ...editingMember, image: e.target.value })}
+                    className="flex-1 p-3 rounded-xl bg-[#14141F] border border-white/[0.08] text-white"
+                  />
+                  <label className="py-3 px-4 rounded-xl bg-gradient-to-r from-[#6C63FF] to-[#00D4FF] hover:opacity-90 text-white text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-all whitespace-nowrap">
+                    <Upload size={14} />
+                    {uploading ? "Uploading..." : "Upload Image"}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        if (e.target.files?.[0]) handleFileUpload(e.target.files[0], "edit");
+                      }}
+                    />
+                  </label>
+                </div>
+                <p className="text-[10px] text-zinc-500">
+                  Tip: Uploading a picture will save it to Cloudinary / Local storage and auto-fill the URL.
+                </p>
               </div>
 
               <div>

@@ -58,12 +58,12 @@ const initialTeamMembers: TeamMember[] = [
     id: "team-2",
     name: "Gurvinder Singh Thind",
     primaryRole: "Co-founder & COO",
-    badge: "Co-Founder",
+    badge: "Founder & Architect",
     roles: ["Operations", "Strategic Growth", "Client Delivery"],
     image: "/images/tech.jpeg",
     bio: "Managing operational excellence, agency scaling, cross-border partnerships, and enterprise client execution.",
     stats: "Operations Lead",
-    highlight: false,
+    highlight: true,
     socials: {
       linkedin: "https://linkedin.com",
       twitter: "https://twitter.com",
@@ -138,7 +138,7 @@ const LuxuryTeam = () => {
 
   const fetchMembers = async () => {
     try {
-      const res = await fetch("/api/team");
+      const res = await fetch("/api/team", { cache: "no-store" });
       const json = await res.json();
       if (json.success && Array.isArray(json.data) && json.data.length > 0) {
         setMembers(json.data);
@@ -225,7 +225,7 @@ const LuxuryTeam = () => {
                   {/* Top Badge & Status Row */}
                   <div className="flex items-center justify-between mb-6">
                     <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-white/[0.04] border border-white/[0.08] text-zinc-300 group-hover:border-[#6C63FF]/40 group-hover:text-white transition-colors">
-                      {member.highlight ? (
+                      {member.highlight || member.badge?.toLowerCase().includes("founder") ? (
                         <Crown size={12} className="text-amber-400" />
                       ) : (
                         <ShieldCheck size={12} className="text-[#00D4FF]" />

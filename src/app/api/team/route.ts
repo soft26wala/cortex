@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getTeamMembers, createTeamMember } from "@/lib/db";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export async function GET() {
   try {
     const team = await getTeamMembers();
