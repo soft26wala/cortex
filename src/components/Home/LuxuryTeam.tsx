@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 
 interface TeamMember {
+  id?: string;
   name: string;
   primaryRole: string;
   badge: string;
@@ -35,8 +36,9 @@ interface TeamMember {
   highlight?: boolean;
 }
 
-const teamMembers: TeamMember[] = [
+const initialTeamMembers: TeamMember[] = [
   {
+    id: "team-1",
     name: "Anmol Singh Thind",
     primaryRole: "Founder & CEO / CTO",
     badge: "Founder & Architect",
@@ -53,6 +55,7 @@ const teamMembers: TeamMember[] = [
     },
   },
   {
+    id: "team-2",
     name: "Gurvinder Singh Thind",
     primaryRole: "Co-founder & COO",
     badge: "Co-Founder",
@@ -68,6 +71,7 @@ const teamMembers: TeamMember[] = [
     },
   },
   {
+    id: "team-3",
     name: "Jaskreet Singh Thind",
     primaryRole: "Co-founder & CMO",
     badge: "Co-Founder",
@@ -83,6 +87,7 @@ const teamMembers: TeamMember[] = [
     },
   },
   {
+    id: "team-4",
     name: "Gurkireet Singh",
     primaryRole: "Creative Director",
     badge: "Media Lead",
@@ -97,6 +102,7 @@ const teamMembers: TeamMember[] = [
     },
   },
   {
+    id: "team-5",
     name: "Pawan Kumar",
     primaryRole: "Lead UI/UX Designer",
     badge: "Design Architect",
@@ -111,6 +117,7 @@ const teamMembers: TeamMember[] = [
     },
   },
   {
+    id: "team-6",
     name: "Dharamveer Singh",
     primaryRole: "Lead QA & Automation",
     badge: "Quality Engineering",
@@ -127,6 +134,26 @@ const teamMembers: TeamMember[] = [
 ];
 
 const LuxuryTeam = () => {
+  const [members, setMembers] = React.useState<TeamMember[]>(initialTeamMembers);
+
+  const fetchMembers = async () => {
+    try {
+      const res = await fetch("/api/team");
+      const json = await res.json();
+      if (json.success && Array.isArray(json.data) && json.data.length > 0) {
+        setMembers(json.data);
+      }
+    } catch (e) {
+      console.warn("Failed to fetch dynamic team members:", e);
+    }
+  };
+
+  React.useEffect(() => {
+    fetchMembers();
+    const handleUpdate = () => fetchMembers();
+    window.addEventListener("cortex_team_updated", handleUpdate);
+    return () => window.removeEventListener("cortex_team_updated", handleUpdate);
+  }, []);
   return (
     <section className="py-32 bg-[#050505] text-white relative overflow-hidden selection:bg-[#6C63FF]/30">
       {/* Background Lighting & Glows */}
@@ -175,7 +202,7 @@ const LuxuryTeam = () => {
 
         {/* Team Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto items-stretch">
-          {teamMembers.map((member, idx) => (
+          {members.map((member, idx) => (
             <motion.div
               key={idx}
               initial={{ opacity: 0, y: 35 }}

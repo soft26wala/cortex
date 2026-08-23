@@ -15,6 +15,27 @@ try {
   console.warn("PostgreSQL pool initialization fallback:", e);
 }
 
+export interface TeamMember {
+  id: string;
+  name: string;
+  primaryRole: string;
+  badge: string;
+  roles: string[];
+  image: string;
+  bio: string;
+  stats?: string;
+  socials: {
+    linkedin?: string;
+    twitter?: string;
+    github?: string;
+    email?: string;
+  };
+  highlight?: boolean;
+  order?: number;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 // In-Memory persistent store fallback to guarantee real database-like behavior in dev
 let memoryNewsStore: any[] = [];
 let memoryUsersStore: any[] = [];
@@ -25,6 +46,7 @@ let memoryEnrollmentsStore: any[] = [];
 let memoryQuizzesStore: any[] = [];
 let memoryCertificatesStore: any[] = [];
 let memoryTransactionsStore: any[] = [];
+let memoryTeamStore: TeamMember[] = [];
 
 let isInitialized = false;
 
@@ -357,6 +379,111 @@ function seedInitialData() {
       { id: "cert-1", userId: "student-1", courseId: "course-1", certificateCode: "CRT-CTX-89210", issuedAt: new Date().toISOString() }
     ];
   }
+
+  if (memoryTeamStore.length === 0) {
+    memoryTeamStore = [
+      {
+        id: "team-1",
+        name: "Anmol Singh Thind",
+        primaryRole: "Founder & CEO / CTO",
+        badge: "Founder & Architect",
+        roles: ["Fullstack Engineer", "Neural AI", "Cloud Systems"],
+        image: "/images/hero/anmolin.png",
+        bio: "Architecting high-scale enterprise platforms, multi-tenant microservices, and neural AI automation engines.",
+        stats: "8+ Yrs Enterprise Tech",
+        highlight: true,
+        order: 1,
+        socials: {
+          linkedin: "https://www.linkedin.com/in/cortex-web-solutions-349459399",
+          twitter: "https://twitter.com",
+          github: "https://github.com",
+          email: "mailto:anmol@cortexwebsolutions.com",
+        },
+      },
+      {
+        id: "team-2",
+        name: "Gurvinder Singh Thind",
+        primaryRole: "Co-founder & COO",
+        badge: "Co-Founder",
+        roles: ["Operations", "Strategic Growth", "Client Delivery"],
+        image: "/images/tech.jpeg",
+        bio: "Managing operational excellence, agency scaling, cross-border partnerships, and enterprise client execution.",
+        stats: "Operations Lead",
+        highlight: false,
+        order: 2,
+        socials: {
+          linkedin: "https://linkedin.com",
+          twitter: "https://twitter.com",
+          email: "mailto:gurvinder@cortexwebsolutions.com",
+        },
+      },
+      {
+        id: "team-3",
+        name: "Jaskreet Singh Thind",
+        primaryRole: "Co-founder & CMO",
+        badge: "Co-Founder",
+        roles: ["Performance Marketing", "Meta Ads", "Brand Strategy"],
+        image: "/images/about/jas.png",
+        bio: "Scaling high-converting user acquisition pipelines, performance marketing campaigns, and market visibility.",
+        stats: "Growth Strategist",
+        highlight: false,
+        order: 3,
+        socials: {
+          linkedin: "https://linkedin.com",
+          twitter: "https://twitter.com",
+          email: "mailto:jaskreet@cortexwebsolutions.com",
+        },
+      },
+      {
+        id: "team-4",
+        name: "Gurkireet Singh",
+        primaryRole: "Creative Director",
+        badge: "Media Lead",
+        roles: ["Video Editing", "Visual Production", "Motion Graphics"],
+        image: "/images/hero/gurkreet.jpeg",
+        bio: "Crafting high-converting visual assets, dynamic video productions, and immersive brand storytelling.",
+        stats: "Visual Producer",
+        highlight: false,
+        order: 4,
+        socials: {
+          linkedin: "https://linkedin.com",
+          twitter: "https://twitter.com",
+        },
+      },
+      {
+        id: "team-5",
+        name: "Pawan Kumar",
+        primaryRole: "Lead UI/UX Designer",
+        badge: "Design Architect",
+        roles: ["Apple-Grade UI", "Design Systems", "Prototyping"],
+        image: "/images/hero/pawan.jpeg",
+        bio: "Designing modern, luxury user experiences, ultra-fluid interfaces, and interactive web component systems.",
+        stats: "Product Design",
+        highlight: false,
+        order: 5,
+        socials: {
+          linkedin: "https://linkedin.com",
+          twitter: "https://twitter.com",
+        },
+      },
+      {
+        id: "team-6",
+        name: "Dharamveer Singh",
+        primaryRole: "Lead QA & Automation",
+        badge: "Quality Engineering",
+        roles: ["Zero-Defect QA", "Performance Load", "Security Audit"],
+        image: "/images/hero/dharmveer.jpeg",
+        bio: "Ensuring flawless release deployments, high-load stress testing, and uncompromising platform security.",
+        stats: "Quality Control",
+        highlight: false,
+        order: 6,
+        socials: {
+          linkedin: "https://linkedin.com",
+          twitter: "https://twitter.com",
+        },
+      },
+    ];
+  }
 }
 
 // -------------------------------------------------------------
@@ -589,3 +716,70 @@ export async function getTeacherDashboardData(teacherId: string = "teacher-1") {
     rating: 4.9
   };
 }
+
+// -------------------------------------------------------------
+// Team Members CRUD API Functions
+// -------------------------------------------------------------
+export async function getTeamMembers() {
+  await initDb();
+  return [...memoryTeamStore].sort((a, b) => (a.order ?? 99) - (b.order ?? 99));
+}
+
+export async function createTeamMember(data: any) {
+  await initDb();
+  const id = data.id || `team-${Date.now()}`;
+  const newMember: TeamMember = {
+    id,
+    name: data.name || "New Team Member",
+    primaryRole: data.primaryRole || "Software Engineer",
+    badge: data.badge || "Core Team",
+    roles: Array.isArray(data.roles)
+      ? data.roles
+      : typeof data.roles === "string"
+      ? data.roles.split(",").map((r: string) => r.trim()).filter(Boolean)
+      : ["Engineering"],
+    image: data.image || "/images/hero/anmolin.png",
+    bio: data.bio || "",
+    stats: data.stats || "",
+    socials: data.socials || {},
+    highlight: Boolean(data.highlight),
+    order: Number(data.order || memoryTeamStore.length + 1),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+
+  memoryTeamStore.push(newMember);
+  return newMember;
+}
+
+export async function updateTeamMember(id: string, data: any) {
+  await initDb();
+  const index = memoryTeamStore.findIndex((m) => m.id === id);
+  if (index === -1) return null;
+
+  const current = memoryTeamStore[index];
+  const updatedMember: TeamMember = {
+    ...current,
+    ...data,
+    roles: Array.isArray(data.roles)
+      ? data.roles
+      : typeof data.roles === "string"
+      ? data.roles.split(",").map((r: string) => r.trim()).filter(Boolean)
+      : current.roles,
+    socials: {
+      ...current.socials,
+      ...(data.socials || {}),
+    },
+    updatedAt: new Date().toISOString(),
+  };
+
+  memoryTeamStore[index] = updatedMember;
+  return updatedMember;
+}
+
+export async function deleteTeamMember(id: string) {
+  await initDb();
+  memoryTeamStore = memoryTeamStore.filter((m) => m.id !== id);
+  return { success: true };
+}
+

@@ -30,6 +30,8 @@ import {
   X,
   Save,
   RefreshCw,
+  Users,
+  FolderKanban,
 } from "lucide-react";
 
 export default function AdminProjectsPage() {
@@ -161,6 +163,21 @@ export default function AdminProjectsPage() {
       <div className="absolute top-20 left-1/2 -translate-x-1/2 w-[900px] h-[450px] bg-gradient-to-tr from-[#6C63FF]/15 via-[#00D4FF]/10 to-transparent blur-[180px] pointer-events-none rounded-full" />
 
       <div className="container mx-auto px-6 relative z-10 max-w-7xl space-y-8">
+        {/* Navigation Tabs (Projects vs Team) */}
+        <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-[#0B0B0F] border border-white/[0.08] w-fit">
+          <button
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold bg-gradient-to-r from-[#6C63FF] to-[#00D4FF] text-white shadow-[0_0_20px_rgba(108,99,255,0.3)] transition-all"
+          >
+            <FolderKanban size={16} /> Client Projects
+          </button>
+          <Link
+            href="/admin/team"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold text-zinc-400 hover:text-white transition-all"
+          >
+            <Users size={16} /> Team & Leadership Console
+          </Link>
+        </div>
+
         {/* Header Bar */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-white/[0.08]">
           <div>

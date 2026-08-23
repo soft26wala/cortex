@@ -5,7 +5,7 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { headerData } from "../Header/Navigation/menuData";
 import Logo from "./Logo";
 import HeaderLink from "../Header/Navigation/HeaderLink";
-import { Menu, ShieldCheck, User, ChevronDown, LogOut, Cpu } from "lucide-react";
+import { Menu, ShieldCheck, User, ChevronDown, LogOut, Cpu, Users } from "lucide-react";
 import MobileHeaderLink from "../Header/Navigation/MobileHeaderLink";
 import MobileDrawer from "./Navigation/MobileDrawer";
 import Signin from "@/components/Auth/SignIn";
@@ -218,16 +218,27 @@ const Header: React.FC = () => {
                           <span>My Projects & Services (/Service)</span>
                         </Link>
 
-                        {/* Admin Control Panel Link (For Admins) */}
+                        {/* Admin Control Panel Links (For Admins) */}
                         {isAdmin && (
-                          <Link
-                            href="/admin/projects"
-                            onClick={() => setIsProfileDropdownOpen(false)}
-                            className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-amber-400 bg-amber-500/10 border border-amber-500/30 hover:bg-amber-500/20 transition-all font-bold shadow-[0_0_15px_rgba(245,158,11,0.15)]"
-                          >
-                            <ShieldCheck size={16} className="text-amber-400" />
-                            <span>Admin Control Panel (/admin/projects)</span>
-                          </Link>
+                          <>
+                            <Link
+                              href="/admin/projects"
+                              onClick={() => setIsProfileDropdownOpen(false)}
+                              className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-amber-400 bg-amber-500/10 border border-amber-500/30 hover:bg-amber-500/20 transition-all font-bold shadow-[0_0_15px_rgba(245,158,11,0.15)]"
+                            >
+                              <ShieldCheck size={16} className="text-amber-400" />
+                              <span>Projects Panel (/admin/projects)</span>
+                            </Link>
+
+                            <Link
+                              href="/admin/team"
+                              onClick={() => setIsProfileDropdownOpen(false)}
+                              className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-[#00D4FF] bg-[#00D4FF]/10 border border-[#00D4FF]/30 hover:bg-[#00D4FF]/20 transition-all font-bold shadow-[0_0_15px_rgba(0,212,255,0.15)]"
+                            >
+                              <Users size={16} className="text-[#00D4FF]" />
+                              <span>Team Console (/admin/team)</span>
+                            </Link>
+                          </>
                         )}
 
                         <Link
