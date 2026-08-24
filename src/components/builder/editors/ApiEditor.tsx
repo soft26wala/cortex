@@ -8,7 +8,8 @@ import { Field, Input, Textarea, Select, EditorSection } from './_fields'
 const METHODS = ['GET','POST','PUT','PATCH','DELETE'].map(v => ({ value: v, label: v }))
 
 export function ApiEditor({ nodeId }: { nodeId: string }) {
-  const { nodes, updateNode } = useFlowStore(s => ({ nodes: s.nodes, updateNode: s.updateNode }))
+  const nodes = useFlowStore(s => s.nodes)
+  const updateNode = useFlowStore(s => s.updateNode)
   const data = nodes.find(n => n.id === nodeId)!.data
   const u = (k: string) => (v: string) => updateNode(nodeId, { [k]: v })
   const mappings: Record<string,string> = data.responseMappings ?? {}

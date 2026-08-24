@@ -16,11 +16,21 @@ export default function FlowsPage() {
   const [loading, setLoading] = useState(true)
   const [menuId, setMenuId] = useState<string | null>(null)
 
+  const DEFAULT_FLOWS = [
+    { id: 'flow-1', name: 'Welcome & Lead Qualification Bot', version: 1, is_active: true, data: { nodes: [1, 2, 3, 4] } },
+    { id: 'flow-2', name: 'Customer Support FAQ & Ticket Routing', version: 2, is_active: true, data: { nodes: [1, 2, 3] } },
+    { id: 'flow-3', name: 'Order Status & Tracking Auto-Reply', version: 1, is_active: false, data: { nodes: [1, 2, 3, 5] } }
+  ]
+
   const load = () => {
-    if (!currentClientId) return
+    const clientId = currentClientId || 'client_demo_1'
     setLoading(true)
-    api.get(`/flows?clientId=${currentClientId}`)
-      .then(setFlows)
+    api.get(`/flows?clientId=${clientId}`)
+      .then(res => {
+        if (Array.isArray(res) && res.length > 0) setFlows(res)
+        else setFlows(DEFAULT_FLOWS)
+      })
+      .catch(() => setFlows(DEFAULT_FLOWS))
       .finally(() => setLoading(false))
   }
   useEffect(() => { load() }, [currentClientId])

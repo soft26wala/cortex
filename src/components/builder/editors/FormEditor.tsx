@@ -13,7 +13,8 @@ const FIELD_TYPES = [
 ]
 
 export function FormEditor({ nodeId }: { nodeId: string }) {
-  const { nodes, updateNode } = useFlowStore(s => ({ nodes: s.nodes, updateNode: s.updateNode }))
+  const nodes = useFlowStore(s => s.nodes)
+  const updateNode = useFlowStore(s => s.updateNode)
   const data = nodes.find(n => n.id === nodeId)!.data
   const fields: any[] = data.fields ?? []
   const u = (k: string) => (v: string) => updateNode(nodeId, { [k]: v })

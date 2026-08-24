@@ -30,10 +30,8 @@ const EDITORS: Record<string, React.ComponentType<{ nodeId: string }>> = {
 }
 
 export function PropertyPanel() {
-  const { nodes, selectedNodeId } = useFlowStore(s => ({
-    nodes: s.nodes,
-    selectedNodeId: s.selectedNodeId,
-  }))
+  const nodes = useFlowStore(s => s.nodes)
+  const selectedNodeId = useFlowStore(s => s.selectedNodeId)
   const selectedNode = nodes.find(n => n.id === selectedNodeId)
   const [activeTab, setActiveTab] = useState<'config' | 'json' | 'vars'>('config')
 

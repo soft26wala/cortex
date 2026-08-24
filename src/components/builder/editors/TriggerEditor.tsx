@@ -6,7 +6,8 @@ import { useFlowStore } from '@/store/flow.store'
 import { Field, Input, EditorSection } from './_fields'
 
 export function TriggerEditor({ nodeId }: { nodeId: string }) {
-  const { nodes, updateNode } = useFlowStore(s => ({ nodes: s.nodes, updateNode: s.updateNode }))
+  const nodes = useFlowStore(s => s.nodes)
+  const updateNode = useFlowStore(s => s.updateNode)
   const node = nodes.find(n => n.id === nodeId)!
   const triggers: string[] = node.data.triggers ?? []
   const [input, setInput] = useState('')

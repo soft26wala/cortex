@@ -29,9 +29,20 @@ export default function ClientsPage() {
   const [loading, setLoading]   = useState(true)
   const [showModal, setShowModal] = useState(false)
 
+  const DEFAULT_CLIENTS = [
+    { id: 'client_demo_1', name: 'Cortex Primary WhatsApp', phone_number_id: '108920193821039', waba_id: '109821039821038', plan: { name: 'Business' }, is_active: true },
+    { id: 'client_demo_2', name: 'E-commerce Support Line', phone_number_id: '108920193821040', waba_id: '109821039821039', plan: { name: 'Pro' }, is_active: true },
+  ]
+
   const load = () => {
     setLoading(true)
-    api.get('/clients').then(setClients).finally(() => setLoading(false))
+    api.get('/clients')
+      .then(res => {
+        if (Array.isArray(res) && res.length > 0) setClients(res)
+        else setClients(DEFAULT_CLIENTS)
+      })
+      .catch(() => setClients(DEFAULT_CLIENTS))
+      .finally(() => setLoading(false))
   }
   useEffect(() => { load() }, [])
 

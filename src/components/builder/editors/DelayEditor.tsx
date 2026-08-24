@@ -17,7 +17,8 @@ const MULTIPLIERS: Record<Unit, number> = {
 }
 
 export function DelayEditor({ nodeId }: { nodeId: string }) {
-  const { nodes, updateNode } = useFlowStore(s => ({ nodes: s.nodes, updateNode: s.updateNode }))
+  const nodes = useFlowStore(s => s.nodes)
+  const updateNode = useFlowStore(s => s.updateNode)
   const data = nodes.find(n => n.id === nodeId)!.data
   const [unit, setUnit] = useState<Unit>('minutes')
   const [amount, setAmount] = useState(String((data.delayMs ?? 60000) / MULTIPLIERS[unit]))

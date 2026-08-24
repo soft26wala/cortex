@@ -152,9 +152,9 @@ function ConditionIndicator({ variable, operator, value }: {
 
 // ── MAIN PREVIEW PANEL ────────────────────────────────────────────────────────
 export function WhatsAppPreview() {
-  const { nodes, edges, selectedNodeId } = useFlowStore(s => ({
-    nodes: s.nodes, edges: s.edges, selectedNodeId: s.selectedNodeId
-  }))
+  const nodes = useFlowStore(s => s.nodes)
+  const edges = useFlowStore(s => s.edges)
+  const selectedNodeId = useFlowStore(s => s.selectedNodeId)
 
   // Build ordered preview from edges
   const triggerNodes = nodes.filter(n => n.data.type === 'trigger')

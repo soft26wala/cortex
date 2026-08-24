@@ -11,11 +11,6 @@ import {
   Sparkles,
   Crown,
   ShieldCheck,
-  Code,
-  Zap,
-  Palette,
-  Terminal,
-  ArrowUpRight
 } from "lucide-react";
 
 interface TeamMember {
@@ -45,7 +40,7 @@ const initialTeamMembers: TeamMember[] = [
     roles: ["Fullstack Engineer", "Neural AI", "Cloud Systems"],
     image: "/images/hero/anmolin.png",
     bio: "Architecting high-scale enterprise platforms, multi-tenant microservices, and neural AI automation engines.",
-    stats: "8+ Yrs Enterprise Tech",
+    stats: "Software Engineer",
     highlight: true,
     socials: {
       linkedin: "https://www.linkedin.com/in/cortex-web-solutions-349459399",
@@ -88,31 +83,31 @@ const initialTeamMembers: TeamMember[] = [
   },
   {
     id: "team-4",
-    name: "Gurkireet Singh",
+    name: "Gurkirat Singh",
     primaryRole: "Creative Director",
-    badge: "Media Lead",
-    roles: ["Video Editing", "Visual Production", "Motion Graphics"],
-    image: "/images/hero/gurkreet.jpeg",
+    badge: "Managing Director",
+    roles: ["Video Editing", "Visual Production", "Motion Graphics", "Media Lead"],
+    image: "/images/hero/gur.jpeg",
     bio: "Crafting high-converting visual assets, dynamic video productions, and immersive brand storytelling.",
     stats: "Visual Producer",
     highlight: false,
     socials: {
-      linkedin: "https://linkedin.com",
+      linkedin: "https://www.linkedin.com/in/kirat-saini-92936342b?utm_source=share_via&utm_content=profile&utm_medium=member_android",
       twitter: "https://twitter.com",
     },
   },
   {
     id: "team-5",
-    name: "Pawan Kumar",
-    primaryRole: "Lead UI/UX Designer",
-    badge: "Design Architect",
-    roles: ["Apple-Grade UI", "Design Systems", "Prototyping"],
-    image: "/images/hero/pawan.jpeg",
+    name: "Durlabh",
+    primaryRole: "Full Stack",
+    badge: "Full Stack Developer",
+    roles: ["Full Stack Developer", "MERN Stack", "UI/UX Desige"],
+    image: "/images/hero/durlab.jpeg",
     bio: "Designing modern, luxury user experiences, ultra-fluid interfaces, and interactive web component systems.",
     stats: "Product Design",
     highlight: false,
     socials: {
-      linkedin: "https://linkedin.com",
+      linkedin: "https://www.linkedin.com/in/durlabh-dev?utm_source=share_via&utm_content=profile&utm_medium=member_android",
       twitter: "https://twitter.com",
     },
   },
@@ -134,32 +129,13 @@ const initialTeamMembers: TeamMember[] = [
 ];
 
 const LuxuryTeam = () => {
-  const [members, setMembers] = React.useState<TeamMember[]>(initialTeamMembers);
-
-  const fetchMembers = async () => {
-    try {
-      const res = await fetch("/api/team", { cache: "no-store" });
-      const json = await res.json();
-      if (json.success && Array.isArray(json.data) && json.data.length > 0) {
-        setMembers(json.data);
-      }
-    } catch (e) {
-      console.warn("Failed to fetch dynamic team members:", e);
-    }
-  };
-
-  React.useEffect(() => {
-    fetchMembers();
-    const handleUpdate = () => fetchMembers();
-    window.addEventListener("cortex_team_updated", handleUpdate);
-    return () => window.removeEventListener("cortex_team_updated", handleUpdate);
-  }, []);
+  const members = initialTeamMembers;
   return (
     <section className="py-32 bg-[#050505] text-white relative overflow-hidden selection:bg-[#6C63FF]/30">
       {/* Background Lighting & Glows */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[500px] bg-gradient-to-tr from-[#6C63FF]/15 via-[#00D4FF]/10 to-transparent blur-[160px] pointer-events-none rounded-full" />
       <div className="absolute bottom-10 right-10 w-[400px] h-[400px] bg-purple-600/10 blur-[140px] pointer-events-none rounded-full" />
-      
+
       {/* Luxury Subtle Mesh Grid background overlay */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] pointer-events-none" />
 
@@ -212,11 +188,10 @@ const LuxuryTeam = () => {
               className="h-full"
             >
               <div
-                className={`relative group h-full rounded-3xl p-7 bg-[#0B0B0F]/90 backdrop-blur-xl border transition-all duration-500 flex flex-col justify-between overflow-hidden ${
-                  member.highlight
-                    ? "border-[#6C63FF]/40 shadow-[0_0_40px_rgba(108,99,255,0.15)] hover:border-[#6C63FF] hover:shadow-[0_0_60px_rgba(108,99,255,0.25)]"
-                    : "border-white/[0.08] hover:border-white/[0.25] hover:shadow-[0_20px_40px_rgba(0,0,0,0.8)]"
-                }`}
+                className={`relative group h-full rounded-3xl p-7 bg-[#0B0B0F]/90 backdrop-blur-xl border transition-all duration-500 flex flex-col justify-between overflow-hidden ${member.highlight
+                  ? "border-[#6C63FF]/40 shadow-[0_0_40px_rgba(108,99,255,0.15)] hover:border-[#6C63FF] hover:shadow-[0_0_60px_rgba(108,99,255,0.25)]"
+                  : "border-white/[0.08] hover:border-white/[0.25] hover:shadow-[0_20px_40px_rgba(0,0,0,0.8)]"
+                  }`}
               >
                 {/* Background Hover Flare */}
                 <div className="absolute -top-24 -right-24 w-48 h-48 bg-gradient-to-br from-[#6C63FF]/20 to-[#00D4FF]/20 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
@@ -244,7 +219,7 @@ const LuxuryTeam = () => {
                   <div className="relative w-28 h-28 mx-auto mb-6">
                     {/* Ring Glow Gradient */}
                     <div className="absolute -inset-1.5 rounded-3xl bg-gradient-to-tr from-[#6C63FF] via-[#00D4FF] to-purple-600 opacity-60 group-hover:opacity-100 blur-sm transition-all duration-500" />
-                    
+
                     <div className="relative w-full h-full rounded-2xl overflow-hidden bg-zinc-950 border border-white/20">
                       <Image
                         src={member.image}
