@@ -35,7 +35,7 @@ const initialTeamMembers: TeamMember[] = [
   {
     id: "team-1",
     name: "Anmol Singh Thind",
-    primaryRole: "Founder & CEO / CTO",
+    primaryRole: "Founder & CTO",
     badge: "Founder & Architect",
     roles: ["Fullstack Engineer", "Neural AI", "Cloud Systems"],
     image: "/images/hero/anmolin.png",
@@ -52,7 +52,7 @@ const initialTeamMembers: TeamMember[] = [
   {
     id: "team-2",
     name: "Gurvinder Singh Thind",
-    primaryRole: "Co-founder & COO",
+    primaryRole: "Founder & CEO",
     badge: "Founder & Architect",
     roles: ["Operations", "Strategic Growth", "Client Delivery"],
     image: "/images/tech.jpeg",
