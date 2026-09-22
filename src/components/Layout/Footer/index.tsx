@@ -5,7 +5,12 @@ import Link from "next/link";
 import Image from "next/image";
 import { Sparkles, ArrowRight, ShieldCheck, Activity } from "lucide-react";
 
+import { usePathname } from "next/navigation";
+
 const Footer: FC = () => {
+  const pathUrl = usePathname();
+  if (pathUrl?.startsWith('/store')) return null;
+
   return (
     <footer className="relative bg-[#050505] text-white border-t border-white/[0.08] overflow-hidden pt-20 pb-12">
       {/* Background Radial Glow */}

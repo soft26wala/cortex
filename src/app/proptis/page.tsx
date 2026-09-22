@@ -9,27 +9,30 @@ import {
   ChevronRight, Compass, PhoneCall, Plus, ArrowUpRight, SlidersHorizontal,
   Star, Heart, Share2, Layers
 } from 'lucide-react'
-import { INITIAL_PROPERTIES } from '@/lib/proptisStore'
+import { INITIAL_PROPERTIES, getStoredProperties } from '@/lib/proptisStore'
 import { PropertyItem, PropertyCategory, PropertyPurpose } from '@/types/proptis'
+import { useEffect } from 'react'
 import { Lens } from '@/registry/magicui/lens'
-import { Card } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
 
 const CATEGORIES: PropertyCategory[] = [
   'Luxury Villas', 'Apartments', 'Commercial Buildings',
   'Land', 'Farm Houses', 'Penthouse'
 ]
 
-const CITIES = ['Jalandhar', 'Chandigarh', 'Amritsar', 'Ludhiana', 'Delhi NCR', 'Mumbai']
+const CITIES = ['Gurgaon', 'Jalandhar', 'Mumbai', 'Bengaluru', 'Chandigarh', 'Delhi NCR']
 
 export default function ProptisPage() {
   const [properties, setProperties] = useState<PropertyItem[]>(INITIAL_PROPERTIES)
   const [selectedPurpose, setSelectedPurpose] = useState<string>('All')
   const [selectedCategory, setSelectedCategory] = useState<string>('All')
   const [searchQuery, setSearchQuery] = useState('')
-  const [priceRange, setPriceRange] = useState<number>(200000000)
+  const [priceRange, setPriceRange] = useState<number>(500000000)
   const [savedPropertyIds, setSavedPropertyIds] = useState<string[]>([])
   const [activeCity, setActiveCity] = useState<string>('All')
+
+  useEffect(() => {
+    setProperties(getStoredProperties())
+  }, [])
 
   // Filtered properties computation
   const filteredProperties = useMemo(() => {

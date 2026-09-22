@@ -9,7 +9,7 @@ import {
   Sliders, ShieldCheck, Sparkles, Image as ImageIcon, Video, FileText,
   Search, Info, Eye, CheckCircle2, Save
 } from 'lucide-react'
-import { ALL_AMENITIES, INITIAL_PROPERTIES } from '@/lib/proptisStore'
+import { ALL_AMENITIES, INITIAL_PROPERTIES, getStoredProperties, saveStoredProperties } from '@/lib/proptisStore'
 import { PropertyCategory, PropertyPurpose, FurnishingStatus } from '@/types/proptis'
 import { useSessionStore } from '@/store/session.store'
 
@@ -154,6 +154,9 @@ export default function UploadPropertyPage() {
         },
       }
 
+      const currentProps = getStoredProperties()
+      const updatedProps = [newProp as any, ...currentProps]
+      saveStoredProperties(updatedProps)
       INITIAL_PROPERTIES.unshift(newProp as any)
       setIsSubmitting(false)
       router.push('/proptis')

@@ -8,15 +8,20 @@ import {
   Trash2, Edit, CheckCircle2, RotateCcw, TrendingUp, BarChart3,
   Layers, Heart, ShieldAlert, Sparkles, ArrowLeft
 } from 'lucide-react'
-import { INITIAL_PROPERTIES } from '@/lib/proptisStore'
+import { INITIAL_PROPERTIES, getStoredProperties, saveStoredProperties } from '@/lib/proptisStore'
 import { PropertyItem } from '@/types/proptis'
 import { useSessionStore } from '@/store/session.store'
+import { useEffect } from 'react'
 
 export default function ProptisDashboardPage() {
   const { user } = useSessionStore()
   const [properties, setProperties] = useState<PropertyItem[]>(INITIAL_PROPERTIES)
   const [activeTab, setActiveTab] = useState<'my_properties' | 'analytics' | 'saved'>('my_properties')
   const [deletedItem, setDeletedItem] = useState<PropertyItem | null>(null)
+
+  useEffect(() => {
+    setProperties(getStoredProperties())
+  }, [])
 
   // Compute stats
   const totalViews = properties.reduce((acc, curr) => acc + (curr.analytics?.views || 0), 0)
@@ -27,29 +32,33 @@ export default function ProptisDashboardPage() {
     const item = properties.find(p => p.id === id)
     if (item) {
       setDeletedItem(item)
-      setProperties(prev => prev.filter(p => p.id !== id))
+      const updated = properties.filter(p => p.id !== id)
+      setProperties(updated)
+      saveStoredProperties(updated)
     }
   }
 
   const handleUndo = () => {
     if (deletedItem) {
-      setProperties(prev => [deletedItem, ...prev])
+      const updated = [deletedItem, ...properties]
+      setProperties(updated)
+      saveStoredProperties(updated)
       setDeletedItem(null)
     }
   }
 
   const toggleStatus = (id: string) => {
-    setProperties(prev =>
-      prev.map(p => {
-        if (p.id === id) {
-          return {
-            ...p,
-            status: p.status === 'Published' ? 'Draft' : 'Published',
-          }
+    const updated = properties.map(p => {
+      if (p.id === id) {
+        return {
+          ...p,
+          status: p.status === 'Published' ? 'Draft' : 'Published',
         }
-        return p
-      })
-    )
+      }
+      return p
+    })
+    setProperties(updated as any)
+    saveStoredProperties(updated as any)
   }
 
   return (

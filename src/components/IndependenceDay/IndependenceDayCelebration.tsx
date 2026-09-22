@@ -1,11 +1,22 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { X, Heart, GripVertical } from "lucide-react";
 
 export default function IndependenceDayCelebration() {
   const [isMinimized, setIsMinimized] = useState(false);
+  const [shouldShow, setShouldShow] = useState(false);
+
+  useEffect(() => {
+    // Show only on August 15th (JS Month 7 = August)
+    const today = new Date();
+    if (today.getMonth() === 7 && today.getDate() === 15) {
+      setShouldShow(true);
+    }
+  }, []);
+
+  if (!shouldShow) return null;
 
   return (
     <motion.div

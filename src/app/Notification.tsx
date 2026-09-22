@@ -3,8 +3,12 @@ import React from "react";
 import Link from "next/link";
 import AnimatedMail from "@/components/AnimatedMail";
 
+import { usePathname } from "next/navigation";
+
 const Notification = () => {
- 
+    const pathname = usePathname();
+    if (pathname?.startsWith('/store')) return null;
+
     return (
         <Link href="/EventNotificationPage" className="fixed bottom-10 right-10 z-[999]">
             <div className="relative flex items-center justify-center">

@@ -1,35 +1,19 @@
-import Testimonials from "@/components/Home/Testimonials";
-import WorkSpeakers from "@/components/Home/WorkSpeakers";
-import HeroSub from "@/components/SharedComponent/HeroSub";
+import InteractiveAcademyStudio from "@/components/Academy/InteractiveAcademyStudio";
 import React from "react";
-
 import { Metadata } from "next";
-import AboutTum from "@/components/Home/AboutTum";
 
 export const metadata: Metadata = {
-  title: "Courses | Cortex Web Solutions",
-  description: "Hands-on courses by Cortex Web Solutions — job-ready training with real projects and modern tooling.",
+  title: "Interactive Coding Academy | 0 to Advanced Tutorials & Sandbox",
+  description: "Learn HTML, CSS, JavaScript, React, Next.js, Python, C++, Node.js & SQL from 0 to Advanced with interactive code editor and Hindi/English/Hinglish explanation options.",
 };
 
 const page = () => {
-    const breadcrumbLinks = [
-        { href: "/", text: "Home" },
-        { href: "/courses", text: "Courses" },
-      ];
   return (
     <>
-      
-      <HeroSub
-        title="Learn Coding with Industry Experts"
-        description="Hands-on courses designed to make you job-ready with real projects and modern technologies."
-        breadcrumbLinks={breadcrumbLinks}
-      />
-      <WorkSpeakers showTitle={true} />
-      <Testimonials/>
-      {/* <AboutTum /> */}
-     
+      <InteractiveAcademyStudio />
     </>
   );
 };
 
 export default page;
+

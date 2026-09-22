@@ -49,8 +49,9 @@ await agent.deployWorkflow({
   }
 ];
 
+import ScrollDeviceTransform from "./ScrollDeviceTransform";
+
 const Hero = () => {
-  const [activeTab, setActiveTab] = useState(0);
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
 
@@ -64,7 +65,7 @@ const Hero = () => {
   return (
     <section 
       onMouseMove={handleMouseMove}
-      className="relative pt-32 pb-24 md:pt-40 md:pb-36 bg-[#050505] text-white overflow-hidden bg-grid-pattern bg-noise"
+      className="relative pt-32 pb-16 md:pt-40 md:pb-24 bg-[#050505] text-white overflow-hidden bg-grid-pattern bg-noise"
     >
       {/* Dynamic Radial Glows */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-gradient-to-b from-[#6C63FF]/20 via-[#00D4FF]/10 to-transparent rounded-full blur-[140px] pointer-events-none" />
@@ -163,113 +164,14 @@ const Hero = () => {
           </motion.div>
         </div>
 
-        {/* Live Interactive Software Preview & Code Dashboard */}
+        {/* Live Scroll Morphing Device: Desktop Web App morphs into Mobile Smartphone App */}
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.9, delay: 0.5 }}
-          className="mt-16 max-w-6xl mx-auto"
+          className="mt-10 sm:mt-12 max-w-6xl mx-auto"
         >
-          <div className="rounded-3xl bg-[#0B0B0B] border border-white/[0.08] p-4 sm:p-6 shadow-[0_30px_100px_rgba(0,0,0,0.9)] backdrop-blur-2xl relative overflow-hidden group">
-            {/* Ambient Background Gradient Beam */}
-            <div className="absolute top-0 right-0 w-80 h-80 bg-[#6C63FF]/10 rounded-full blur-[100px] pointer-events-none" />
-
-            {/* Window Top Controls */}
-            <div className="flex items-center justify-between pb-4 border-b border-white/[0.08] mb-6">
-              <div className="flex items-center gap-2">
-                <span className="w-3 h-3 rounded-full bg-red-500/80 inline-block" />
-                <span className="w-3 h-3 rounded-full bg-yellow-500/80 inline-block" />
-                <span className="w-3 h-3 rounded-full bg-emerald-500/80 inline-block" />
-                <span className="text-xs text-zinc-500 font-mono ml-2">cortex-control-center v4.8</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-mono">
-                  <Activity size={12} className="animate-pulse" /> Live Telemetry
-                </span>
-              </div>
-            </div>
-
-            {/* Main Interactive Grid */}
-            <div className="grid lg:grid-cols-12 gap-6">
-              
-              {/* Left Column: Code Preview */}
-              <div className="lg:col-span-6 rounded-2xl bg-[#050505] border border-white/[0.08] p-4 sm:p-5 flex flex-col justify-between font-mono">
-                <div>
-                  <div className="flex items-center gap-2 border-b border-white/[0.08] pb-3 mb-4">
-                    {codeTabs.map((tab, idx) => (
-                      <button
-                        key={tab.id}
-                        onClick={() => setActiveTab(idx)}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-mono transition-colors flex items-center gap-1.5 ${
-                          activeTab === idx 
-                            ? "bg-[#6C63FF]/20 text-[#00D4FF] border border-[#6C63FF]/30" 
-                            : "text-zinc-500 hover:text-zinc-300"
-                        }`}
-                      >
-                        <Code2 size={13} />
-                        {tab.label}
-                      </button>
-                    ))}
-                  </div>
-
-                  <pre className="text-xs text-zinc-300 leading-relaxed overflow-x-auto p-2">
-                    <code>{codeTabs[activeTab].code}</code>
-                  </pre>
-                </div>
-
-                <div className="mt-6 pt-4 border-t border-white/[0.08] flex items-center justify-between text-xs text-zinc-500">
-                  <span className="flex items-center gap-1 text-emerald-400">
-                    <Server size={12} /> Execution time: 14ms
-                  </span>
-                  <span>TypeScript 5.4</span>
-                </div>
-              </div>
-
-              {/* Right Column: Live Data Visualization Card */}
-              <div className="lg:col-span-6 space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="p-4 rounded-2xl bg-[#111111] border border-white/[0.08]">
-                    <div className="flex items-center justify-between text-zinc-400 text-xs mb-2">
-                      <span>API Throughput</span>
-                      <TrendingUp size={14} className="text-[#4ADE80]" />
-                    </div>
-                    <p className="text-2xl font-black text-white">48,920 req/s</p>
-                    <span className="text-[11px] text-emerald-400">↑ 24% vs benchmark</span>
-                  </div>
-
-                  <div className="p-4 rounded-2xl bg-[#111111] border border-white/[0.08]">
-                    <div className="flex items-center justify-between text-zinc-400 text-xs mb-2">
-                      <span>Uptime Guarantee</span>
-                      <Shield size={14} className="text-[#00D4FF]" />
-                    </div>
-                    <p className="text-2xl font-black text-white">99.999%</p>
-                    <span className="text-[11px] text-zinc-400">Zero downtime SLA</span>
-                  </div>
-                </div>
-
-                <div className="p-5 rounded-2xl bg-[#111111] border border-white/[0.08] space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Bot size={16} className="text-[#6C63FF]" />
-                      <span className="text-xs font-semibold text-white">Active AI Workflows</span>
-                    </div>
-                    <span className="text-xs text-[#00D4FF] font-mono">1,420 Active Agents</span>
-                  </div>
-
-                  {/* Progress Line */}
-                  <div className="w-full bg-zinc-800 h-2 rounded-full overflow-hidden">
-                    <div className="bg-gradient-to-r from-[#6C63FF] to-[#00D4FF] h-full w-[88%] rounded-full animate-pulse" />
-                  </div>
-
-                  <div className="flex items-center justify-between text-xs text-zinc-400 pt-1">
-                    <span>Lead Qualification Rate</span>
-                    <span className="text-white font-bold">94.2%</span>
-                  </div>
-                </div>
-              </div>
-
-            </div>
-          </div>
+          <ScrollDeviceTransform />
         </motion.div>
 
         {/* Glass Statistics Banner */}

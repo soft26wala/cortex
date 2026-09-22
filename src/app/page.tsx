@@ -1,44 +1,39 @@
-import React from "react";
 import { Metadata } from "next";
 import Hero from "@/components/Home/Hero";
 import TrustedCompanies from "@/components/Home/TrustedCompanies";
-import AIFeatures from "@/components/Home/AIFeatures";
 import ProductShowcase from "@/components/Home/ProductShowcase";
-import InteractiveDashboard from "@/components/Home/InteractiveDashboard";
+import SoftwareAppDevSection from "@/components/Home/SoftwareAppDevSection";
+import AIFeatures from "@/components/Home/AIFeatures";
 import AutomationFeatures from "@/components/Home/AutomationFeatures";
-import Benefits from "@/components/Home/Benefits";
+import WhatsAppBlueprintSection from "@/app/killTechnical/components/WhatsAppBlueprintSection";
+import InteractiveDashboard from "@/components/Home/InteractiveDashboard";
 import WorkflowTimeline from "@/components/Home/WorkflowTimeline";
-import Integrations from "@/components/Home/Integrations";
-import SecurityShowcase from "@/components/Home/SecurityShowcase";
-import PerformanceMetrics from "@/components/Home/PerformanceMetrics";
+import LuxuryPricing from "@/components/Home/LuxuryPricing";
 import LuxuryTeam from "@/components/Home/LuxuryTeam";
 import LuxuryTestimonials from "@/components/Home/LuxuryTestimonials";
-import LuxuryPricing from "@/components/Home/LuxuryPricing";
 import LuxuryFAQ from "@/components/Home/LuxuryFAQ";
 import FinalCTA from "@/components/Home/FinalCTA";
 
 export const metadata: Metadata = {
   title: "Cortex Web Solutions • Luxury Enterprise SaaS & AI Platforms",
-  description: "Cortex Web Solutions builds high-converting web applications, automated WhatsApp AI agents, and enterprise cloud software for market leaders.",
+  description: "Cortex Web Solutions builds high-converting web applications, automated WhatsApp AI agents, and enterprise cloud software.",
 };
 
 export default function Home() {
   return (
-    <main className="bg-[#050505] text-white min-h-screen selection:bg-[#6C63FF]/30 selection:text-white">
+    <main className="bg-[#030712] text-white min-h-screen">
       <Hero />
       <TrustedCompanies />
+      <SoftwareAppDevSection />
       <AIFeatures />
+      <WhatsAppBlueprintSection />
       <ProductShowcase />
-      <InteractiveDashboard />
       <AutomationFeatures />
-      <Benefits />
+      <InteractiveDashboard />
       <WorkflowTimeline />
-      <Integrations />
-      <SecurityShowcase />
-      <PerformanceMetrics />
+      <LuxuryPricing />
       <LuxuryTeam />
       <LuxuryTestimonials />
-      <LuxuryPricing />
       <LuxuryFAQ />
       <FinalCTA />
     </main>

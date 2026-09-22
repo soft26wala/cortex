@@ -20,6 +20,7 @@ import { NextAuthProvider } from "./providers";
 import TicketSection from "@/components/Home/TicketSection";
 
 import { Metadata } from "next";
+import Script from "next/script";
 
 export const metadata: Metadata = {
   title: "Cortex Web Solutions • Luxury Enterprise SaaS & AI Platforms",
@@ -32,8 +33,18 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const googleAdsenseId = process.env.NEXT_PUBLIC_GOOGLE_ADSENSE_ID || "ca-pub-XXXXXXXXXXXXXXXX";
+
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <Script
+          async
+          src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${googleAdsenseId}`}
+          crossOrigin="anonymous"
+          strategy="afterInteractive"
+        />
+      </head>
       <body className={dmsans.className}>
         <AuthDialogProvider>
           <SessionProviderComp session={undefined}>

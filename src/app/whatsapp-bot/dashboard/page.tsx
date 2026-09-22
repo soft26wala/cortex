@@ -24,13 +24,18 @@ import {
 } from 'lucide-react'
 import { MetaHelpModal } from '@/components/whatsapp-bot/MetaHelpModal'
 import { FlowBuilderCanvas } from '@/components/whatsapp-bot/FlowBuilderCanvas'
+import { WhatsAppAuthModal } from '@/components/whatsapp-bot/WhatsAppAuthModal'
 import { SAAS_PLANS } from '@/services/whatsapp/razorpayService'
 
 export default function CustomerBotDashboard() {
-  const [activeTab, setActiveTab] = useState<'bot' | 'builder' | 'keywords' | 'billing' | 'logs'>('builder')
+  const [activeTab, setActiveTab] = useState<'bot' | 'builder' | 'keywords' | 'billing' | 'logs'>('bot')
   const [helpField, setHelpField] = useState<string | null>(null)
   const [verifyingMeta, setVerifyingMeta] = useState(false)
   const [metaStatus, setMetaStatus] = useState<{ success: boolean; message: string } | null>(null)
+
+  // Auth State
+  const [currentUser, setCurrentUser] = useState<any>(null)
+  const [showAuthModal, setShowAuthModal] = useState<boolean>(false)
 
   // Meta Credentials Form
   const [businessName, setBusinessName] = useState('My Business Bot')
@@ -65,6 +70,21 @@ export default function CustomerBotDashboard() {
 
   useEffect(() => {
     fetchKeywords()
+
+    if (typeof window !== 'undefined') {
+      const storedUser = localStorage.getItem('user')
+      const storedToken = localStorage.getItem('token')
+      if (storedUser || storedToken) {
+        try {
+          setCurrentUser(storedUser ? JSON.parse(storedUser) : { name: 'Verified Admin' })
+          setShowAuthModal(false)
+        } catch (e) {
+          setShowAuthModal(true)
+        }
+      } else {
+        setShowAuthModal(true)
+      }
+    }
   }, [])
 
   const handleVerifyAndSaveMeta = async (e: React.FormEvent) => {
@@ -215,35 +235,43 @@ export default function CustomerBotDashboard() {
         <div className="flex flex-wrap gap-3 mb-8 border-b border-slate-800 pb-4">
           <button
             onClick={() => setActiveTab('bot')}
-            className={`px-5 py-2.5 rounded-xl font-semibold text-xs transition-all ${
-              activeTab === 'bot' ? 'bg-emerald-600 text-white shadow-md' : 'bg-slate-900 text-slate-400 hover:text-white'
+            className={`px-5 py-2.5 rounded-xl font-bold text-xs transition-all flex items-center gap-2 ${
+              activeTab === 'bot'
+                ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-900/40'
+                : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
             }`}
           >
-            Meta API Connection
+            <Bot className="w-4 h-4 text-emerald-300" /> 1. Meta API Connection
           </button>
           <button
             onClick={() => setActiveTab('builder')}
-            className={`px-5 py-2.5 rounded-xl font-semibold text-xs transition-all flex items-center gap-2 ${
-              activeTab === 'builder' ? 'bg-emerald-600 text-white shadow-md' : 'bg-slate-900 text-slate-400 hover:text-white'
+            className={`px-5 py-2.5 rounded-xl font-bold text-xs transition-all flex items-center gap-2 ${
+              activeTab === 'builder'
+                ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-900/40'
+                : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
             }`}
           >
-            <Sparkles className="w-4 h-4 text-purple-400" /> Visual Flow Builder
+            <Sparkles className="w-4 h-4 text-purple-400" /> 2. Visual Flow Builder
           </button>
           <button
             onClick={() => setActiveTab('keywords')}
-            className={`px-5 py-2.5 rounded-xl font-semibold text-xs transition-all ${
-              activeTab === 'keywords' ? 'bg-emerald-600 text-white shadow-md' : 'bg-slate-900 text-slate-400 hover:text-white'
+            className={`px-5 py-2.5 rounded-xl font-bold text-xs transition-all flex items-center gap-2 ${
+              activeTab === 'keywords'
+                ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-900/40'
+                : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
             }`}
           >
-            Keyword Rules ({keywords.length})
+            <MessageSquare className="w-4 h-4 text-blue-400" /> 3. Keyword Rules ({keywords.length})
           </button>
           <button
             onClick={() => setActiveTab('billing')}
-            className={`px-5 py-2.5 rounded-xl font-semibold text-xs transition-all ${
-              activeTab === 'billing' ? 'bg-emerald-600 text-white shadow-md' : 'bg-slate-900 text-slate-400 hover:text-white'
+            className={`px-5 py-2.5 rounded-xl font-bold text-xs transition-all flex items-center gap-2 ${
+              activeTab === 'billing'
+                ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-900/40'
+                : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
             }`}
           >
-            Subscription & Razorpay
+            <CreditCard className="w-4 h-4 text-amber-400" /> 4. Subscription & Razorpay
           </button>
         </div>
 
@@ -540,8 +568,17 @@ export default function CustomerBotDashboard() {
         )}
       </div>
 
-      {/* Meta Developer Help Modal */}
+      {/* Help Modal */}
       <MetaHelpModal fieldKey={helpField} onClose={() => setHelpField(null)} />
+
+      {/* WhatsApp Production Studio Auth Modal */}
+      <WhatsAppAuthModal
+        isOpen={showAuthModal}
+        onLoginSuccess={(u) => {
+          setCurrentUser(u)
+          setShowAuthModal(false)
+        }}
+      />
     </div>
   )
 }

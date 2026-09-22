@@ -5,8 +5,13 @@ import { Icon } from "@iconify/react";
 import axios from "axios";
 import Cookies from "js-cookie";
 
+import { usePathname } from "next/navigation";
+
 const PendingStickyBtn = () => {
+    const pathname = usePathname();
     const [show, setShow] = useState(false);
+
+    if (pathname?.startsWith('/store')) return null;
 
     useEffect(() => {
         const user = Cookies.get("user") ? JSON.parse(Cookies.get("user")!) : null;

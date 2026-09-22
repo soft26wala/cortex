@@ -140,10 +140,10 @@ export default function WhatsAppBotLandingPage() {
               <PlayCircle className="w-5 h-5" /> Launch Live Interactive Demo
             </Link>
             <Link
-              href="/whatsapp-bot/admin"
+              href="/whatsapp-bot/dashboard"
               className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-slate-900 hover:bg-slate-800 text-slate-200 font-semibold text-sm border border-slate-800 transition-all flex items-center justify-center gap-2"
             >
-              <Layers className="w-5 h-5" /> Open Bot Admin Dashboard
+              <Layers className="w-5 h-5 text-emerald-400" /> Open Production Studio
             </Link>
           </div>
         </motion.div>

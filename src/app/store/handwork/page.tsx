@@ -1,0 +1,282 @@
+'use client';
+
+import React, { useState } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { motion } from 'framer-motion';
+import { Sparkles, ArrowRight, ShieldCheck, Heart, Layers, Send, ChevronRight, Gem, Check } from 'lucide-react';
+import { HANDWORK_PRODUCTS } from '@/data/handworkProducts';
+import { ProductGrid } from '@/components/store/ProductGrid';
+import { CategoryFilter } from '@/components/store/CategoryFilter';
+import { CustomDesignForm } from '@/components/store/CustomDesignForm';
+import { ProcessShowcase } from '@/components/store/ProcessShowcase';
+import { MasonryGallery } from '@/components/store/MasonryGallery';
+import { YouTubeVideoShowcase } from '@/components/store/YouTubeVideoShowcase';
+import { WhyHandmade } from '@/components/store/WhyHandmade';
+import { HowItWorks } from '@/components/store/HowItWorks';
+import { Testimonials } from '@/components/store/Testimonials';
+import { LuxuryCTA } from '@/components/store/LuxuryCTA';
+import { useCustomDesignStore } from '@/store/useCustomDesignStore';
+import { FilterState } from '@/types/store';
+
+export default function HandworkStorePage() {
+  const openCustomModal = useCustomDesignStore((state) => state.openModal);
+
+  // Filter State
+  const [filterState, setFilterState] = useState<FilterState>({
+    category: 'All',
+    priceRange: [0, 10000],
+    occasion: 'All',
+    size: 'All',
+    customizableOnly: false,
+    searchQuery: '',
+    sortBy: 'featured'
+  });
+
+  const categories = Array.from(new Set(HANDWORK_PRODUCTS.map((p) => p.category)));
+
+  // Filtered Products Logic
+  const filteredProducts = HANDWORK_PRODUCTS.filter((product) => {
+    if (filterState.category !== 'All' && product.category !== filterState.category) return false;
+    if (filterState.customizableOnly && !product.customizable) return false;
+    return true;
+  }).sort((a, b) => {
+    if (filterState.sortBy === 'price-low') return a.price - b.price;
+    if (filterState.sortBy === 'price-high') return b.price - a.price;
+    if (filterState.sortBy === 'rating') return b.rating - a.rating;
+    return (b.featured ? 1 : 0) - (a.featured ? 1 : 0);
+  });
+
+  const customSteps = [
+    { num: 'Step 01', title: 'Choose Product', desc: 'Resin Frame, Name Plate, Clock or Custom Artwork' },
+    { num: 'Step 02', title: 'Choose Size', desc: 'Small, Medium, Large, Extra Large or Custom' },
+    { num: 'Step 03', title: 'Choose Style', desc: 'Gold Leaf, Crimson Roses, Waves or Obsidian' },
+    { num: 'Step 04', title: 'Upload Photos', desc: 'Engraving photo or inspiration reference' },
+    { num: 'Step 05', title: 'Add Name / Text', desc: 'Custom dates, wedding vows or initials' },
+    { num: 'Step 06', title: 'Describe Idea', desc: 'Share your vision with our artisan' },
+    { num: 'Step 07', title: 'Get Custom Quote', desc: 'Instant WhatsApp estimate & time frame' }
+  ];
+
+  return (
+    <div className="space-y-0">
+      
+      {/* 3. HERO SECTION */}
+      <section className="relative min-h-[90vh] flex items-center justify-center pt-10 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden bg-[#0A0A0E]">
+        {/* Parallax / Glowing Ambient Backdrop */}
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-gradient-to-tr from-[#D4AF37]/15 via-[#F3E5AB]/10 to-transparent blur-[160px] pointer-events-none rounded-full" />
+        <div className="absolute inset-0 bg-grid-pattern opacity-10 pointer-events-none" />
+
+        <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center relative z-10">
+          
+          {/* Left Hero Text */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="lg:col-span-7 space-y-8 text-center lg:text-left"
+          >
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#D4AF37]/15 border border-[#D4AF37]/30 text-[#E6C762] text-xs font-bold uppercase tracking-widest">
+              <Sparkles className="w-4 h-4 animate-pulse" />
+              <span>Bespoke Handmade Resin Studio</span>
+            </div>
+
+            <h1 className="text-4xl sm:text-6xl md:text-7xl font-bold font-serif text-[#F5F0EB] tracking-tight leading-[1.1]">
+              Made For You. <br />
+              <span className="handwork-gold-text">Never Made Twice.</span>
+            </h1>
+
+            <p className="text-base sm:text-xl text-[#9CA3AF] font-light max-w-2xl mx-auto lg:mx-0 leading-relaxed">
+              Premium handmade resin art, personalized frames and custom creations designed around your story. Every piece is handcrafted in India with patience.
+            </p>
+
+            <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-2">
+              <button
+                onClick={() => openCustomModal()}
+                className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-gradient-to-r from-[#D4AF37] to-[#C5A059] text-black font-bold text-sm tracking-wider uppercase flex items-center justify-center gap-2 shadow-2xl hover:brightness-110 transition-all group"
+              >
+                <Sparkles className="w-4 h-4" />
+                <span>Create Custom Design</span>
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </button>
+
+              <a
+                href="#collections"
+                className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-white/5 border border-white/15 text-[#F5F0EB] font-bold text-sm tracking-wider uppercase flex items-center justify-center gap-2 hover:bg-white/10 hover:border-[#D4AF37]/40 transition-all"
+              >
+                <span>Explore Collection</span>
+              </a>
+            </div>
+
+            {/* Micro badges */}
+            <div className="pt-6 flex flex-wrap items-center justify-center lg:justify-start gap-6 text-xs text-[#9CA3AF]">
+              <span className="flex items-center gap-2">
+                <Check className="w-4 h-4 text-[#E6C762]" /> 100% Handmade Resin
+              </span>
+              <span className="flex items-center gap-2">
+                <Check className="w-4 h-4 text-[#E6C762]" /> Custom Crafted To Order
+              </span>
+              <span className="flex items-center gap-2">
+                <Check className="w-4 h-4 text-[#E6C762]" /> Worldwide Shipping
+              </span>
+            </div>
+          </motion.div>
+
+          {/* Right Hero Visual Showcase */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.9, delay: 0.2 }}
+            className="lg:col-span-5 relative"
+          >
+            <div className="relative aspect-[4/5] rounded-3xl overflow-hidden border border-[#D4AF37]/40 shadow-2xl bg-[#121217]">
+              <Image
+                src="/images/handwork/hero.jpg"
+                alt="Royal Resin Frame Handmade Artwork"
+                fill
+                priority
+                className="object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0E] via-transparent to-transparent opacity-60" />
+
+              {/* Floating Glass Badges */}
+              <motion.div
+                animate={{ y: [0, -8, 0] }}
+                transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+                className="absolute top-6 left-6 p-3.5 rounded-2xl bg-black/70 backdrop-blur-xl border border-white/20 text-xs text-[#F5F0EB] shadow-2xl flex items-center gap-2.5"
+              >
+                <div className="w-7 h-7 rounded-xl bg-[#D4AF37]/20 text-[#E6C762] flex items-center justify-center font-bold">
+                  ✨
+                </div>
+                <div>
+                  <span className="font-bold block text-[#E6C762]">100% Handmade</span>
+                  <span className="text-[10px] text-[#9CA3AF]">Optical Epoxy Clarity</span>
+                </div>
+              </motion.div>
+
+              <motion.div
+                animate={{ y: [0, 8, 0] }}
+                transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
+                className="absolute bottom-6 right-6 p-4 rounded-2xl bg-black/80 backdrop-blur-xl border border-[#D4AF37]/40 text-xs text-[#F5F0EB] shadow-2xl flex items-center gap-3"
+              >
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#D4AF37] to-[#C5A059] text-black font-bold flex items-center justify-center">
+                  <Gem className="w-5 h-5" />
+                </div>
+                <div>
+                  <span className="font-serif font-bold text-sm block text-[#F5F0EB]">Royal Resin Frame</span>
+                  <span className="text-[11px] text-[#E6C762] font-semibold">Custom Crafted • ₹2,499</span>
+                </div>
+              </motion.div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* 4. CUSTOM DESIGN — PRIMARY FEATURE */}
+      <section id="custom-design" className="py-20 bg-[#070709] border-t border-white/10 relative">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          
+          <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
+            <span className="text-xs font-bold uppercase tracking-widest text-[#E6C762] px-3.5 py-1.5 rounded-full bg-[#D4AF37]/10 border border-[#D4AF37]/30 inline-block">
+              ✨ Primary Feature
+            </span>
+            <h2 className="text-3xl sm:text-5xl font-bold font-serif text-[#F5F0EB]">
+              Don't Choose From A Catalog. <br />
+              <span className="handwork-gold-text">Create Your Own.</span>
+            </h2>
+            <p className="text-sm sm:text-base text-[#9CA3AF] font-light leading-relaxed">
+              Have an idea in your mind? Tell us what you want and we'll turn your concept into a handmade piece tailored specifically for your memories.
+            </p>
+          </div>
+
+          {/* Interactive Step Roadmap Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
+            {customSteps.slice(0, 4).map((st, i) => (
+              <div
+                key={st.num}
+                className="p-6 rounded-2xl bg-[#0D0D12] border border-white/10 hover:border-[#D4AF37]/30 transition-all space-y-2 relative group"
+              >
+                <span className="text-xs font-bold text-[#E6C762] block">{st.num}</span>
+                <h4 className="text-base font-bold font-serif text-[#F5F0EB] group-hover:text-[#E6C762] transition-colors">
+                  {st.title}
+                </h4>
+                <p className="text-xs text-[#9CA3AF] font-light">{st.desc}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-12">
+            {customSteps.slice(4, 7).map((st, i) => (
+              <div
+                key={st.num}
+                className="p-6 rounded-2xl bg-[#0D0D12] border border-white/10 hover:border-[#D4AF37]/30 transition-all space-y-2 relative group"
+              >
+                <span className="text-xs font-bold text-[#E6C762] block">{st.num}</span>
+                <h4 className="text-base font-bold font-serif text-[#F5F0EB] group-hover:text-[#E6C762] transition-colors">
+                  {st.title}
+                </h4>
+                <p className="text-xs text-[#9CA3AF] font-light">{st.desc}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* 5. CUSTOM DESIGN BUILDER UI SECTION */}
+          <div className="max-w-4xl mx-auto">
+            <CustomDesignForm />
+          </div>
+        </div>
+      </section>
+
+      {/* 6. FEATURED COLLECTION */}
+      <section id="collections" className="py-20 bg-[#0A0A0E] border-t border-white/10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
+            <div>
+              <span className="text-xs font-bold uppercase tracking-widest text-[#E6C762] block mb-2">
+                Handcrafted Art Catalog
+              </span>
+              <h2 className="text-3xl sm:text-5xl font-bold font-serif text-[#F5F0EB]">
+                Signature Collection
+              </h2>
+            </div>
+            <p className="text-xs text-[#9CA3AF] max-w-md font-light">
+              Explore our curated handcrafted pieces. Every design can be customized with your names, photos, and date plaques.
+            </p>
+          </div>
+
+          {/* Filters & Sorting */}
+          <CategoryFilter
+            filterState={filterState}
+            onChange={setFilterState}
+            categories={categories}
+          />
+
+          {/* Product Grid */}
+          <ProductGrid products={filteredProducts} />
+        </div>
+      </section>
+
+      {/* 10. BEFORE -> AFTER / CUSTOM PROCESS */}
+      <ProcessShowcase />
+
+      {/* 9. GALLERY */}
+      <MasonryGallery />
+
+      {/* YOUTUBE CRAFT VIDEOS SHOWCASE */}
+      <YouTubeVideoShowcase />
+
+      {/* 11. WHY HANDMADE */}
+      <WhyHandmade />
+
+      {/* 12. HOW IT WORKS */}
+      <HowItWorks />
+
+      {/* 13. CUSTOMER REVIEWS */}
+      <Testimonials />
+
+      {/* 14. CUSTOM REQUEST CTA */}
+      <LuxuryCTA />
+
+    </div>
+  );
+}
