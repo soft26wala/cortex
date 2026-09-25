@@ -5,7 +5,6 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Sparkles, ArrowRight, ShieldCheck, Heart, Layers, Send, ChevronRight, Gem, Check } from 'lucide-react';
-import { HANDWORK_PRODUCTS } from '@/data/handworkProducts';
 import { ProductGrid } from '@/components/store/ProductGrid';
 import { CategoryFilter } from '@/components/store/CategoryFilter';
 import { CustomDesignForm } from '@/components/store/CustomDesignForm';
@@ -17,15 +16,17 @@ import { HowItWorks } from '@/components/store/HowItWorks';
 import { Testimonials } from '@/components/store/Testimonials';
 import { LuxuryCTA } from '@/components/store/LuxuryCTA';
 import { useCustomDesignStore } from '@/store/useCustomDesignStore';
+import { useHandworkAdminStore } from '@/store/useHandworkAdminStore';
 import { FilterState } from '@/types/store';
 
 export default function HandworkStorePage() {
   const openCustomModal = useCustomDesignStore((state) => state.openModal);
+  const products = useHandworkAdminStore((state) => state.products);
 
   // Filter State
   const [filterState, setFilterState] = useState<FilterState>({
     category: 'All',
-    priceRange: [0, 10000],
+    priceRange: [0, 100000],
     occasion: 'All',
     size: 'All',
     customizableOnly: false,
@@ -33,10 +34,10 @@ export default function HandworkStorePage() {
     sortBy: 'featured'
   });
 
-  const categories = Array.from(new Set(HANDWORK_PRODUCTS.map((p) => p.category)));
+  const categories = Array.from(new Set(products.map((p) => p.category)));
 
-  // Filtered Products Logic
-  const filteredProducts = HANDWORK_PRODUCTS.filter((product) => {
+  // Dynamic Filtered Products Logic from Admin Store
+  const filteredProducts = products.filter((product) => {
     if (filterState.category !== 'All' && product.category !== filterState.category) return false;
     if (filterState.customizableOnly && !product.customizable) return false;
     return true;
@@ -48,19 +49,16 @@ export default function HandworkStorePage() {
   });
 
   const customSteps = [
-    { num: 'Step 01', title: 'Choose Product', desc: 'Resin Frame, Name Plate, Clock or Custom Artwork' },
-    { num: 'Step 02', title: 'Choose Size', desc: 'Small, Medium, Large, Extra Large or Custom' },
-    { num: 'Step 03', title: 'Choose Style', desc: 'Gold Leaf, Crimson Roses, Waves or Obsidian' },
-    { num: 'Step 04', title: 'Upload Photos', desc: 'Engraving photo or inspiration reference' },
-    { num: 'Step 05', title: 'Add Name / Text', desc: 'Custom dates, wedding vows or initials' },
-    { num: 'Step 06', title: 'Describe Idea', desc: 'Share your vision with our artisan' },
-    { num: 'Step 07', title: 'Get Custom Quote', desc: 'Instant WhatsApp estimate & time frame' }
+    { num: '01', title: 'Select Admin Frame', desc: 'Pick any frame piece uploaded from Admin Panel' },
+    { num: '02', title: 'Upload Photo', desc: 'Instant local preview & high-res DB attachment' },
+    { num: '03', title: 'Engrave Text', desc: 'Add personalized names, dates & custom vow snippets' },
+    { num: '04', title: 'Place Order', desc: 'Automatic DB entry & instant WhatsApp quote' }
   ];
 
   return (
     <div className="space-y-0">
       
-      {/* 3. HERO SECTION */}
+      {/* HERO SECTION */}
       <section className="relative min-h-[90vh] flex items-center justify-center pt-10 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden bg-[#0A0A0E]">
         {/* Parallax / Glowing Ambient Backdrop */}
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-gradient-to-tr from-[#D4AF37]/15 via-[#F3E5AB]/10 to-transparent blur-[160px] pointer-events-none rounded-full" />
@@ -130,8 +128,8 @@ export default function HandworkStorePage() {
           >
             <div className="relative aspect-[4/5] rounded-3xl overflow-hidden border border-[#D4AF37]/40 shadow-2xl bg-[#121217]">
               <Image
-                src="/images/handwork/hero.jpg"
-                alt="Royal Resin Frame Handmade Artwork"
+                src={products[0]?.thumbnail || "/images/handwork/hero.jpg"}
+                alt={products[0]?.title || "Royal Resin Frame"}
                 fill
                 priority
                 className="object-cover"
@@ -162,8 +160,12 @@ export default function HandworkStorePage() {
                   <Gem className="w-5 h-5" />
                 </div>
                 <div>
-                  <span className="font-serif font-bold text-sm block text-[#F5F0EB]">Royal Resin Frame</span>
-                  <span className="text-[11px] text-[#E6C762] font-semibold">Custom Crafted • ₹2,499</span>
+                  <span className="font-serif font-bold text-sm block text-[#F5F0EB]">
+                    {products[0]?.title || "Royal Resin Frame"}
+                  </span>
+                  <span className="text-[11px] text-[#E6C762] font-semibold">
+                    Custom Crafted • ₹{products[0]?.price.toLocaleString('en-IN') || '2,499'}
+                  </span>
                 </div>
               </motion.div>
             </div>
@@ -171,7 +173,7 @@ export default function HandworkStorePage() {
         </div>
       </section>
 
-      {/* 4. CUSTOM DESIGN — PRIMARY FEATURE */}
+      {/* CUSTOM DESIGN — PRIMARY FEATURE */}
       <section id="custom-design" className="py-20 bg-[#070709] border-t border-white/10 relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
@@ -180,22 +182,21 @@ export default function HandworkStorePage() {
               ✨ Primary Feature
             </span>
             <h2 className="text-3xl sm:text-5xl font-bold font-serif text-[#F5F0EB]">
-              Don't Choose From A Catalog. <br />
-              <span className="handwork-gold-text">Create Your Own.</span>
+              Instant Custom Frame Studio
             </h2>
             <p className="text-sm sm:text-base text-[#9CA3AF] font-light leading-relaxed">
-              Have an idea in your mind? Tell us what you want and we'll turn your concept into a handmade piece tailored specifically for your memories.
+              Select a frame uploaded from our Admin Panel, upload your photo for real-time preview, and place your custom order directly.
             </p>
           </div>
 
-          {/* Interactive Step Roadmap Cards */}
+          {/* Feature Roadmap Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
-            {customSteps.slice(0, 4).map((st, i) => (
+            {customSteps.map((st) => (
               <div
                 key={st.num}
                 className="p-6 rounded-2xl bg-[#0D0D12] border border-white/10 hover:border-[#D4AF37]/30 transition-all space-y-2 relative group"
               >
-                <span className="text-xs font-bold text-[#E6C762] block">{st.num}</span>
+                <span className="text-xs font-bold text-[#E6C762] block">Step {st.num}</span>
                 <h4 className="text-base font-bold font-serif text-[#F5F0EB] group-hover:text-[#E6C762] transition-colors">
                   {st.title}
                 </h4>
@@ -204,29 +205,14 @@ export default function HandworkStorePage() {
             ))}
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-12">
-            {customSteps.slice(4, 7).map((st, i) => (
-              <div
-                key={st.num}
-                className="p-6 rounded-2xl bg-[#0D0D12] border border-white/10 hover:border-[#D4AF37]/30 transition-all space-y-2 relative group"
-              >
-                <span className="text-xs font-bold text-[#E6C762] block">{st.num}</span>
-                <h4 className="text-base font-bold font-serif text-[#F5F0EB] group-hover:text-[#E6C762] transition-colors">
-                  {st.title}
-                </h4>
-                <p className="text-xs text-[#9CA3AF] font-light">{st.desc}</p>
-              </div>
-            ))}
-          </div>
-
-          {/* 5. CUSTOM DESIGN BUILDER UI SECTION */}
+          {/* CUSTOM DESIGN BUILDER UI SECTION */}
           <div className="max-w-4xl mx-auto">
             <CustomDesignForm />
           </div>
         </div>
       </section>
 
-      {/* 6. FEATURED COLLECTION */}
+      {/* FEATURED COLLECTION */}
       <section id="collections" className="py-20 bg-[#0A0A0E] border-t border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
@@ -240,7 +226,7 @@ export default function HandworkStorePage() {
               </h2>
             </div>
             <p className="text-xs text-[#9CA3AF] max-w-md font-light">
-              Explore our curated handcrafted pieces. Every design can be customized with your names, photos, and date plaques.
+              Explore our handcrafted pieces managed directly from our Admin Studio. Every design can be customized with your names, photos, and date plaques.
             </p>
           </div>
 
@@ -251,30 +237,30 @@ export default function HandworkStorePage() {
             categories={categories}
           />
 
-          {/* Product Grid */}
+          {/* Dynamic Product Grid */}
           <ProductGrid products={filteredProducts} />
         </div>
       </section>
 
-      {/* 10. BEFORE -> AFTER / CUSTOM PROCESS */}
+      {/* BEFORE -> AFTER CUSTOM PROCESS */}
       <ProcessShowcase />
 
-      {/* 9. GALLERY */}
+      {/* GALLERY */}
       <MasonryGallery />
 
       {/* YOUTUBE CRAFT VIDEOS SHOWCASE */}
       <YouTubeVideoShowcase />
 
-      {/* 11. WHY HANDMADE */}
+      {/* WHY HANDMADE */}
       <WhyHandmade />
 
-      {/* 12. HOW IT WORKS */}
+      {/* HOW IT WORKS */}
       <HowItWorks />
 
-      {/* 13. CUSTOMER REVIEWS */}
+      {/* CUSTOMER REVIEWS */}
       <Testimonials />
 
-      {/* 14. CUSTOM REQUEST CTA */}
+      {/* CUSTOM REQUEST CTA */}
       <LuxuryCTA />
 
     </div>

@@ -10,7 +10,7 @@ const Notification = () => {
     if (pathname?.startsWith('/store')) return null;
 
     return (
-        <Link href="/EventNotificationPage" className="fixed bottom-10 right-10 z-[999]">
+        <Link href="/EventNotificationPage" className="fixed bottom-28 right-6 z-[990]">
             <div className="relative flex items-center justify-center">
                 {/* Ping Animation Effect */}
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-orange-400 opacity-75"></span>

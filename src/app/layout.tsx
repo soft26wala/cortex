@@ -16,7 +16,7 @@ import NextTopLoader from 'nextjs-toploader';
 import PendingStickyBtn from "./PendingStickyBtn";
 import Notification from "./Notification";
 import { NextAuthProvider } from "./providers";
-// import ChatBot from "@/components/ChatBot";
+import ChatBot from "@/components/ChatBot";
 import TicketSection from "@/components/Home/TicketSection";
 
 import { Metadata } from "next";
@@ -75,7 +75,7 @@ export default function RootLayout({
             </ThemeProvider>
           </SessionProviderComp>
         </AuthDialogProvider>
-        {/* <ChatBot /> */}
+        <ChatBot />
         {/* <TicketSection />  */}
         <SpeedInsights />
       </body>

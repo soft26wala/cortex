@@ -6,10 +6,10 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Sparkles, Heart, ShoppingBag, Send, ArrowLeft, Check, ShieldCheck, Truck, Clock, Info } from 'lucide-react';
-import { HANDWORK_PRODUCTS } from '@/data/handworkProducts';
 import { useStoreCart } from '@/store/useStoreCart';
 import { useStoreWishlist } from '@/store/useStoreWishlist';
 import { useCustomDesignStore } from '@/store/useCustomDesignStore';
+import { useHandworkAdminStore } from '@/store/useHandworkAdminStore';
 
 export default function ProductDetailPage({
   params
@@ -19,7 +19,9 @@ export default function ProductDetailPage({
   const resolvedParams = use(params);
   const slug = resolvedParams.slug;
 
-  const product = HANDWORK_PRODUCTS.find((p) => p.slug === slug);
+  const products = useHandworkAdminStore((state) => state.products);
+  const product = products.find((p) => p.slug === slug);
+  
   if (!product) {
     notFound();
   }
@@ -39,7 +41,7 @@ export default function ProductDetailPage({
   const isInWishlist = useStoreWishlist((state) => state.isInWishlist(product.id));
   const openCustomModal = useCustomDesignStore((state) => state.openModal);
 
-  const selectedSize = product.sizes[selectedSizeIndex] || product.sizes[0];
+  const selectedSize = product.sizes[selectedSizeIndex] || product.sizes[0] || { id: 's1', name: 'Standard', dimensions: '8x10', priceModifier: 0 };
   const totalPrice = (product.price + selectedSize.priceModifier) * quantity;
 
   const handleAddToCart = () => {
@@ -52,10 +54,6 @@ export default function ProductDetailPage({
       undefined,
       customNote
     );
-  };
-
-  const handleBuyNow = () => {
-    handleAddToCart();
   };
 
   return (
@@ -163,27 +161,29 @@ export default function ProductDetailPage({
             </div>
 
             {/* Size Selector */}
-            <div className="space-y-3">
-              <label className="text-xs font-bold text-[#F5F0EB] uppercase tracking-wider block">
-                Select Size Dimension
-              </label>
-              <div className="grid grid-cols-2 gap-2">
-                {product.sizes.map((sz, idx) => (
-                  <button
-                    key={sz.id}
-                    onClick={() => setSelectedSizeIndex(idx)}
-                    className={`p-3 rounded-xl border text-left text-xs transition-all ${
-                      selectedSizeIndex === idx
-                        ? 'bg-[#D4AF37]/20 border-[#D4AF37] text-[#E6C762] font-bold'
-                        : 'bg-white/5 border-white/10 text-[#9CA3AF] hover:border-white/30'
-                    }`}
-                  >
-                    <span className="block">{sz.name}</span>
-                    <span className="text-[10px] text-[#9CA3AF]">{sz.dimensions}</span>
-                  </button>
-                ))}
+            {product.sizes && product.sizes.length > 0 && (
+              <div className="space-y-3">
+                <label className="text-xs font-bold text-[#F5F0EB] uppercase tracking-wider block">
+                  Select Size Dimension
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  {product.sizes.map((sz, idx) => (
+                    <button
+                      key={sz.id}
+                      onClick={() => setSelectedSizeIndex(idx)}
+                      className={`p-3 rounded-xl border text-left text-xs transition-all ${
+                        selectedSizeIndex === idx
+                          ? 'bg-[#D4AF37]/20 border-[#D4AF37] text-[#E6C762] font-bold'
+                          : 'bg-white/5 border-white/10 text-[#9CA3AF] hover:border-white/30'
+                      }`}
+                    >
+                      <span className="block">{sz.name}</span>
+                      <span className="text-[10px] text-[#9CA3AF]">{sz.dimensions}</span>
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Customization Input Fields */}
             {product.customizable && (
@@ -314,15 +314,15 @@ export default function ProductDetailPage({
                 <p>After placing your order or custom quote request, our master resin artist will reach out on WhatsApp to verify design mockups.</p>
               </div>
             )}
-            {activeTab === 'materials' && (
+            {activeTab === 'materials' && product.materials && (
               <ul className="list-disc list-inside space-y-1">
                 {product.materials.map((mat, i) => (
                   <li key={i}>{mat}</li>
                 ))}
               </ul>
             )}
-            {activeTab === 'care' && <p>{product.careInstructions}</p>}
-            {activeTab === 'shipping' && <p>{product.shippingInfo}</p>}
+            {activeTab === 'care' && <p>{product.careInstructions || 'Wipe gently with microfiber cloth.'}</p>}
+            {activeTab === 'shipping' && <p>{product.shippingInfo || 'Delivered in wooden presentation crate.'}</p>}
           </div>
         </div>
 

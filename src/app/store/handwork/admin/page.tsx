@@ -42,7 +42,9 @@ export default function HandworkAdminPage() {
     updateOrderStatus,
     updateOrderPrice,
     addVideo,
-    deleteVideo
+    deleteVideo,
+    clearAllDemoData,
+    loadSampleData
   } = useHandworkAdminStore();
 
   const [activeTab, setActiveTab] = useState<'orders' | 'products' | 'videos'>('orders');
@@ -52,6 +54,7 @@ export default function HandworkAdminPage() {
   const [showProductModal, setShowProductModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [prodTitle, setProdTitle] = useState('');
+  const [prodSubtitle, setProdSubtitle] = useState('');
   const [prodCategory, setProdCategory] = useState('Resin Frame');
   const [prodPrice, setProdPrice] = useState(2499);
   const [prodStartingPrice, setProdStartingPrice] = useState(1499);
@@ -65,6 +68,15 @@ export default function HandworkAdminPage() {
   const [vidUrl, setVidUrl] = useState('');
   const [vidDesc, setVidDesc] = useState('');
   const [vidCategory, setVidCategory] = useState('Resin Crafting');
+
+  // Image Presets for quick selection
+  const imagePresets = [
+    { label: 'Hero Frame', url: '/images/handwork/hero.jpg' },
+    { label: 'Name Art', url: '/images/handwork/name_art.jpg' },
+    { label: 'Ocean Clock', url: '/images/handwork/clock.jpg' },
+    { label: 'Resin Art', url: 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&w=800&q=80' },
+    { label: 'Floral Preservation', url: 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=800&q=80' }
+  ];
 
   // Role Access Validation: Allow Super Admin, Admin, HandworkAdmin, CDO
   const userRole = (user?.role || 'Guest').toLowerCase();
@@ -88,6 +100,7 @@ export default function HandworkAdminPage() {
     if (editingProduct) {
       updateProduct(editingProduct.id, {
         title: prodTitle,
+        subtitle: prodSubtitle,
         category: prodCategory,
         price: Number(prodPrice),
         startingPrice: Number(prodStartingPrice),
@@ -100,6 +113,7 @@ export default function HandworkAdminPage() {
       addProduct({
         slug: prodTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
         title: prodTitle,
+        subtitle: prodSubtitle || 'Handmade Bespoke Resin Creation',
         category: prodCategory,
         description: prodDesc || 'Handcrafted luxury resin creation.',
         price: Number(prodPrice),
@@ -152,33 +166,56 @@ export default function HandworkAdminPage() {
             <div>
               <div className="flex items-center gap-2">
                 <h1 className="text-2xl font-bold font-serif text-[#F5F0EB]">
-                  Handwork Studio Admin Studio
+                  Handwork Studio Admin Panel
                 </h1>
                 <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#D4AF37]/20 text-[#E6C762] border border-[#D4AF37]/40 uppercase">
                   Role: {user?.role || 'CDO / HandworkAdmin'}
                 </span>
               </div>
               <p className="text-xs text-[#9CA3AF] mt-0.5">
-                Manage orders, custom quote requests, product catalog pricing & YouTube craft videos.
+                Full dynamic control: Products, Titles, Images, Prices, YouTube Videos & Orders.
               </p>
             </div>
           </div>
 
-          {/* User Session Info & Authorization */}
-          <div className="flex items-center gap-3 bg-black/40 border border-white/10 p-3 rounded-2xl">
-            <UserCheck className="w-5 h-5 text-[#25D366]" />
-            <div className="text-xs">
-              <span className="font-bold block text-[#F5F0EB]">{user?.name || 'Handwork Admin'}</span>
-              <span className="text-[#9CA3AF] text-[10px]">{user?.email || 'admin@cortestack.com'}</span>
+          {/* Quick Store Management Actions */}
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              onClick={() => {
+                if (confirm('Are you sure you want to clear all demo data? Store will be completely empty until you add items.')) {
+                  clearAllDemoData();
+                }
+              }}
+              className="px-3.5 py-2 rounded-xl bg-red-950/60 border border-red-500/40 text-red-300 font-bold text-xs hover:bg-red-900 transition-colors flex items-center gap-1.5"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              <span>Clear Demo Data</span>
+            </button>
+
+            <button
+              onClick={() => {
+                loadSampleData();
+              }}
+              className="px-3.5 py-2 rounded-xl bg-white/5 border border-white/15 text-[#E6C762] font-bold text-xs hover:bg-white/10 transition-colors flex items-center gap-1.5"
+            >
+              <RefreshCw className="w-3.5 h-3.5" />
+              <span>Load Sample Products</span>
+            </button>
+
+            <div className="flex items-center gap-3 bg-black/40 border border-white/10 p-2 px-3 rounded-2xl ml-1">
+              <UserCheck className="w-4 h-4 text-[#25D366]" />
+              <div className="text-xs">
+                <span className="font-bold block text-[#F5F0EB] text-[11px]">{user?.name || 'Handwork Admin'}</span>
+              </div>
+              {!isAuthorized && (
+                <button
+                  onClick={handleGrantAccess}
+                  className="px-2.5 py-1 rounded-lg bg-[#D4AF37] text-black font-bold text-[10px] uppercase"
+                >
+                  Grant Access
+                </button>
+              )}
             </div>
-            {!isAuthorized && (
-              <button
-                onClick={handleGrantAccess}
-                className="px-3 py-1.5 rounded-xl bg-[#D4AF37] text-black font-bold text-[11px] uppercase tracking-wider"
-              >
-                Grant Access
-              </button>
-            )}
           </div>
         </div>
 
@@ -429,6 +466,7 @@ export default function HandworkAdminPage() {
                       onClick={() => {
                         setEditingProduct(prod);
                         setProdTitle(prod.title);
+                        setProdSubtitle(prod.subtitle || '');
                         setProdCategory(prod.category);
                         setProdPrice(prod.price);
                         setProdStartingPrice(prod.startingPrice || 1499);
@@ -530,8 +568,20 @@ export default function HandworkAdminPage() {
                     <input
                       type="text"
                       required
+                      placeholder="e.g. Royal Gold Resin Frame"
                       value={prodTitle}
                       onChange={(e) => setProdTitle(e.target.value)}
+                      className="w-full bg-black/60 border border-white/10 rounded-xl px-3 py-2.5 text-[#F5F0EB]"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[#9CA3AF] block mb-1">Subtitle / Short Tagline</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Preserved crimson botanicals & 24K gold foil"
+                      value={prodSubtitle}
+                      onChange={(e) => setProdSubtitle(e.target.value)}
                       className="w-full bg-black/60 border border-white/10 rounded-xl px-3 py-2.5 text-[#F5F0EB]"
                     />
                   </div>
@@ -588,6 +638,25 @@ export default function HandworkAdminPage() {
                       onChange={(e) => setProdImageUrl(e.target.value)}
                       className="w-full bg-black/60 border border-white/10 rounded-xl px-3 py-2.5 text-[#F5F0EB]"
                     />
+                    
+                    {/* Quick Image Presets */}
+                    <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                      <span className="text-[10px] text-[#9CA3AF]">Pick Preset Image:</span>
+                      {imagePresets.map((preset) => (
+                        <button
+                          type="button"
+                          key={preset.label}
+                          onClick={() => setProdImageUrl(preset.url)}
+                          className={`text-[10px] px-2 py-0.5 rounded-lg border transition-colors ${
+                            prodImageUrl === preset.url
+                              ? 'bg-[#D4AF37]/30 border-[#D4AF37] text-[#E6C762]'
+                              : 'bg-white/5 border-white/10 text-[#9CA3AF] hover:text-white'
+                          }`}
+                        >
+                          {preset.label}
+                        </button>
+                      ))}
+                    </div>
                   </div>
 
                   <div>

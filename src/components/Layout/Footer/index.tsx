@@ -86,7 +86,15 @@ const Footer: FC = () => {
             <h4 className="text-xs font-bold uppercase tracking-widest text-zinc-300 mb-4">Company</h4>
             <ul className="space-y-2.5 text-sm text-zinc-400">
               <li><Link href="/about_us" className="hover:text-white transition-colors">About Us</Link></li>
-              <li><Link href="/events" className="hover:text-white transition-colors">Events & Summits</Link></li>
+              <li>
+                <Link href="/EventNotificationPage" className="hover:text-white transition-colors flex items-center gap-2 text-amber-400 font-semibold">
+                  <span>Events & Notifications</span>
+                  <span className="relative flex h-2.5 w-2.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
+                  </span>
+                </Link>
+              </li>
               <li><Link href="/contact" className="hover:text-white transition-colors">Contact</Link></li>
               <li><Link href="/blog" className="hover:text-white transition-colors">Blog</Link></li>
               <li><Link href="/documentation" className="hover:text-white transition-colors">Docs</Link></li>

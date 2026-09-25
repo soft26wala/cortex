@@ -26,7 +26,7 @@ import IndependenceDayCelebration from "@/components/IndependenceDay/Independenc
 
 const Header: React.FC = () => {
   const pathUrl = usePathname();
-  if (pathUrl?.startsWith('/store')) return null;
+  if (pathUrl?.startsWith('/store') || pathUrl?.startsWith('/coin')) return null;
   const { theme, setTheme } = useTheme();
 
   const sessionData = useSession();

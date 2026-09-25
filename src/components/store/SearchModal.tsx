@@ -5,8 +5,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, X, Sparkles, ArrowRight } from 'lucide-react';
+import { useHandworkAdminStore } from '@/store/useHandworkAdminStore';
 import { Product } from '@/types/store';
-import { HANDWORK_PRODUCTS } from '@/data/handworkProducts';
 
 interface SearchModalProps {
   isOpen: boolean;
@@ -23,8 +23,9 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => 
       return;
     }
 
+    const products = useHandworkAdminStore.getState().products;
     const q = query.toLowerCase();
-    const filtered = HANDWORK_PRODUCTS.filter((p) => {
+    const filtered = products.filter((p) => {
       return (
         p.title.toLowerCase().includes(q) ||
         p.category.toLowerCase().includes(q) ||

@@ -21,6 +21,10 @@ interface HandworkAdminState {
   // Video Actions
   addVideo: (title: string, youtubeUrl: string, description: string, category?: string) => void;
   deleteVideo: (id: string) => void;
+
+  // Store Management
+  clearAllDemoData: () => void;
+  loadSampleData: () => void;
 }
 
 const INITIAL_VIDEOS: HandworkVideo[] = [
@@ -101,9 +105,9 @@ export const extractYoutubeId = (url: string): string => {
 export const useHandworkAdminStore = create<HandworkAdminState>()(
   persist(
     (set, get) => ({
-      products: HANDWORK_PRODUCTS,
-      orders: INITIAL_ORDERS,
-      videos: INITIAL_VIDEOS,
+      products: [],
+      orders: [],
+      videos: [],
 
       addProduct: (productData) => {
         const newProduct: Product = {
@@ -172,6 +176,18 @@ export const useHandworkAdminStore = create<HandworkAdminState>()(
 
       deleteVideo: (id) => {
         set({ videos: get().videos.filter((v) => v.id !== id) });
+      },
+
+      clearAllDemoData: () => {
+        set({ products: [], orders: [], videos: [] });
+      },
+
+      loadSampleData: () => {
+        set({
+          products: HANDWORK_PRODUCTS,
+          orders: INITIAL_ORDERS,
+          videos: INITIAL_VIDEOS
+        });
       }
     }),
     {
