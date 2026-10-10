@@ -40,4 +40,8 @@ export const headerData: HeaderItem[] = [
       { label: "Owner Dashboard", href: "/proptis/dashboard" },
     ],
   },
+  {
+    label: "3D Studio",
+    href: "/3d",
+  },
 ];

@@ -15,8 +15,8 @@ import LuxuryFAQ from "@/components/Home/LuxuryFAQ";
 import FinalCTA from "@/components/Home/FinalCTA";
 
 export const metadata: Metadata = {
-  title: "Cortex Web Solutions • Luxury Enterprise SaaS & AI Platforms",
-  description: "Cortex Web Solutions builds high-converting web applications, automated WhatsApp AI agents, and enterprise cloud software.",
+  title: "Top Indian Web Development Company | Next.js, AI & Custom SaaS",
+  description: "Empower your brand with India's leading web development company. We engineer high-speed Next.js web applications, custom SaaS platforms, and AI automation solutions.",
 };
 
 export default function Home() {

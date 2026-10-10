@@ -84,7 +84,12 @@ const FAQ_KNOWLEDGE_BASE = [
   }
 ];
 
+import { usePathname } from 'next/navigation';
+
 export default function ChatBot() {
+  const pathname = usePathname();
+  if (pathname?.startsWith('/vlog') || pathname?.startsWith('/admin/jeenusoni') || pathname?.startsWith('/store')) return null;
+
   const [isOpen, setIsOpen] = useState(false);
   const [inputQuery, setInputQuery] = useState('');
   const [isTyping, setIsTyping] = useState(false);

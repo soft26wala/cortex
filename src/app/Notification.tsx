@@ -7,7 +7,7 @@ import { usePathname } from "next/navigation";
 
 const Notification = () => {
     const pathname = usePathname();
-    if (pathname?.startsWith('/store')) return null;
+    if (pathname?.startsWith('/store') || pathname?.startsWith('/vlog') || pathname?.startsWith('/admin/jeenusoni')) return null;
 
     return (
         <Link href="/EventNotificationPage" className="fixed bottom-28 right-6 z-[990]">

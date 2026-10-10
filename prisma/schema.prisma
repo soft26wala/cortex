@@ -1,0 +1,115 @@
+// prisma/schema.prisma
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// JEENU SONI LUXURY VLOG & AD SYSTEM MODELS
+// ─────────────────────────────────────────────────────────────────────
+
+model JeenuProfile {
+  id              String   @id @default(uuid())
+  name            String   @default("Jeenu Soni")
+  slug            String   @unique @default("jeenusoni")
+  bio             String?  @db.Text
+  profileImage    String?  @map("profile_image")
+  coverImage      String?  @map("cover_image")
+  instagramUrl    String?  @map("instagram_url")
+  facebookUrl     String?  @map("facebook_url")
+  youtubeUrl      String?  @map("youtube_url")
+  whatsappNumber  String?  @map("whatsapp_number")
+  contactNumber   String?  @map("contact_number")
+  location        String?  @default("Mumbai, India")
+  heroTitle       String?  @default("Jeenu Soni") @map("hero_title")
+  heroSubtitle    String?  @default("Moments • Stories • Style • Love") @map("hero_subtitle")
+  preset          String   @default("luxury-love")
+  customTheme     Json?    @map("custom_theme")
+  customHero      Json?    @map("custom_hero")
+  customLayout    Json?    @map("custom_layout")
+  isPublished     Boolean  @default(true) @map("is_published")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  @@map("jeenu_profiles")
+}
+
+model JeenuVlog {
+  id          String   @id @default(uuid())
+  title       String
+  slug        String   @unique
+  description String   @db.Text
+  thumbnail   String
+  videoUrl    String   @map("video_url")
+  category    String   @default("Lifestyle")
+  published   Boolean  @default(true)
+  sortOrder   Int      @default(0) @map("sort_order")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@index([slug])
+  @@index([published])
+  @@index([sortOrder])
+  @@map("jeenu_vlogs")
+}
+
+model JeenuGallery {
+  id          String   @id @default(uuid())
+  imageUrl    String   @map("image_url")
+  title       String?
+  caption     String?  @db.Text
+  sortOrder   Int      @default(0) @map("sort_order")
+  published   Boolean  @default(true)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@index([published])
+  @@index([sortOrder])
+  @@map("jeenu_galleries")
+}
+
+model JeenuSocialLink {
+  id        String   @id @default(uuid())
+  platform  String   // Instagram, Facebook, YouTube, WhatsApp, Snapchat, Website
+  url       String
+  label     String
+  icon      String?
+  sortOrder Int      @default(0) @map("sort_order")
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("jeenu_social_links")
+}
+
+enum AdLeadStatus {
+  NEW
+  CONTACTED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+model JeenuAdLead {
+  id                String       @id @default(uuid())
+  clientName        String       @map("client_name")
+  phone             String
+  location          String
+  businessName      String?      @map("business_name")
+  advertisementType String?      @map("advertisement_type")
+  budget            String?
+  message           String?      @db.Text
+  contactMethod     String?      @map("contact_method")
+  status            AdLeadStatus @default(NEW)
+  createdAt         DateTime     @default(now()) @map("created_at")
+  updatedAt         DateTime     @updatedAt @map("updated_at")
+
+  @@index([status])
+  @@index([createdAt])
+  @@map("jeenu_ad_leads")
+}

@@ -9,7 +9,7 @@ import { usePathname } from "next/navigation";
 
 const Footer: FC = () => {
   const pathUrl = usePathname();
-  if (pathUrl?.startsWith('/store')) return null;
+  if (pathUrl?.startsWith('/store') || pathUrl?.startsWith('/vlog') || pathUrl?.startsWith('/admin/jeenusoni')) return null;
 
   return (
     <footer className="relative bg-[#050505] text-white border-t border-white/[0.08] overflow-hidden pt-20 pb-12">

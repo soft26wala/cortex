@@ -11,7 +11,7 @@ const PendingStickyBtn = () => {
     const pathname = usePathname();
     const [show, setShow] = useState(false);
 
-    if (pathname?.startsWith('/store')) return null;
+    if (pathname?.startsWith('/store') || pathname?.startsWith('/vlog') || pathname?.startsWith('/admin/jeenusoni')) return null;
 
     useEffect(() => {
         const user = Cookies.get("user") ? JSON.parse(Cookies.get("user")!) : null;
