@@ -203,8 +203,8 @@ async function init() {
       const initialSocials = [
         { id: 'soc-1', platform: 'Instagram', url: 'https://www.instagram.com/jot_soni_0_0?stkn=MXhvY29mdmlsY3JpeA==', label: '@jot_soni_0_0 (Primary Profile)', icon: 'instagram', sort_order: 1 },
         { id: 'soc-2', platform: 'YouTube', url: 'https://youtube.com/@jeenusoni', label: 'Jeenu Soni Official Channel', icon: 'youtube', sort_order: 2 },
-        { id: 'soc-3', platform: 'WhatsApp', url: 'https://wa.me/919876543210', label: 'WhatsApp Ad Inquiries', icon: 'whatsapp', sort_order: 3 },
-        { id: 'soc-4', platform: 'Facebook', url: 'https://facebook.com/jeenusoni.official', label: 'Jeenu Soni Verified Page', icon: 'facebook', sort_order: 4 },
+        { id: 'soc-3', platform: 'WhatsApp', url: 'https://wa.me/919351696681', label: 'WhatsApp Ad Inquiries (9351696681)', icon: 'whatsapp', sort_order: 3 },
+        { id: 'soc-4', platform: 'Facebook', url: 'https://www.facebook.com/jeenu.soni.5', label: 'Jeenu Soni Facebook Profile', icon: 'facebook', sort_order: 4 },
       ];
 
       for (const s of initialSocials) {
