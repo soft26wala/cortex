@@ -363,12 +363,10 @@ export async function initDb() {
         const galCount = await client.query('SELECT COUNT(*) FROM jeenu_galleries');
         if (parseInt(galCount.rows[0]?.count || '0') === 0) {
           const gals = [
-            ['gal-1', 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=1200&auto=format&fit=crop', 'Royal Glam', 'Editorial portrait shoot under studio ambient lighting.', 1],
-            ['gal-2', 'https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=1200&auto=format&fit=crop', 'Golden Hour Story', 'Sun-drenched luxury couture lookbook series.', 2],
-            ['gal-3', 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?q=80&w=1200&auto=format&fit=crop', 'High-Fashion Walk', 'Runway-inspired creative visual direction.', 3],
-            ['gal-4', 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1200&auto=format&fit=crop', 'Elegance Redefined', 'Subtle beauty and effortless charm captured in frames.', 4],
-            ['gal-5', 'https://images.unsplash.com/photo-1529139574466-a303027c1d8b?q=80&w=1200&auto=format&fit=crop', 'Midnight Glamour', 'Dramatic silhouettes with haute couture evening attire.', 5],
-            ['gal-6', 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?q=80&w=1200&auto=format&fit=crop', 'City Lights Vibe', 'Urban aesthetic exploration with bold styling.', 6]
+            ['gal-1', 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=1200&auto=format&fit=crop', 'Golden Hour Elegance', 'Basking in sunset light in silk and gold accents.', 1],
+            ['gal-2', 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1200&auto=format&fit=crop', 'Couture Dreams', 'Embracing soft pink textures and timeless silhouettes.', 2],
+            ['gal-3', 'https://images.unsplash.com/photo-1529139574466-a303027c1d8b?q=80&w=1200&auto=format&fit=crop', 'Chic Urban Glamour', 'Modern street glamour in high-fashion black & rose tones.', 3],
+            ['gal-4', 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1200&auto=format&fit=crop', 'Radiant Smiles', 'Pure joy and intimate romantic stories captured.', 4],
           ];
           for (const g of gals) {
             await client.query(`

@@ -181,12 +181,10 @@ async function init() {
     if (parseInt(galCheck.rows[0].count) === 0) {
       console.log('Seeding initial galleries...');
       const initialGalleries = [
-        { id: 'gal-1', image_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=1200&auto=format&fit=crop', title: 'Royal Glam', caption: 'Editorial portrait shoot under studio ambient lighting.', sort_order: 1 },
-        { id: 'gal-2', image_url: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=1200&auto=format&fit=crop', title: 'Golden Hour Story', caption: 'Sun-drenched luxury couture lookbook series.', sort_order: 2 },
-        { id: 'gal-3', image_url: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?q=80&w=1200&auto=format&fit=crop', title: 'High-Fashion Walk', caption: 'Runway-inspired creative visual direction.', sort_order: 3 },
-        { id: 'gal-4', image_url: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1200&auto=format&fit=crop', title: 'Elegance Redefined', caption: 'Subtle beauty and effortless charm captured in frames.', sort_order: 4 },
-        { id: 'gal-5', image_url: 'https://images.unsplash.com/photo-1529139574466-a303027c1d8b?q=80&w=1200&auto=format&fit=crop', title: 'Midnight Glamour', caption: 'Dramatic silhouettes with haute couture evening attire.', sort_order: 5 },
-        { id: 'gal-6', image_url: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?q=80&w=1200&auto=format&fit=crop', title: 'City Lights Vibe', caption: 'Urban aesthetic exploration with bold styling.', sort_order: 6 },
+        { id: 'gal-1', image_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=1200&auto=format&fit=crop', title: 'Golden Hour Elegance', caption: 'Basking in sunset light in silk and gold accents.', sort_order: 1 },
+        { id: 'gal-2', image_url: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1200&auto=format&fit=crop', title: 'Couture Dreams', caption: 'Embracing soft pink textures and timeless silhouettes.', sort_order: 2 },
+        { id: 'gal-3', image_url: 'https://images.unsplash.com/photo-1529139574466-a303027c1d8b?q=80&w=1200&auto=format&fit=crop', title: 'Chic Urban Glamour', caption: 'Modern street glamour in high-fashion black & rose tones.', sort_order: 3 },
+        { id: 'gal-4', image_url: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1200&auto=format&fit=crop', title: 'Radiant Smiles', caption: 'Pure joy and intimate romantic stories captured.', sort_order: 4 },
       ];
 
       for (const g of initialGalleries) {

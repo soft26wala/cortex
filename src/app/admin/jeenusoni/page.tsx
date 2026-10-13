@@ -601,13 +601,12 @@ export default function AdminJeenuSoniPage() {
       {toast && (
         <div className="fixed bottom-6 right-6 z-50 animate-in fade-in slide-in-from-bottom-5 duration-200">
           <div
-            className={`px-5 py-3.5 rounded-2xl border backdrop-blur-xl shadow-2xl flex items-center gap-3 text-xs font-semibold ${
-              toast.type === "success"
+            className={`px-5 py-3.5 rounded-2xl border backdrop-blur-xl shadow-2xl flex items-center gap-3 text-xs font-semibold ${toast.type === "success"
                 ? "bg-emerald-950/90 border-emerald-500/40 text-emerald-200"
                 : toast.type === "error"
-                ? "bg-rose-950/90 border-rose-500/40 text-rose-200"
-                : "bg-zinc-900/90 border-white/20 text-white"
-            }`}
+                  ? "bg-rose-950/90 border-rose-500/40 text-rose-200"
+                  : "bg-zinc-900/90 border-white/20 text-white"
+              }`}
           >
             {toast.type === "success" && <CheckCircle2 size={16} className="text-emerald-400" />}
             {toast.type === "error" && <AlertCircle size={16} className="text-rose-400" />}
@@ -629,11 +628,10 @@ export default function AdminJeenuSoniPage() {
 
               {/* PostgreSQL Live Connection Badge */}
               <div
-                className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-mono border ${
-                  dbStatus?.connected
+                className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-mono border ${dbStatus?.connected
                     ? "bg-emerald-950/50 border-emerald-500/30 text-emerald-300"
                     : "bg-amber-950/50 border-amber-500/30 text-amber-300"
-                }`}
+                  }`}
                 title="PostgreSQL 18 Database Connectivity"
               >
                 <span className={`w-2 h-2 rounded-full ${dbStatus?.connected ? "bg-emerald-400 animate-pulse" : "bg-amber-400"}`} />
@@ -740,55 +738,50 @@ export default function AdminJeenuSoniPage() {
             <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-[#0F070B] border border-rose-500/15 w-fit overflow-x-auto">
               <button
                 onClick={() => setActiveTab("leads")}
-                className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
-                  activeTab === "leads"
+                className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${activeTab === "leads"
                     ? "bg-gradient-to-r from-rose-900 to-rose-950 text-[#FCE7D4] border border-rose-500/30 shadow-[0_0_15px_rgba(139,0,50,0.3)]"
                     : "text-zinc-400 hover:text-white"
-                }`}
+                  }`}
               >
                 <Users size={15} /> Ad Leads ({leads.length})
               </button>
 
               <button
                 onClick={() => setActiveTab("profile")}
-                className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
-                  activeTab === "profile"
+                className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${activeTab === "profile"
                     ? "bg-gradient-to-r from-rose-900 to-rose-950 text-[#FCE7D4] border border-rose-500/30 shadow-[0_0_15px_rgba(139,0,50,0.3)]"
                     : "text-zinc-400 hover:text-white"
-                }`}
+                  }`}
               >
                 <Settings size={15} /> Profile & Customizer
               </button>
 
               <button
                 onClick={() => setActiveTab("vlogs")}
-                className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
-                  activeTab === "vlogs"
+                className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${activeTab === "vlogs"
                     ? "bg-gradient-to-r from-rose-900 to-rose-950 text-[#FCE7D4] border border-rose-500/30 shadow-[0_0_15px_rgba(139,0,50,0.3)]"
                     : "text-zinc-400 hover:text-white"
-                }`}
+                  }`}
               >
                 <Film size={15} /> Vlogs ({vlogs.length})
               </button>
 
               <button
                 onClick={() => setActiveTab("gallery")}
-                className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
-                  activeTab === "gallery"
+                className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${activeTab === "gallery"
                     ? "bg-gradient-to-r from-rose-900 to-rose-950 text-[#FCE7D4] border border-rose-500/30 shadow-[0_0_15px_rgba(139,0,50,0.3)]"
                     : "text-zinc-400 hover:text-white"
-                }`}
+                  }`}
               >
                 <Camera size={15} /> Gallery ({gallery.length})
               </button>
 
               <button
                 onClick={() => setActiveTab("socials")}
-                className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
-                  activeTab === "socials"
+                className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${activeTab === "socials"
                     ? "bg-gradient-to-r from-rose-900 to-rose-950 text-[#FCE7D4] border border-rose-500/30 shadow-[0_0_15px_rgba(139,0,50,0.3)]"
                     : "text-zinc-400 hover:text-white"
-                }`}
+                  }`}
               >
                 <Globe size={15} /> Social Links ({socials.length})
               </button>
@@ -890,17 +883,16 @@ export default function AdminJeenuSoniPage() {
                                 <select
                                   value={lead.status}
                                   onChange={(e) => handleLeadStatusChange(lead.id, e.target.value)}
-                                  className={`px-2.5 py-1 rounded-full text-[10px] font-bold font-mono uppercase border focus:outline-none cursor-pointer ${
-                                    lead.status === "NEW"
+                                  className={`px-2.5 py-1 rounded-full text-[10px] font-bold font-mono uppercase border focus:outline-none cursor-pointer ${lead.status === "NEW"
                                       ? "bg-rose-500/20 text-rose-300 border-rose-500/40"
                                       : lead.status === "CONTACTED"
-                                      ? "bg-amber-500/20 text-amber-300 border-amber-500/40"
-                                      : lead.status === "IN_PROGRESS"
-                                      ? "bg-blue-500/20 text-blue-300 border-blue-500/40"
-                                      : lead.status === "COMPLETED"
-                                      ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40"
-                                      : "bg-zinc-800 text-zinc-400 border-zinc-700"
-                                  }`}
+                                        ? "bg-amber-500/20 text-amber-300 border-amber-500/40"
+                                        : lead.status === "IN_PROGRESS"
+                                          ? "bg-blue-500/20 text-blue-300 border-blue-500/40"
+                                          : lead.status === "COMPLETED"
+                                            ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40"
+                                            : "bg-zinc-800 text-zinc-400 border-zinc-700"
+                                    }`}
                                 >
                                   <option value="NEW">NEW</option>
                                   <option value="CONTACTED">CONTACTED</option>
@@ -966,11 +958,10 @@ export default function AdminJeenuSoniPage() {
                         ].map((preset) => (
                           <label
                             key={preset.id}
-                            className={`p-4 rounded-2xl border cursor-pointer transition-all flex items-center justify-between ${
-                              profileForm.preset === preset.id
+                            className={`p-4 rounded-2xl border cursor-pointer transition-all flex items-center justify-between ${profileForm.preset === preset.id
                                 ? "border-[#E8C39E] bg-rose-950/40 shadow-lg"
                                 : "border-white/10 bg-black/40 hover:border-white/20"
-                            }`}
+                              }`}
                           >
                             <div className="space-y-1">
                               <div className="text-xs font-serif font-bold text-white">{preset.label}</div>
@@ -1164,7 +1155,7 @@ export default function AdminJeenuSoniPage() {
                         type="submit"
                         className="w-full py-4 rounded-2xl bg-gradient-to-r from-rose-900 to-rose-950 text-[#FCE7D4] font-serif font-bold text-xs border border-rose-500/40 shadow-xl flex items-center justify-center gap-2 hover:scale-[1.01] transition-all"
                       >
-                        <Save size={16} /> Save Profile Changes to PostgreSQL
+                        <Save size={16} /> Save Profile
                       </button>
                     </div>
                   </form>
@@ -1259,11 +1250,10 @@ export default function AdminJeenuSoniPage() {
                       <div className="flex items-center justify-between pt-3 border-t border-white/5">
                         <button
                           onClick={() => handleToggleVlogPublish(vlog)}
-                          className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full border transition-all ${
-                            vlog.published
+                          className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full border transition-all ${vlog.published
                               ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/30"
                               : "bg-zinc-800 text-zinc-400 border-zinc-700"
-                          }`}
+                            }`}
                         >
                           {vlog.published ? "Published" : "Draft"}
                         </button>
@@ -1303,10 +1293,17 @@ export default function AdminJeenuSoniPage() {
             {/* TAB 4: GALLERY MANAGER */}
             {activeTab === "gallery" && (
               <div className="space-y-6">
-                <div className="flex justify-between items-center">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white/[0.02] border border-white/5 p-5 rounded-2xl">
                   <div>
-                    <h3 className="text-xl font-serif font-bold text-white">Gallery Lookbook ({gallery.length})</h3>
-                    <p className="text-xs text-zinc-400">High-resolution portfolio images displayed in the public aesthetic gallery.</p>
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-xl font-serif font-bold text-white">Gallery Lookbook ({gallery.length})</h3>
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-rose-500/20 text-rose-300 border border-rose-500/30">
+                        Active in Public Portfolio
+                      </span>
+                    </div>
+                    <p className="text-xs text-zinc-400 mt-1">
+                      Ye photos public client page par dikhti hain. Kisi bhi photo ko badalne ke liye card par Edit dabayein.
+                    </p>
                   </div>
                   <button
                     onClick={() => {
@@ -1318,56 +1315,121 @@ export default function AdminJeenuSoniPage() {
                       setGalPublished(true);
                       setIsGalleryModalOpen(true);
                     }}
-                    className="py-2.5 px-4 rounded-xl bg-gradient-to-r from-rose-900 to-rose-950 text-[#FCE7D4] font-semibold text-xs border border-rose-500/30 flex items-center gap-2 shadow-lg"
+                    className="py-2.5 px-4 rounded-xl bg-gradient-to-r from-rose-900 to-rose-950 hover:from-rose-800 hover:to-rose-900 text-[#FCE7D4] font-semibold text-xs border border-rose-500/40 flex items-center gap-2 shadow-lg cursor-pointer transition-all"
                   >
-                    <Plus size={16} /> Upload Gallery Image
+                    <Plus size={16} /> + Upload New Image
                   </button>
                 </div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                {/* Info Note: Reassuring the user about permanent pictures & edit */}
+                <div className="p-3.5 rounded-xl bg-rose-950/30 border border-rose-500/20 text-xs text-zinc-300 flex items-center gap-3">
+                  <Sparkles size={16} className="text-[#E8C39E] shrink-0" />
+                  <span>
+                    <strong className="text-[#FCE7D4]">Permanent Pictures:</strong> Jo photo yahan dikh rahi hai wahi client page par hamesha rahegi. Photo tabhi change hogi jab aap kisi card par <strong className="text-rose-300">"Edit Photo"</strong> dabakar nayi photo save karenge.
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
                   {gallery.map((item) => (
-                    <div key={item.id} className="group relative rounded-2xl overflow-hidden bg-black aspect-square border border-white/10 hover:border-rose-500/40 transition-all">
-                      <img src={item.imageUrl} alt={item.title || "Gallery"} className="w-full h-full object-cover" />
-                      
-                      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity p-3 flex flex-col justify-between">
-                        <div className="flex justify-between items-start">
-                          <span className="text-[10px] font-mono text-[#E8C39E]">#{item.sortOrder}</span>
-                          <button
-                            onClick={() => handleToggleGalleryPublish(item)}
-                            className={`text-[9px] font-mono px-1.5 py-0.5 rounded ${
-                              item.published ? "bg-emerald-500/40 text-emerald-200" : "bg-zinc-800 text-zinc-400"
-                            }`}
+                    <div
+                      key={item.id}
+                      className="group relative rounded-2xl overflow-hidden bg-[#10060B] border border-white/10 hover:border-rose-500/50 shadow-xl transition-all flex flex-col"
+                    >
+                      {/* Image Container with Click-to-Edit */}
+                      <div
+                        className="relative aspect-square w-full bg-black cursor-pointer overflow-hidden"
+                        onClick={() => {
+                          setEditingGallery(item);
+                          setGalImage(item.imageUrl);
+                          setGalTitle(item.title || "");
+                          setGalCaption(item.caption || "");
+                          setGalOrder(item.sortOrder);
+                          setGalPublished(item.published);
+                          setIsGalleryModalOpen(true);
+                        }}
+                        title="Click to edit this photo"
+                      >
+                        <img
+                          src={item.imageUrl}
+                          alt={item.title || "Gallery"}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+
+                        {/* Badges Overlay */}
+                        <div className="absolute top-2.5 left-2.5 right-2.5 flex justify-between items-center z-10 pointer-events-none">
+                          <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-black/75 backdrop-blur-sm text-[#E8C39E] border border-white/10">
+                            #{item.sortOrder}
+                          </span>
+                          <span
+                            className={`text-[10px] font-mono px-2 py-0.5 rounded-md backdrop-blur-sm ${item.published
+                                ? "bg-emerald-950/80 text-emerald-300 border border-emerald-500/30"
+                                : "bg-zinc-900/80 text-zinc-400 border border-zinc-700/30"
+                              }`}
                           >
-                            {item.published ? "Live" : "Hidden"}
-                          </button>
+                            {item.published ? "✓ Live" : "Hidden"}
+                          </span>
                         </div>
-                        <div>
-                          <div className="text-xs font-serif font-bold text-white truncate">{item.title || "Untitled"}</div>
-                          <div className="text-[10px] text-zinc-300 line-clamp-1">{item.caption}</div>
-                          <div className="flex gap-2 pt-2">
-                            <button
-                              onClick={() => {
-                                setEditingGallery(item);
-                                setGalImage(item.imageUrl);
-                                setGalTitle(item.title || "");
-                                setGalCaption(item.caption || "");
-                                setGalOrder(item.sortOrder);
-                                setGalPublished(item.published);
-                                setIsGalleryModalOpen(true);
-                              }}
-                              className="p-1.5 rounded-lg bg-white/20 text-white hover:bg-white/30"
-                              title="Edit Image"
-                            >
-                              <Edit size={12} />
-                            </button>
-                            <button
-                              onClick={() => handleDeleteGallery(item.id)}
-                              className="p-1.5 rounded-lg bg-rose-600 text-white hover:bg-rose-700"
-                              title="Delete Image"
-                            >
-                              <Trash2 size={12} />
-                            </button>
+
+                        {/* Hover Overlay with Clear Edit indicator */}
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
+                          <div className="px-3.5 py-1.5 rounded-xl bg-rose-600/90 text-white text-xs font-semibold flex items-center gap-1.5 shadow-lg">
+                            <Edit size={13} /> Click Card to Edit
                           </div>
+                        </div>
+                      </div>
+
+                      {/* Card Info & Action Buttons */}
+                      <div className="p-3.5 flex flex-col justify-between flex-1 gap-2 bg-[#0E0509]">
+                        <div>
+                          <div className="text-xs font-serif font-bold text-white truncate" title={item.title || "Untitled"}>
+                            {item.title || "Untitled Lookbook"}
+                          </div>
+                          <p className="text-[11px] text-zinc-400 line-clamp-1 mt-0.5">
+                            {item.caption || "No caption added"}
+                          </p>
+                        </div>
+
+                        <div className="flex items-center gap-2 pt-2 border-t border-white/5">
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setEditingGallery(item);
+                              setGalImage(item.imageUrl);
+                              setGalTitle(item.title || "");
+                              setGalCaption(item.caption || "");
+                              setGalOrder(item.sortOrder);
+                              setGalPublished(item.published);
+                              setIsGalleryModalOpen(true);
+                            }}
+                            className="flex-1 py-1.5 px-3 rounded-lg bg-rose-950/70 hover:bg-rose-900 text-rose-200 border border-rose-500/30 text-[11px] font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                          >
+                            <Edit size={12} /> Edit Photo
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleToggleGalleryPublish(item);
+                            }}
+                            className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-zinc-300 border border-white/10 text-[11px] cursor-pointer"
+                            title={item.published ? "Hide from public gallery" : "Make live on public gallery"}
+                          >
+                            <Eye size={13} className={item.published ? "text-emerald-400" : "text-zinc-500"} />
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteGallery(item.id);
+                            }}
+                            className="p-1.5 rounded-lg bg-red-950/50 hover:bg-red-900/70 text-red-300 border border-red-500/30 text-[11px] transition-all cursor-pointer"
+                            title="Delete Photo"
+                          >
+                            <Trash2 size={13} />
+                          </button>
                         </div>
                       </div>
                     </div>
@@ -1406,9 +1468,8 @@ export default function AdminJeenuSoniPage() {
                           </span>
                           <button
                             onClick={() => handleToggleSocialActive(soc)}
-                            className={`px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold cursor-pointer transition-colors ${
-                              soc.isActive ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40" : "bg-zinc-800 text-zinc-500 border border-zinc-700"
-                            }`}
+                            className={`px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold cursor-pointer transition-colors ${soc.isActive ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40" : "bg-zinc-800 text-zinc-500 border border-zinc-700"
+                              }`}
                           >
                             {soc.isActive ? "Active" : "Disabled"}
                           </button>
@@ -1893,29 +1954,58 @@ export default function AdminJeenuSoniPage() {
 
       {/* CREATE / EDIT GALLERY IMAGE MODAL */}
       {isGalleryModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-[#12070D] border border-rose-500/30 rounded-3xl p-6 max-w-md w-full space-y-4 shadow-2xl">
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-[#12070D] border border-rose-500/40 rounded-3xl p-6 max-w-lg w-full space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between pb-3 border-b border-white/10">
-              <h3 className="text-lg font-serif font-bold text-white">
-                {editingGallery ? "Edit Gallery Image (PostgreSQL)" : "Upload Gallery Image (PostgreSQL)"}
-              </h3>
-              <button onClick={() => setIsGalleryModalOpen(false)} className="p-1 text-zinc-400 hover:text-white">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 rounded-xl bg-rose-950/80 text-rose-300 border border-rose-500/30">
+                  <Camera size={16} />
+                </div>
+                <div>
+                  <h3 className="text-base font-serif font-bold text-white">
+                    {editingGallery ? "Edit & Change Gallery Photo" : "Upload New Gallery Photo"}
+                  </h3>
+                  <p className="text-[11px] text-zinc-400">
+                    {editingGallery ? `Editing: ${editingGallery.title || "Selected Photo"}` : "Add a new photo to public gallery"}
+                  </p>
+                </div>
+              </div>
+              <button onClick={() => setIsGalleryModalOpen(false)} className="p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/10 transition-colors">
                 <X size={18} />
               </button>
             </div>
-            <form onSubmit={handleGallerySubmit} className="space-y-3 text-xs">
-              <div>
-                <label className="font-bold text-zinc-300 block mb-1">Image URL *</label>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={galImage}
-                    onChange={(e) => setGalImage(e.target.value)}
-                    className="flex-1 p-3 rounded-xl bg-black border border-white/10 text-white font-mono text-[11px]"
-                    required
-                  />
-                  <label className="p-3 rounded-xl bg-rose-950 border border-rose-500/30 text-white font-bold cursor-pointer hover:bg-rose-900">
-                    <Upload size={14} />
+
+            <form onSubmit={handleGallerySubmit} className="space-y-4 text-xs">
+              {/* Photo Live Preview Box */}
+              <div className="space-y-1.5">
+                <label className="font-bold text-zinc-300 block">Photo Preview</label>
+                {galImage ? (
+                  <div className="relative w-full h-48 rounded-2xl overflow-hidden bg-black/60 border border-rose-500/30 shadow-inner group">
+                    <img src={galImage} alt="Preview" className="w-full h-full object-cover" />
+                    <div className="absolute top-2.5 right-2.5 px-2.5 py-1 rounded-md bg-black/80 backdrop-blur-sm text-[10px] text-[#E8C39E] border border-white/10 font-mono">
+                      Current Selection
+                    </div>
+                  </div>
+                ) : (
+                  <div className="w-full h-36 rounded-2xl border-2 border-dashed border-white/15 bg-black/30 flex flex-col items-center justify-center text-zinc-500 text-xs gap-2">
+                    <Camera size={24} className="text-zinc-600" />
+                    <span>Koi photo select nahi hai. Niche diye button se choose karein.</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Upload or URL options */}
+              <div className="space-y-2.5 p-3.5 rounded-2xl bg-black/40 border border-white/10">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-zinc-200">Photo Change Karne Ke 2 Tarike:</span>
+                  {uploading && <span className="text-[11px] text-rose-400 animate-pulse font-semibold">Uploading photo...</span>}
+                </div>
+
+                {/* Option 1: File from Computer */}
+                <div>
+                  <label className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-rose-900/60 to-rose-950/80 hover:from-rose-800 hover:to-rose-900 border border-rose-500/40 text-white font-semibold flex items-center justify-center gap-2 cursor-pointer transition-all shadow-md">
+                    <Upload size={14} className="text-[#E8C39E]" />
+                    <span>📁 Computer Ya Phone Se Nayi Photo Upload Karein</span>
                     <input
                       type="file"
                       accept="image/*"
@@ -1926,61 +2016,80 @@ export default function AdminJeenuSoniPage() {
                     />
                   </label>
                 </div>
+
+                {/* Option 2: Image URL */}
+                <div>
+                  <label className="text-[11px] text-zinc-400 block mb-1">Ya Photo Ka Direct Link (URL) Paste Karein:</label>
+                  <input
+                    type="text"
+                    value={galImage}
+                    onChange={(e) => setGalImage(e.target.value)}
+                    placeholder="https://images.unsplash.com/photo-..."
+                    className="w-full p-2.5 rounded-xl bg-black border border-white/10 text-white font-mono text-[11px] focus:border-rose-500/60 focus:outline-none"
+                    required
+                  />
+                </div>
               </div>
+
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="font-bold text-zinc-300 block mb-1">Title</label>
+                  <label className="font-bold text-zinc-300 block mb-1">Photo Title</label>
                   <input
                     type="text"
                     value={galTitle}
                     onChange={(e) => setGalTitle(e.target.value)}
-                    className="w-full p-3 rounded-xl bg-black border border-white/10 text-white"
-                    placeholder="e.g. Royal Glam"
+                    className="w-full p-2.5 rounded-xl bg-black border border-white/10 text-white focus:border-rose-500/60 focus:outline-none"
+                    placeholder="e.g. Golden Hour Elegance"
                   />
                 </div>
                 <div>
-                  <label className="font-bold text-zinc-300 block mb-1">Sort Order</label>
+                  <label className="font-bold text-zinc-300 block mb-1">Sort Order (Sequence)</label>
                   <input
                     type="number"
                     value={galOrder}
                     onChange={(e) => setGalOrder(Number(e.target.value))}
-                    className="w-full p-3 rounded-xl bg-black border border-white/10 text-white font-mono"
+                    className="w-full p-2.5 rounded-xl bg-black border border-white/10 text-white font-mono focus:border-rose-500/60 focus:outline-none"
                   />
                 </div>
               </div>
+
               <div>
-                <label className="font-bold text-zinc-300 block mb-1">Caption</label>
+                <label className="font-bold text-zinc-300 block mb-1">Caption / Description</label>
                 <input
                   type="text"
                   value={galCaption}
                   onChange={(e) => setGalCaption(e.target.value)}
-                  className="w-full p-3 rounded-xl bg-black border border-white/10 text-white"
-                  placeholder="e.g. Editorial portrait shoot"
+                  className="w-full p-2.5 rounded-xl bg-black border border-white/10 text-white focus:border-rose-500/60 focus:outline-none"
+                  placeholder="e.g. Basking in sunset light in silk and gold accents."
                 />
               </div>
-              <div className="flex items-center gap-2 pt-1">
+
+              <div className="flex items-center gap-2.5 p-3 rounded-xl bg-white/[0.02] border border-white/5">
                 <input
                   type="checkbox"
                   id="galPublishCheck"
                   checked={galPublished}
                   onChange={(e) => setGalPublished(e.target.checked)}
-                  className="accent-rose-500"
+                  className="w-4 h-4 accent-rose-500 rounded cursor-pointer"
                 />
-                <label htmlFor="galPublishCheck" className="text-zinc-300 font-bold cursor-pointer">
-                  Display in Public Gallery
+                <label htmlFor="galPublishCheck" className="text-zinc-200 font-medium cursor-pointer text-xs">
+                  Public Gallery Me Dikhayein (Live for Clients)
                 </label>
               </div>
-              <div className="pt-3 flex gap-2">
+
+              <div className="pt-2 flex gap-3">
                 <button
                   type="submit"
-                  className="flex-1 py-3 rounded-xl bg-gradient-to-r from-rose-900 to-rose-950 text-white font-serif font-bold text-xs"
+                  disabled={uploading}
+                  className="flex-1 py-3 rounded-xl bg-gradient-to-r from-rose-700 to-rose-900 hover:from-rose-600 hover:to-rose-800 text-[#FCE7D4] font-serif font-bold text-xs shadow-lg shadow-rose-900/40 flex items-center justify-center gap-2 transition-all cursor-pointer disabled:opacity-50"
                 >
-                  Save Gallery Image
+                  <Save size={14} />
+                  {editingGallery ? "Save & Update Photo" : "Save New Gallery Photo"}
                 </button>
                 <button
                   type="button"
                   onClick={() => setIsGalleryModalOpen(false)}
-                  className="px-5 py-3 rounded-xl bg-white/10 text-white font-semibold text-xs"
+                  className="px-5 py-3 rounded-xl bg-white/10 hover:bg-white/15 text-white font-semibold text-xs transition-all cursor-pointer"
                 >
                   Cancel
                 </button>
