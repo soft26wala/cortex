@@ -29,19 +29,38 @@ import {
   Eye,
   Lock,
   Globe,
-  Instagram,
-  Youtube,
-  Facebook,
+  Database,
+  Activity,
+  Check,
+  AlertCircle,
+  Copy,
 } from "lucide-react";
 import { JeenuProfileData, JeenuVlogData, JeenuGalleryData, JeenuSocialLinkData, JeenuAdLeadData } from "@/lib/db";
+
+interface DbStatusInfo {
+  connected: boolean;
+  database: string;
+  latencyMs: number;
+  engine: string;
+  counts?: {
+    profiles: number;
+    vlogs: number;
+    gallery: number;
+    socials: number;
+    leads: number;
+  };
+}
 
 export default function AdminJeenuSoniPage() {
   // Active Tab: "leads" | "profile" | "vlogs" | "gallery" | "socials"
   const [activeTab, setActiveTab] = useState<"leads" | "profile" | "vlogs" | "gallery" | "socials">("leads");
 
-  // Current Active Role for Testing Authorization Requirement (ADMIN & SONI allowed, USER/CLIENT/EDITOR denied)
+  // Current Active Role (ADMIN & SONI allowed, USER/CLIENT/EDITOR denied)
   const [currentRole, setCurrentRole] = useState<string>("ADMIN");
   const [authError, setAuthError] = useState<string | null>(null);
+
+  // Database Connection Status
+  const [dbStatus, setDbStatus] = useState<DbStatusInfo | null>(null);
 
   // Data States
   const [profile, setProfile] = useState<JeenuProfileData | null>(null);
@@ -50,18 +69,54 @@ export default function AdminJeenuSoniPage() {
   const [socials, setSocials] = useState<JeenuSocialLinkData[]>([]);
   const [leads, setLeads] = useState<JeenuAdLeadData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [uploading, setUploading] = useState(false);
 
-  // Filters & Modals
+  // Toast Notification
+  const [toast, setToast] = useState<{ message: string; type: "success" | "error" | "info" } | null>(null);
+
+  const showToast = (message: string, type: "success" | "error" | "info" = "success") => {
+    setToast({ message, type });
+    setTimeout(() => {
+      setToast(null);
+    }, 3500);
+  };
+
+  // Filters & Selected Lead
   const [leadSearch, setLeadSearch] = useState("");
   const [leadStatusFilter, setLeadStatusFilter] = useState("ALL");
   const [selectedLead, setSelectedLead] = useState<JeenuAdLeadData | null>(null);
+  const [editingLead, setEditingLead] = useState<JeenuAdLeadData | null>(null);
 
-  // Modal Flags
+  // Lead Create Modal & State
+  const [isLeadCreateModalOpen, setIsLeadCreateModalOpen] = useState(false);
+  const [leadFormName, setLeadFormName] = useState("");
+  const [leadFormPhone, setLeadFormPhone] = useState("");
+  const [leadFormLocation, setLeadFormLocation] = useState("");
+  const [leadFormBusiness, setLeadFormBusiness] = useState("");
+  const [leadFormType, setLeadFormType] = useState("Sponsored Reel & Story");
+  const [leadFormBudget, setLeadFormBudget] = useState("₹50,000 - ₹1,00,000");
+  const [leadFormMethod, setLeadFormMethod] = useState("WhatsApp");
+  const [leadFormMessage, setLeadFormMessage] = useState("");
+
+  // Vlog Modal & State
   const [isVlogModalOpen, setIsVlogModalOpen] = useState(false);
   const [editingVlog, setEditingVlog] = useState<JeenuVlogData | null>(null);
+  const [vlogTitle, setVlogTitle] = useState("");
+  const [vlogDesc, setVlogDesc] = useState("");
+  const [vlogThumb, setVlogThumb] = useState("");
+  const [vlogVideo, setVlogVideo] = useState("");
+  const [vlogCategory, setVlogCategory] = useState("Fashion & Style");
+  const [vlogPublished, setVlogPublished] = useState(true);
+  const [vlogOrder, setVlogOrder] = useState(1);
 
+  // Gallery Modal & State
   const [isGalleryModalOpen, setIsGalleryModalOpen] = useState(false);
   const [editingGallery, setEditingGallery] = useState<JeenuGalleryData | null>(null);
+  const [galImage, setGalImage] = useState("");
+  const [galTitle, setGalTitle] = useState("");
+  const [galCaption, setGalCaption] = useState("");
+  const [galPublished, setGalPublished] = useState(true);
+  const [galOrder, setGalOrder] = useState(1);
 
   // Social Links Form State & Modal
   const [isSocialModalOpen, setIsSocialModalOpen] = useState(false);
@@ -73,28 +128,10 @@ export default function AdminJeenuSoniPage() {
   const [socActive, setSocActive] = useState(true);
   const [socOrder, setSocOrder] = useState(1);
 
-  const [uploading, setUploading] = useState(false);
-
-  // Vlog Form State
-  const [vlogTitle, setVlogTitle] = useState("");
-  const [vlogDesc, setVlogDesc] = useState("");
-  const [vlogThumb, setVlogThumb] = useState("");
-  const [vlogVideo, setVlogVideo] = useState("");
-  const [vlogCategory, setVlogCategory] = useState("Lifestyle");
-  const [vlogPublished, setVlogPublished] = useState(true);
-  const [vlogOrder, setVlogOrder] = useState(1);
-
-  // Gallery Form State
-  const [galImage, setGalImage] = useState("");
-  const [galTitle, setGalTitle] = useState("");
-  const [galCaption, setGalCaption] = useState("");
-  const [galPublished, setGalPublished] = useState(true);
-  const [galOrder, setGalOrder] = useState(1);
-
   // Profile Form State
   const [profileForm, setProfileForm] = useState<Partial<JeenuProfileData>>({});
 
-  // Helper headers with current role for server-side auth checking
+  // Auth Headers
   const getAuthHeaders = () => ({
     "Content-Type": "application/json",
     "x-user-role": currentRole,
@@ -103,18 +140,20 @@ export default function AdminJeenuSoniPage() {
     Authorization: `Bearer ${currentRole.toLowerCase()}-token`,
   });
 
+  // Fetch Database Status & Data
   const fetchData = async () => {
     setLoading(true);
     setAuthError(null);
     try {
       const headers = getAuthHeaders();
 
-      const [profRes, vlogRes, galRes, socRes, leadRes] = await Promise.all([
+      const [profRes, vlogRes, galRes, socRes, leadRes, statusRes] = await Promise.all([
         fetch("/api/vlog/jeenusoni/profile", { headers, cache: "no-store" }),
         fetch("/api/vlog/jeenusoni/vlogs?all=true", { headers, cache: "no-store" }),
         fetch("/api/vlog/jeenusoni/gallery?all=true", { headers, cache: "no-store" }),
         fetch("/api/vlog/jeenusoni/socials?all=true", { headers, cache: "no-store" }),
         fetch(`/api/vlog/jeenusoni/leads?status=${leadStatusFilter}&search=${encodeURIComponent(leadSearch)}`, { headers, cache: "no-store" }),
+        fetch("/api/vlog/jeenusoni/status", { headers, cache: "no-store" }).catch(() => null),
       ]);
 
       const profJson = await profRes.json();
@@ -123,7 +162,11 @@ export default function AdminJeenuSoniPage() {
       const socJson = await socRes.json();
       const leadJson = await leadRes.json();
 
-      // If leads endpoint returned auth forbidden error, set auth error
+      if (statusRes && statusRes.ok) {
+        const statJson = await statusRes.json();
+        if (statJson.success && statJson.data) setDbStatus(statJson.data);
+      }
+
       if (leadRes.status === 403 || leadRes.status === 401 || (!leadJson.success && leadJson.error?.includes("Denied"))) {
         setAuthError(leadJson.error || "403 Forbidden: Role not authorized");
       } else {
@@ -138,6 +181,7 @@ export default function AdminJeenuSoniPage() {
       }
     } catch (err: any) {
       console.error("Error fetching Jeenu Soni admin data:", err);
+      showToast("Error loading data from database", "error");
     } finally {
       setLoading(false);
     }
@@ -162,18 +206,21 @@ export default function AdminJeenuSoniPage() {
       const json = await res.json();
       if (json.success && json.url) {
         callback(json.url);
+        showToast("Image uploaded successfully!", "success");
       } else {
-        alert(json.error || "Upload failed");
+        showToast(json.error || "Upload failed", "error");
       }
     } catch (err) {
       console.error(err);
-      alert("Error uploading file");
+      showToast("Error uploading file", "error");
     } finally {
       setUploading(false);
     }
   };
 
-  // Save Profile
+  // --------------------------------------------------------------------------
+  // PROFILE CRUD
+  // --------------------------------------------------------------------------
   const handleProfileSave = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -185,17 +232,84 @@ export default function AdminJeenuSoniPage() {
 
       const json = await res.json();
       if (json.success) {
-        alert("Profile & Customizations saved successfully!");
+        showToast("Profile & Design Settings saved to PostgreSQL!", "success");
         fetchData();
       } else {
-        alert(json.error || "Failed to update profile");
+        showToast(json.error || "Failed to update profile", "error");
       }
     } catch (err: any) {
-      alert(err.message);
+      showToast(err.message, "error");
     }
   };
 
-  // Lead Status Change
+  // --------------------------------------------------------------------------
+  // AD LEADS CRUD
+  // --------------------------------------------------------------------------
+  const handleCreateLead = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!leadFormName.trim() || !leadFormPhone.trim() || !leadFormLocation.trim()) {
+      return showToast("Client name, phone and location are required", "error");
+    }
+
+    try {
+      const res = await fetch("/api/vlog/jeenusoni/leads", {
+        method: "POST",
+        headers: getAuthHeaders(),
+        body: JSON.stringify({
+          clientName: leadFormName,
+          phone: leadFormPhone,
+          location: leadFormLocation,
+          businessName: leadFormBusiness,
+          advertisementType: leadFormType,
+          budget: leadFormBudget,
+          contactMethod: leadFormMethod,
+          message: leadFormMessage,
+        }),
+      });
+
+      const json = await res.json();
+      if (json.success) {
+        showToast("New Ad Lead created in PostgreSQL!", "success");
+        setIsLeadCreateModalOpen(false);
+        setLeadFormName("");
+        setLeadFormPhone("");
+        setLeadFormLocation("");
+        setLeadFormBusiness("");
+        setLeadFormMessage("");
+        fetchData();
+      } else {
+        showToast(json.error || "Failed to create lead", "error");
+      }
+    } catch (err: any) {
+      showToast(err.message, "error");
+    }
+  };
+
+  const handleUpdateLead = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingLead) return;
+
+    try {
+      const res = await fetch(`/api/vlog/jeenusoni/leads/${editingLead.id}`, {
+        method: "PUT",
+        headers: getAuthHeaders(),
+        body: JSON.stringify(editingLead),
+      });
+
+      const json = await res.json();
+      if (json.success) {
+        showToast("Lead details updated in PostgreSQL!", "success");
+        setEditingLead(null);
+        setSelectedLead(null);
+        fetchData();
+      } else {
+        showToast(json.error || "Failed to update lead", "error");
+      }
+    } catch (err: any) {
+      showToast(err.message, "error");
+    }
+  };
+
   const handleLeadStatusChange = async (id: string, newStatus: string) => {
     try {
       const res = await fetch(`/api/vlog/jeenusoni/leads/${id}`, {
@@ -206,18 +320,18 @@ export default function AdminJeenuSoniPage() {
 
       const json = await res.json();
       if (json.success) {
+        showToast(`Lead status updated to ${newStatus}`, "info");
         fetchData();
       } else {
-        alert(json.error || "Failed to update lead status");
+        showToast(json.error || "Failed to update status", "error");
       }
     } catch (err: any) {
-      alert(err.message);
+      showToast(err.message, "error");
     }
   };
 
-  // Delete Lead
   const handleDeleteLead = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this ad lead request?")) return;
+    if (!confirm("Are you sure you want to delete this ad lead from the database?")) return;
     try {
       const res = await fetch(`/api/vlog/jeenusoni/leads/${id}`, {
         method: "DELETE",
@@ -225,26 +339,29 @@ export default function AdminJeenuSoniPage() {
       });
       const json = await res.json();
       if (json.success) {
+        showToast("Lead deleted from database", "success");
         setSelectedLead(null);
         fetchData();
       } else {
-        alert(json.error || "Failed to delete lead");
+        showToast(json.error || "Failed to delete lead", "error");
       }
     } catch (err: any) {
-      alert(err.message);
+      showToast(err.message, "error");
     }
   };
 
-  // Vlog Create/Edit Submit
+  // --------------------------------------------------------------------------
+  // VLOG CRUD
+  // --------------------------------------------------------------------------
   const handleVlogSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!vlogTitle.trim()) return alert("Vlog title is required");
+    if (!vlogTitle.trim()) return showToast("Vlog title is required", "error");
 
     try {
       const payload = {
         title: vlogTitle,
         description: vlogDesc,
-        thumbnail: vlogThumb || "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?q=80&w=1200&auto=format&fit=crop",
+        thumbnail: vlogThumb || "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1200&auto=format&fit=crop",
         videoUrl: vlogVideo || "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
         category: vlogCategory,
         published: vlogPublished,
@@ -262,28 +379,48 @@ export default function AdminJeenuSoniPage() {
 
       const json = await res.json();
       if (json.success) {
+        showToast(editingVlog ? "Vlog updated in PostgreSQL!" : "New Vlog published in PostgreSQL!", "success");
         setIsVlogModalOpen(false);
         setEditingVlog(null);
         resetVlogForm();
         fetchData();
       } else {
-        alert(json.error || "Operation failed");
+        showToast(json.error || "Operation failed", "error");
       }
     } catch (err: any) {
-      alert(err.message);
+      showToast(err.message, "error");
+    }
+  };
+
+  const handleToggleVlogPublish = async (vlog: JeenuVlogData) => {
+    try {
+      const res = await fetch(`/api/vlog/jeenusoni/vlogs/${vlog.id}`, {
+        method: "PUT",
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ published: !vlog.published }),
+      });
+      if ((await res.json()).success) {
+        showToast(`Vlog ${!vlog.published ? "Published" : "Moved to Draft"}`, "info");
+        fetchData();
+      }
+    } catch (err: any) {
+      showToast(err.message, "error");
     }
   };
 
   const handleDeleteVlog = async (id: string) => {
-    if (!confirm("Delete this vlog entry?")) return;
+    if (!confirm("Are you sure you want to delete this vlog?")) return;
     try {
       const res = await fetch(`/api/vlog/jeenusoni/vlogs/${id}`, {
         method: "DELETE",
         headers: getAuthHeaders(),
       });
-      if ((await res.json()).success) fetchData();
+      if ((await res.json()).success) {
+        showToast("Vlog deleted from database", "success");
+        fetchData();
+      }
     } catch (err: any) {
-      alert(err.message);
+      showToast(err.message, "error");
     }
   };
 
@@ -292,15 +429,17 @@ export default function AdminJeenuSoniPage() {
     setVlogDesc("");
     setVlogThumb("");
     setVlogVideo("");
-    setVlogCategory("Lifestyle");
+    setVlogCategory("Fashion & Style");
     setVlogPublished(true);
     setVlogOrder(vlogs.length + 1);
   };
 
-  // Gallery Create/Edit Submit
+  // --------------------------------------------------------------------------
+  // GALLERY CRUD
+  // --------------------------------------------------------------------------
   const handleGallerySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!galImage.trim()) return alert("Image URL is required");
+    if (!galImage.trim()) return showToast("Image URL is required", "error");
 
     try {
       const payload = {
@@ -322,6 +461,7 @@ export default function AdminJeenuSoniPage() {
 
       const json = await res.json();
       if (json.success) {
+        showToast(editingGallery ? "Gallery item updated!" : "New Gallery image saved in PostgreSQL!", "success");
         setIsGalleryModalOpen(false);
         setEditingGallery(null);
         setGalImage("");
@@ -329,30 +469,51 @@ export default function AdminJeenuSoniPage() {
         setGalCaption("");
         fetchData();
       } else {
-        alert(json.error || "Operation failed");
+        showToast(json.error || "Operation failed", "error");
       }
     } catch (err: any) {
-      alert(err.message);
+      showToast(err.message, "error");
+    }
+  };
+
+  const handleToggleGalleryPublish = async (item: JeenuGalleryData) => {
+    try {
+      const res = await fetch(`/api/vlog/jeenusoni/gallery/${item.id}`, {
+        method: "PUT",
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ published: !item.published }),
+      });
+      if ((await res.json()).success) {
+        showToast(`Image ${!item.published ? "Published" : "Hidden"}`, "info");
+        fetchData();
+      }
+    } catch (err: any) {
+      showToast(err.message, "error");
     }
   };
 
   const handleDeleteGallery = async (id: string) => {
-    if (!confirm("Delete this gallery image?")) return;
+    if (!confirm("Are you sure you want to delete this gallery image?")) return;
     try {
       const res = await fetch(`/api/vlog/jeenusoni/gallery/${id}`, {
         method: "DELETE",
         headers: getAuthHeaders(),
       });
-      if ((await res.json()).success) fetchData();
+      if ((await res.json()).success) {
+        showToast("Gallery image deleted", "success");
+        fetchData();
+      }
     } catch (err: any) {
-      alert(err.message);
+      showToast(err.message, "error");
     }
   };
 
-  // Social Link Create/Edit Submit
+  // --------------------------------------------------------------------------
+  // SOCIAL LINKS CRUD
+  // --------------------------------------------------------------------------
   const handleSocialSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!socPlatform.trim() || !socUrl.trim()) return alert("Platform and URL are required");
+    if (!socPlatform.trim() || !socUrl.trim()) return showToast("Platform and URL are required", "error");
 
     try {
       const payload = {
@@ -375,28 +536,16 @@ export default function AdminJeenuSoniPage() {
 
       const json = await res.json();
       if (json.success) {
+        showToast(editingSocial ? "Social link updated!" : "Social link saved in PostgreSQL!", "success");
         setIsSocialModalOpen(false);
         setEditingSocial(null);
         resetSocialForm();
         fetchData();
       } else {
-        alert(json.error || "Operation failed");
+        showToast(json.error || "Operation failed", "error");
       }
     } catch (err: any) {
-      alert(err.message);
-    }
-  };
-
-  const handleDeleteSocial = async (id: string) => {
-    if (!confirm("Delete this social link?")) return;
-    try {
-      const res = await fetch(`/api/vlog/jeenusoni/socials/${id}`, {
-        method: "DELETE",
-        headers: getAuthHeaders(),
-      });
-      if ((await res.json()).success) fetchData();
-    } catch (err: any) {
-      alert(err.message);
+      showToast(err.message, "error");
     }
   };
 
@@ -407,9 +556,28 @@ export default function AdminJeenuSoniPage() {
         headers: getAuthHeaders(),
         body: JSON.stringify({ isActive: !social.isActive }),
       });
-      if ((await res.json()).success) fetchData();
+      if ((await res.json()).success) {
+        showToast(`Social link ${!social.isActive ? "Activated" : "Disabled"}`, "info");
+        fetchData();
+      }
     } catch (err: any) {
-      alert(err.message);
+      showToast(err.message, "error");
+    }
+  };
+
+  const handleDeleteSocial = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this social link?")) return;
+    try {
+      const res = await fetch(`/api/vlog/jeenusoni/socials/${id}`, {
+        method: "DELETE",
+        headers: getAuthHeaders(),
+      });
+      if ((await res.json()).success) {
+        showToast("Social link deleted", "success");
+        fetchData();
+      }
+    } catch (err: any) {
+      showToast(err.message, "error");
     }
   };
 
@@ -429,27 +597,69 @@ export default function AdminJeenuSoniPage() {
       {/* Background Lighting */}
       <div className="absolute top-10 left-1/2 -translate-x-1/2 w-[900px] h-[450px] bg-gradient-to-tr from-rose-950/20 via-[#E8C39E]/10 to-transparent blur-[180px] pointer-events-none rounded-full" />
 
+      {/* Floating Notification Toast */}
+      {toast && (
+        <div className="fixed bottom-6 right-6 z-50 animate-in fade-in slide-in-from-bottom-5 duration-200">
+          <div
+            className={`px-5 py-3.5 rounded-2xl border backdrop-blur-xl shadow-2xl flex items-center gap-3 text-xs font-semibold ${
+              toast.type === "success"
+                ? "bg-emerald-950/90 border-emerald-500/40 text-emerald-200"
+                : toast.type === "error"
+                ? "bg-rose-950/90 border-rose-500/40 text-rose-200"
+                : "bg-zinc-900/90 border-white/20 text-white"
+            }`}
+          >
+            {toast.type === "success" && <CheckCircle2 size={16} className="text-emerald-400" />}
+            {toast.type === "error" && <AlertCircle size={16} className="text-rose-400" />}
+            {toast.type === "info" && <Activity size={16} className="text-[#E8C39E]" />}
+            <span>{toast.message}</span>
+          </div>
+        </div>
+      )}
+
       <div className="container mx-auto px-6 relative z-10 max-w-7xl space-y-8">
-        {/* Top Header Bar & Role Testing Switcher */}
+        {/* Top Header Bar & Real-time Database Status */}
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-6 border-b border-rose-500/10">
           <div className="space-y-1">
-            <div className="inline-flex items-center gap-2 text-xs font-mono text-[#E8C39E] bg-rose-950/60 px-3 py-1 rounded-full border border-rose-500/20">
-              <Crown size={14} className="text-[#E8C39E]" />
-              Jeenu Soni Luxury Vlog Control Console
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="inline-flex items-center gap-2 text-xs font-mono text-[#E8C39E] bg-rose-950/60 px-3 py-1 rounded-full border border-rose-500/20">
+                <Crown size={14} className="text-[#E8C39E]" />
+                Jeenu Soni Luxury Vlog Control Console
+              </div>
+
+              {/* PostgreSQL Live Connection Badge */}
+              <div
+                className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-mono border ${
+                  dbStatus?.connected
+                    ? "bg-emerald-950/50 border-emerald-500/30 text-emerald-300"
+                    : "bg-amber-950/50 border-amber-500/30 text-amber-300"
+                }`}
+                title="PostgreSQL 18 Database Connectivity"
+              >
+                <span className={`w-2 h-2 rounded-full ${dbStatus?.connected ? "bg-emerald-400 animate-pulse" : "bg-amber-400"}`} />
+                <Database size={12} />
+                <span>{dbStatus?.connected ? "PostgreSQL 18: cortex_db" : "DB Fallback Engine"}</span>
+                {dbStatus?.latencyMs !== undefined && (
+                  <span className="text-[10px] text-emerald-400/80 bg-emerald-900/50 px-1.5 py-0.2 rounded font-mono">
+                    {dbStatus.latencyMs}ms
+                  </span>
+                )}
+              </div>
             </div>
+
             <h1 className="text-3xl font-serif font-bold text-white tracking-tight">
               Brand & Influencer Management
             </h1>
             <p className="text-xs text-zinc-400">
-              Manage ad leads, customize profile presets, edit vlogs, gallery lookbook & social links.
+              PostgreSQL-powered CRUD operations for ad leads, profile customization, video vlogs, gallery lookbook & social channels.
             </p>
           </div>
 
-          {/* Role Authorization Switcher (Demonstrates Strict Security Requirements) */}
+          {/* Role Authorization Switcher & Public Link */}
           <div className="flex flex-wrap items-center gap-3 bg-[#11060B] p-2 rounded-2xl border border-rose-500/20">
             <div className="text-[11px] font-mono text-zinc-400 pl-2 flex items-center gap-1.5">
               <Lock size={12} className="text-rose-400" />
-              Role Authorization Test:
+              Role:
             </div>
             <select
               value={currentRole}
@@ -459,10 +669,8 @@ export default function AdminJeenuSoniPage() {
               <option value="ADMIN">ADMIN (Allowed)</option>
               <option value="SONI">SONI (Allowed)</option>
               <option value="USER">USER (Denied)</option>
-              <option value="CUSTOMER">CUSTOMER (Denied)</option>
-              <option value="EDITOR">EDITOR (Denied)</option>
               <option value="CLIENT">CLIENT (Denied)</option>
-              <option value="TEACHER">TEACHER (Denied)</option>
+              <option value="EDITOR">EDITOR (Denied)</option>
             </select>
 
             <Link
@@ -521,7 +729,7 @@ export default function AdminJeenuSoniPage() {
                 <div className="text-2xl font-serif font-bold text-purple-400">{gallery.length}</div>
               </div>
               <div className="p-4 rounded-2xl bg-white/[0.02] border border-rose-500/10 space-y-1">
-                <div className="text-[11px] text-zinc-400 font-mono">Active Theme Preset</div>
+                <div className="text-[11px] text-zinc-400 font-mono">Theme Preset</div>
                 <div className="text-xs font-serif font-bold text-[#E8C39E] uppercase tracking-wider mt-2">
                   {profile?.preset || "Luxury Love"}
                 </div>
@@ -589,7 +797,7 @@ export default function AdminJeenuSoniPage() {
             {/* TAB 1: AD LEADS MANAGER */}
             {activeTab === "leads" && (
               <div className="space-y-6">
-                {/* Search & Status Filters */}
+                {/* Search & Actions Bar */}
                 <div className="p-4 rounded-2xl bg-white/[0.02] border border-rose-500/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div className="relative flex-1 max-w-md">
                     <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" />
@@ -602,7 +810,7 @@ export default function AdminJeenuSoniPage() {
                     />
                   </div>
 
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     <Filter size={14} className="text-zinc-400" />
                     <select
                       value={leadStatusFilter}
@@ -616,6 +824,13 @@ export default function AdminJeenuSoniPage() {
                       <option value="COMPLETED">COMPLETED</option>
                       <option value="CANCELLED">CANCELLED</option>
                     </select>
+
+                    <button
+                      onClick={() => setIsLeadCreateModalOpen(true)}
+                      className="px-4 py-2 rounded-xl bg-gradient-to-r from-rose-900 to-rose-950 text-[#FCE7D4] text-xs font-semibold flex items-center gap-1.5 border border-rose-500/30 hover:scale-[1.02] transition-all"
+                    >
+                      <Plus size={14} /> Add Lead
+                    </button>
 
                     <button
                       onClick={fetchData}
@@ -645,7 +860,7 @@ export default function AdminJeenuSoniPage() {
                         {leads.length === 0 ? (
                           <tr>
                             <td colSpan={7} className="p-8 text-center text-zinc-500 font-mono">
-                              No client advertisement leads found.
+                              No client advertisement leads found in database.
                             </td>
                           </tr>
                         ) : (
@@ -701,7 +916,7 @@ export default function AdminJeenuSoniPage() {
                                 <button
                                   onClick={() => setSelectedLead(lead)}
                                   className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-zinc-300"
-                                  title="View Full Details"
+                                  title="View / Edit Lead Details"
                                 >
                                   <Eye size={14} />
                                 </button>
@@ -732,233 +947,284 @@ export default function AdminJeenuSoniPage() {
               </div>
             )}
 
-            {/* TAB 2: PROFILE & CUSTOMIZATION SYSTEM */}
+            {/* TAB 2: PROFILE & DESIGN SYSTEM */}
             {activeTab === "profile" && (
-              <div className="max-w-4xl space-y-8">
-                <form onSubmit={handleProfileSave} className="space-y-6">
-                  {/* Preset Selector (Luxury Love, Soft Romantic, Dark Glam) */}
-                  <div className="p-6 rounded-3xl bg-white/[0.02] border border-rose-500/20 space-y-4">
-                    <h3 className="text-lg font-serif font-bold text-white flex items-center gap-2">
-                      <Sparkles size={16} className="text-[#E8C39E]" /> Select Design Preset
-                    </h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                      {[
-                        { id: "luxury-love", label: "Luxury Elegance", colors: "Wine & Rose Gold", bg: "bg-[#8B0032]" },
-                        { id: "soft-romantic", label: "Soft Rose", colors: "Pink & Cream", bg: "bg-rose-400" },
-                        { id: "dark-glam", label: "Dark Glam", colors: "Midnight & Gold", bg: "bg-[#D4AF37]" },
-                      ].map((preset) => (
-                        <label
-                          key={preset.id}
-                          className={`p-4 rounded-2xl border cursor-pointer transition-all flex items-center justify-between ${
-                            profileForm.preset === preset.id
-                              ? "border-[#E8C39E] bg-rose-950/40 shadow-lg"
-                              : "border-white/10 bg-black/40 hover:border-white/20"
-                          }`}
-                        >
-                          <div className="space-y-1">
-                            <div className="text-xs font-serif font-bold text-white">{preset.label}</div>
-                            <div className="text-[10px] text-zinc-400 font-mono">{preset.colors}</div>
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* Form Column */}
+                <div className="lg:col-span-2 space-y-6">
+                  <form onSubmit={handleProfileSave} className="space-y-6">
+                    {/* Design Presets */}
+                    <div className="p-6 rounded-3xl bg-white/[0.02] border border-rose-500/20 space-y-4">
+                      <h3 className="text-lg font-serif font-bold text-white flex items-center gap-2">
+                        <Sparkles size={16} className="text-[#E8C39E]" /> Aesthetic Design Preset
+                      </h3>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        {[
+                          { id: "luxury-love", label: "Luxury Elegance", colors: "Wine & Rose Gold", bg: "bg-[#8B0032]" },
+                          { id: "soft-romantic", label: "Soft Rose", colors: "Pink & Cream", bg: "bg-rose-400" },
+                          { id: "dark-glam", label: "Dark Glam", colors: "Midnight & Gold", bg: "bg-[#D4AF37]" },
+                        ].map((preset) => (
+                          <label
+                            key={preset.id}
+                            className={`p-4 rounded-2xl border cursor-pointer transition-all flex items-center justify-between ${
+                              profileForm.preset === preset.id
+                                ? "border-[#E8C39E] bg-rose-950/40 shadow-lg"
+                                : "border-white/10 bg-black/40 hover:border-white/20"
+                            }`}
+                          >
+                            <div className="space-y-1">
+                              <div className="text-xs font-serif font-bold text-white">{preset.label}</div>
+                              <div className="text-[10px] text-zinc-400 font-mono">{preset.colors}</div>
+                            </div>
+                            <input
+                              type="radio"
+                              name="preset"
+                              value={preset.id}
+                              checked={profileForm.preset === preset.id}
+                              onChange={(e) => setProfileForm({ ...profileForm, preset: e.target.value })}
+                              className="accent-rose-500"
+                            />
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Profile Basic Info */}
+                    <div className="p-6 rounded-3xl bg-white/[0.02] border border-rose-500/20 space-y-6">
+                      <h3 className="text-lg font-serif font-bold text-white">Jeenu Soni Identity</h3>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                        <div>
+                          <label className="font-bold text-zinc-300 block mb-1">Full Name</label>
+                          <input
+                            type="text"
+                            value={profileForm.name || ""}
+                            onChange={(e) => setProfileForm({ ...profileForm, name: e.target.value })}
+                            className="w-full p-3 rounded-xl bg-black border border-white/10 text-white"
+                          />
+                        </div>
+                        <div>
+                          <label className="font-bold text-zinc-300 block mb-1">Slug URL</label>
+                          <input
+                            type="text"
+                            value={profileForm.slug || "jeenusoni"}
+                            onChange={(e) => setProfileForm({ ...profileForm, slug: e.target.value })}
+                            className="w-full p-3 rounded-xl bg-black border border-white/10 text-white font-mono text-[11px]"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                        <div>
+                          <label className="font-bold text-zinc-300 block mb-1">Hero Title</label>
+                          <input
+                            type="text"
+                            value={profileForm.heroTitle || ""}
+                            onChange={(e) => setProfileForm({ ...profileForm, heroTitle: e.target.value })}
+                            className="w-full p-3 rounded-xl bg-black border border-white/10 text-white"
+                          />
+                        </div>
+                        <div>
+                          <label className="font-bold text-zinc-300 block mb-1">Hero Subtitle</label>
+                          <input
+                            type="text"
+                            value={profileForm.heroSubtitle || ""}
+                            onChange={(e) => setProfileForm({ ...profileForm, heroSubtitle: e.target.value })}
+                            className="w-full p-3 rounded-xl bg-black border border-white/10 text-white"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="text-xs space-y-1">
+                        <label className="font-bold text-zinc-300 block mb-1">Bio / Story</label>
+                        <textarea
+                          rows={3}
+                          value={profileForm.bio || ""}
+                          onChange={(e) => setProfileForm({ ...profileForm, bio: e.target.value })}
+                          className="w-full p-3 rounded-xl bg-black border border-white/10 text-white leading-relaxed"
+                        />
+                      </div>
+
+                      {/* Image Uploads */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-xs">
+                        <div>
+                          <label className="font-bold text-zinc-300 block mb-1">Profile Image</label>
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="text"
+                              value={profileForm.profileImage || ""}
+                              onChange={(e) => setProfileForm({ ...profileForm, profileImage: e.target.value })}
+                              className="flex-1 p-3 rounded-xl bg-black border border-white/10 text-white font-mono text-[11px]"
+                            />
+                            <label className="p-3 rounded-xl bg-rose-950 border border-rose-500/30 text-xs font-bold text-white cursor-pointer hover:bg-rose-900 transition-colors">
+                              <Upload size={14} />
+                              <input
+                                type="file"
+                                accept="image/*"
+                                className="hidden"
+                                onChange={(e) => {
+                                  if (e.target.files?.[0]) {
+                                    handleFileUpload(e.target.files[0], (url) =>
+                                      setProfileForm({ ...profileForm, profileImage: url })
+                                    );
+                                  }
+                                }}
+                              />
+                            </label>
                           </div>
-                          <input
-                            type="radio"
-                            name="preset"
-                            value={preset.id}
-                            checked={profileForm.preset === preset.id}
-                            onChange={(e) => setProfileForm({ ...profileForm, preset: e.target.value })}
-                            className="accent-rose-500"
-                          />
-                        </label>
-                      ))}
-                    </div>
-                  </div>
+                        </div>
 
-                  {/* Profile Fields */}
-                  <div className="p-6 rounded-3xl bg-white/[0.02] border border-rose-500/20 space-y-6">
-                    <h3 className="text-lg font-serif font-bold text-white">Jeenu Soni Profile Information</h3>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-                      <div>
-                        <label className="font-bold text-zinc-300 block mb-1">Full Name</label>
-                        <input
-                          type="text"
-                          value={profileForm.name || ""}
-                          onChange={(e) => setProfileForm({ ...profileForm, name: e.target.value })}
-                          className="w-full p-3 rounded-xl bg-black border border-white/10 text-white"
-                        />
-                      </div>
-                      <div>
-                        <label className="font-bold text-zinc-300 block mb-1">Slug (e.g. jeenusoni)</label>
-                        <input
-                          type="text"
-                          value={profileForm.slug || "jeenusoni"}
-                          onChange={(e) => setProfileForm({ ...profileForm, slug: e.target.value })}
-                          className="w-full p-3 rounded-xl bg-black border border-white/10 text-white"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-                      <div>
-                        <label className="font-bold text-zinc-300 block mb-1">Hero Title</label>
-                        <input
-                          type="text"
-                          value={profileForm.heroTitle || ""}
-                          onChange={(e) => setProfileForm({ ...profileForm, heroTitle: e.target.value })}
-                          className="w-full p-3 rounded-xl bg-black border border-white/10 text-white"
-                        />
-                      </div>
-                      <div>
-                        <label className="font-bold text-zinc-300 block mb-1">Hero Subtitle</label>
-                        <input
-                          type="text"
-                          value={profileForm.heroSubtitle || ""}
-                          onChange={(e) => setProfileForm({ ...profileForm, heroSubtitle: e.target.value })}
-                          className="w-full p-3 rounded-xl bg-black border border-white/10 text-white"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="text-xs space-y-1">
-                      <label className="font-bold text-zinc-300 block mb-1">Bio / Story</label>
-                      <textarea
-                        rows={3}
-                        value={profileForm.bio || ""}
-                        onChange={(e) => setProfileForm({ ...profileForm, bio: e.target.value })}
-                        className="w-full p-3 rounded-xl bg-black border border-white/10 text-white"
-                      />
-                    </div>
-
-                    {/* Image Uploads */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-xs">
-                      <div>
-                        <label className="font-bold text-zinc-300 block mb-1">Profile Image</label>
-                        <div className="flex items-center gap-2">
-                          <input
-                            type="text"
-                            value={profileForm.profileImage || ""}
-                            onChange={(e) => setProfileForm({ ...profileForm, profileImage: e.target.value })}
-                            className="flex-1 p-3 rounded-xl bg-black border border-white/10 text-white"
-                          />
-                          <label className="p-3 rounded-xl bg-rose-950 border border-rose-500/30 text-xs font-bold text-white cursor-pointer hover:bg-rose-900 transition-colors">
-                            <Upload size={14} />
+                        <div>
+                          <label className="font-bold text-zinc-300 block mb-1">Cover Image</label>
+                          <div className="flex items-center gap-2">
                             <input
-                              type="file"
-                              accept="image/*"
-                              className="hidden"
-                              onChange={(e) => {
-                                if (e.target.files?.[0]) {
-                                  handleFileUpload(e.target.files[0], (url) =>
-                                    setProfileForm({ ...profileForm, profileImage: url })
-                                  );
-                                }
-                              }}
+                              type="text"
+                              value={profileForm.coverImage || ""}
+                              onChange={(e) => setProfileForm({ ...profileForm, coverImage: e.target.value })}
+                              className="flex-1 p-3 rounded-xl bg-black border border-white/10 text-white font-mono text-[11px]"
                             />
-                          </label>
+                            <label className="p-3 rounded-xl bg-rose-950 border border-rose-500/30 text-xs font-bold text-white cursor-pointer hover:bg-rose-900 transition-colors">
+                              <Upload size={14} />
+                              <input
+                                type="file"
+                                accept="image/*"
+                                className="hidden"
+                                onChange={(e) => {
+                                  if (e.target.files?.[0]) {
+                                    handleFileUpload(e.target.files[0], (url) =>
+                                      setProfileForm({ ...profileForm, coverImage: url })
+                                    );
+                                  }
+                                }}
+                              />
+                            </label>
+                          </div>
                         </div>
                       </div>
 
-                      <div>
-                        <label className="font-bold text-zinc-300 block mb-1">Cover Image</label>
-                        <div className="flex items-center gap-2">
+                      {/* Social Channels */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                        <div>
+                          <label className="font-bold text-zinc-300 block mb-1">Instagram URL</label>
                           <input
                             type="text"
-                            value={profileForm.coverImage || ""}
-                            onChange={(e) => setProfileForm({ ...profileForm, coverImage: e.target.value })}
-                            className="flex-1 p-3 rounded-xl bg-black border border-white/10 text-white"
+                            placeholder="https://www.instagram.com/..."
+                            value={profileForm.instagramUrl || ""}
+                            onChange={(e) => setProfileForm({ ...profileForm, instagramUrl: e.target.value })}
+                            className="w-full p-3 rounded-xl bg-black border border-white/10 text-white font-mono text-[11px]"
                           />
-                          <label className="p-3 rounded-xl bg-rose-950 border border-rose-500/30 text-xs font-bold text-white cursor-pointer hover:bg-rose-900 transition-colors">
-                            <Upload size={14} />
-                            <input
-                              type="file"
-                              accept="image/*"
-                              className="hidden"
-                              onChange={(e) => {
-                                if (e.target.files?.[0]) {
-                                  handleFileUpload(e.target.files[0], (url) =>
-                                    setProfileForm({ ...profileForm, coverImage: url })
-                                  );
-                                }
-                              }}
-                            />
-                          </label>
+                        </div>
+
+                        <div>
+                          <label className="font-bold text-zinc-300 block mb-1">YouTube URL</label>
+                          <input
+                            type="text"
+                            placeholder="https://youtube.com/..."
+                            value={profileForm.youtubeUrl || ""}
+                            onChange={(e) => setProfileForm({ ...profileForm, youtubeUrl: e.target.value })}
+                            className="w-full p-3 rounded-xl bg-black border border-white/10 text-white font-mono text-[11px]"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="font-bold text-zinc-300 block mb-1">WhatsApp Number</label>
+                          <input
+                            type="text"
+                            placeholder="+919876543210"
+                            value={profileForm.whatsappNumber || ""}
+                            onChange={(e) => setProfileForm({ ...profileForm, whatsappNumber: e.target.value })}
+                            className="w-full p-3 rounded-xl bg-black border border-white/10 text-white font-mono text-[11px]"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="font-bold text-zinc-300 block mb-1">Facebook Page URL</label>
+                          <input
+                            type="text"
+                            placeholder="https://facebook.com/..."
+                            value={profileForm.facebookUrl || ""}
+                            onChange={(e) => setProfileForm({ ...profileForm, facebookUrl: e.target.value })}
+                            className="w-full p-3 rounded-xl bg-black border border-white/10 text-white font-mono text-[11px]"
+                          />
+                        </div>
+
+                        <div className="sm:col-span-2">
+                          <label className="font-bold text-zinc-300 block mb-1">Location Tag</label>
+                          <input
+                            type="text"
+                            placeholder="Gajsinghpur, Rajasthan • Digital Creator"
+                            value={profileForm.location || ""}
+                            onChange={(e) => setProfileForm({ ...profileForm, location: e.target.value })}
+                            className="w-full p-3 rounded-xl bg-black border border-white/10 text-white"
+                          />
                         </div>
                       </div>
+
+                      <button
+                        type="submit"
+                        className="w-full py-4 rounded-2xl bg-gradient-to-r from-rose-900 to-rose-950 text-[#FCE7D4] font-serif font-bold text-xs border border-rose-500/40 shadow-xl flex items-center justify-center gap-2 hover:scale-[1.01] transition-all"
+                      >
+                        <Save size={16} /> Save Profile Changes to PostgreSQL
+                      </button>
                     </div>
+                  </form>
+                </div>
 
-                    {/* Social URLs (Instagram, YouTube, FB, WA) */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-                      <div>
-                        <label className="font-bold text-zinc-300 block mb-1">Instagram URL (Dynamic DB value)</label>
-                        <input
-                          type="text"
-                          placeholder="https://www.instagram.com/..."
-                          value={profileForm.instagramUrl || ""}
-                          onChange={(e) => setProfileForm({ ...profileForm, instagramUrl: e.target.value })}
-                          className="w-full p-3 rounded-xl bg-black border border-white/10 text-white font-mono text-[11px]"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="font-bold text-zinc-300 block mb-1">YouTube URL</label>
-                        <input
-                          type="text"
-                          placeholder="https://youtube.com/..."
-                          value={profileForm.youtubeUrl || ""}
-                          onChange={(e) => setProfileForm({ ...profileForm, youtubeUrl: e.target.value })}
-                          className="w-full p-3 rounded-xl bg-black border border-white/10 text-white font-mono text-[11px]"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="font-bold text-zinc-300 block mb-1">WhatsApp Number</label>
-                        <input
-                          type="text"
-                          placeholder="+919876543210"
-                          value={profileForm.whatsappNumber || ""}
-                          onChange={(e) => setProfileForm({ ...profileForm, whatsappNumber: e.target.value })}
-                          className="w-full p-3 rounded-xl bg-black border border-white/10 text-white font-mono text-[11px]"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="font-bold text-zinc-300 block mb-1">Facebook Page URL</label>
-                        <input
-                          type="text"
-                          placeholder="https://facebook.com/..."
-                          value={profileForm.facebookUrl || ""}
-                          onChange={(e) => setProfileForm({ ...profileForm, facebookUrl: e.target.value })}
-                          className="w-full p-3 rounded-xl bg-black border border-white/10 text-white font-mono text-[11px]"
-                        />
-                      </div>
-
-                      <div className="sm:col-span-2">
-                        <label className="font-bold text-zinc-300 block mb-1">Location Tag</label>
-                        <input
-                          type="text"
-                          placeholder="Mumbai • New Delhi • Dubai"
-                          value={profileForm.location || ""}
-                          onChange={(e) => setProfileForm({ ...profileForm, location: e.target.value })}
-                          className="w-full p-3 rounded-xl bg-black border border-white/10 text-white"
-                        />
-                      </div>
-                    </div>
-
-                    <button
-                      type="submit"
-                      className="w-full py-4 rounded-2xl bg-gradient-to-r from-rose-900 to-rose-950 text-[#FCE7D4] font-serif font-bold text-xs border border-rose-500/40 shadow-xl flex items-center justify-center gap-2 hover:scale-[1.01] transition-all"
-                    >
-                      <Save size={16} /> Save Profile & Publish Settings
-                    </button>
+                {/* Live Card Preview Column */}
+                <div className="space-y-4">
+                  <div className="text-xs font-mono text-zinc-400 uppercase tracking-wider flex items-center gap-1.5">
+                    <Sparkles size={12} className="text-[#E8C39E]" /> Live Profile Card Preview
                   </div>
-                </form>
+                  <div className="p-6 rounded-3xl bg-gradient-to-b from-[#180812] to-[#0A0408] border border-rose-500/20 space-y-4 shadow-2xl relative overflow-hidden">
+                    <div className="h-28 w-full rounded-2xl overflow-hidden bg-black/60 relative">
+                      {profileForm.coverImage ? (
+                        <img src={profileForm.coverImage} alt="Cover" className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-r from-rose-900 to-rose-950" />
+                      )}
+                    </div>
+
+                    <div className="flex items-end gap-3 -mt-10 px-2 relative z-10">
+                      <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-[#E8C39E] bg-black shadow-xl">
+                        {profileForm.profileImage ? (
+                          <img src={profileForm.profileImage} alt="Profile" className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full bg-rose-900" />
+                        )}
+                      </div>
+                      <div className="pb-1">
+                        <div className="font-serif font-bold text-white text-base">{profileForm.name || "Jeenu Soni"}</div>
+                        <div className="text-[10px] text-[#E8C39E] font-mono">@{profileForm.slug || "jeenusoni"}</div>
+                      </div>
+                    </div>
+
+                    <div className="space-y-1.5 px-2">
+                      <div className="text-xs font-semibold text-rose-200">{profileForm.heroSubtitle || "Design Vlogs • Style"}</div>
+                      <p className="text-[11px] text-zinc-400 leading-relaxed line-clamp-3">{profileForm.bio || "Creator bio..."}</p>
+                      <div className="text-[10px] text-zinc-500 font-mono pt-1">{profileForm.location}</div>
+                    </div>
+
+                    <div className="pt-2 border-t border-white/5 flex items-center justify-between px-2">
+                      <span className="text-[10px] font-mono text-emerald-400 flex items-center gap-1">
+                        <CheckCircle2 size={11} /> Published Active
+                      </span>
+                      <span className="text-[10px] font-mono text-[#E8C39E] uppercase">
+                        {profileForm.preset || "luxury-love"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
 
-            {/* TAB 3: VLOG MANAGER */}
+            {/* TAB 3: VLOGS MANAGER */}
             {activeTab === "vlogs" && (
               <div className="space-y-6">
                 <div className="flex justify-between items-center">
-                  <h3 className="text-xl font-serif font-bold text-white">Vlog Entries ({vlogs.length})</h3>
+                  <div>
+                    <h3 className="text-xl font-serif font-bold text-white">Vlog Entries ({vlogs.length})</h3>
+                    <p className="text-xs text-zinc-400">Manage high-fashion videos, brand reels & travel stories stored in PostgreSQL.</p>
+                  </div>
                   <button
                     onClick={() => {
                       resetVlogForm();
@@ -973,21 +1239,34 @@ export default function AdminJeenuSoniPage() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {vlogs.map((vlog) => (
-                    <div key={vlog.id} className="p-5 rounded-3xl bg-white/[0.02] border border-rose-500/10 space-y-4">
-                      <div className="relative aspect-video w-full rounded-2xl overflow-hidden bg-black">
-                        <img src={vlog.thumbnail} alt={vlog.title} className="w-full h-full object-cover" />
-                        <span className="absolute top-3 left-3 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-black/60 text-[#E8C39E]">
-                          {vlog.category}
-                        </span>
+                    <div key={vlog.id} className="p-5 rounded-3xl bg-white/[0.02] border border-rose-500/10 space-y-4 hover:border-rose-500/30 transition-all flex flex-col justify-between">
+                      <div className="space-y-3">
+                        <div className="relative aspect-video w-full rounded-2xl overflow-hidden bg-black">
+                          <img src={vlog.thumbnail} alt={vlog.title} className="w-full h-full object-cover" />
+                          <span className="absolute top-3 left-3 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-black/70 text-[#E8C39E] backdrop-blur-sm">
+                            {vlog.category}
+                          </span>
+                          <span className="absolute bottom-2 right-2 px-2 py-0.5 rounded bg-black/80 text-[10px] font-mono text-zinc-300">
+                            #{vlog.sortOrder}
+                          </span>
+                        </div>
+                        <div className="space-y-1">
+                          <h4 className="text-sm font-serif font-bold text-white line-clamp-1">{vlog.title}</h4>
+                          <p className="text-xs text-zinc-400 line-clamp-2">{vlog.description}</p>
+                        </div>
                       </div>
-                      <div className="space-y-1">
-                        <h4 className="text-sm font-serif font-bold text-white line-clamp-1">{vlog.title}</h4>
-                        <p className="text-xs text-zinc-400 line-clamp-2">{vlog.description}</p>
-                      </div>
-                      <div className="flex items-center justify-between pt-2 border-t border-white/5">
-                        <span className={`text-[10px] font-mono font-bold ${vlog.published ? "text-emerald-400" : "text-zinc-500"}`}>
+
+                      <div className="flex items-center justify-between pt-3 border-t border-white/5">
+                        <button
+                          onClick={() => handleToggleVlogPublish(vlog)}
+                          className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full border transition-all ${
+                            vlog.published
+                              ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/30"
+                              : "bg-zinc-800 text-zinc-400 border-zinc-700"
+                          }`}
+                        >
                           {vlog.published ? "Published" : "Draft"}
-                        </span>
+                        </button>
                         <div className="flex gap-2">
                           <button
                             onClick={() => {
@@ -1002,12 +1281,14 @@ export default function AdminJeenuSoniPage() {
                               setIsVlogModalOpen(true);
                             }}
                             className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-zinc-300"
+                            title="Edit Vlog"
                           >
                             <Edit size={13} />
                           </button>
                           <button
                             onClick={() => handleDeleteVlog(vlog.id)}
-                            className="p-1.5 rounded-lg bg-rose-950/60 hover:bg-rose-900 text-rose-400"
+                            className="p-1.5 rounded-lg bg-rose-950/60 hover:bg-rose-900 text-rose-400 border border-rose-500/30"
+                            title="Delete Vlog"
                           >
                             <Trash2 size={13} />
                           </button>
@@ -1023,13 +1304,18 @@ export default function AdminJeenuSoniPage() {
             {activeTab === "gallery" && (
               <div className="space-y-6">
                 <div className="flex justify-between items-center">
-                  <h3 className="text-xl font-serif font-bold text-white">Gallery Images ({gallery.length})</h3>
+                  <div>
+                    <h3 className="text-xl font-serif font-bold text-white">Gallery Lookbook ({gallery.length})</h3>
+                    <p className="text-xs text-zinc-400">High-resolution portfolio images displayed in the public aesthetic gallery.</p>
+                  </div>
                   <button
                     onClick={() => {
                       setEditingGallery(null);
                       setGalImage("");
                       setGalTitle("");
                       setGalCaption("");
+                      setGalOrder(gallery.length + 1);
+                      setGalPublished(true);
                       setIsGalleryModalOpen(true);
                     }}
                     className="py-2.5 px-4 rounded-xl bg-gradient-to-r from-rose-900 to-rose-950 text-[#FCE7D4] font-semibold text-xs border border-rose-500/30 flex items-center gap-2 shadow-lg"
@@ -1038,21 +1324,51 @@ export default function AdminJeenuSoniPage() {
                   </button>
                 </div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
                   {gallery.map((item) => (
-                    <div key={item.id} className="group relative rounded-2xl overflow-hidden bg-black aspect-square border border-white/10">
+                    <div key={item.id} className="group relative rounded-2xl overflow-hidden bg-black aspect-square border border-white/10 hover:border-rose-500/40 transition-all">
                       <img src={item.imageUrl} alt={item.title || "Gallery"} className="w-full h-full object-cover" />
-                      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity p-4 flex flex-col justify-between">
-                        <div>
-                          <div className="text-xs font-serif font-bold text-white">{item.title}</div>
-                          <div className="text-[10px] text-zinc-300 line-clamp-2">{item.caption}</div>
+                      
+                      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity p-3 flex flex-col justify-between">
+                        <div className="flex justify-between items-start">
+                          <span className="text-[10px] font-mono text-[#E8C39E]">#{item.sortOrder}</span>
+                          <button
+                            onClick={() => handleToggleGalleryPublish(item)}
+                            className={`text-[9px] font-mono px-1.5 py-0.5 rounded ${
+                              item.published ? "bg-emerald-500/40 text-emerald-200" : "bg-zinc-800 text-zinc-400"
+                            }`}
+                          >
+                            {item.published ? "Live" : "Hidden"}
+                          </button>
                         </div>
-                        <button
-                          onClick={() => handleDeleteGallery(item.id)}
-                          className="self-end p-1.5 rounded-lg bg-rose-600 text-white"
-                        >
-                          <Trash2 size={14} />
-                        </button>
+                        <div>
+                          <div className="text-xs font-serif font-bold text-white truncate">{item.title || "Untitled"}</div>
+                          <div className="text-[10px] text-zinc-300 line-clamp-1">{item.caption}</div>
+                          <div className="flex gap-2 pt-2">
+                            <button
+                              onClick={() => {
+                                setEditingGallery(item);
+                                setGalImage(item.imageUrl);
+                                setGalTitle(item.title || "");
+                                setGalCaption(item.caption || "");
+                                setGalOrder(item.sortOrder);
+                                setGalPublished(item.published);
+                                setIsGalleryModalOpen(true);
+                              }}
+                              className="p-1.5 rounded-lg bg-white/20 text-white hover:bg-white/30"
+                              title="Edit Image"
+                            >
+                              <Edit size={12} />
+                            </button>
+                            <button
+                              onClick={() => handleDeleteGallery(item.id)}
+                              className="p-1.5 rounded-lg bg-rose-600 text-white hover:bg-rose-700"
+                              title="Delete Image"
+                            >
+                              <Trash2 size={12} />
+                            </button>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -1066,7 +1382,7 @@ export default function AdminJeenuSoniPage() {
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div>
                     <h3 className="text-xl font-serif font-bold text-white">Social Links ({socials.length})</h3>
-                    <p className="text-xs text-zinc-400">Manage all platform links dynamically rendered on the public website footer & social grid.</p>
+                    <p className="text-xs text-zinc-400">Direct influencer links dynamically updated from PostgreSQL cortex_db.</p>
                   </div>
                   <button
                     onClick={() => {
@@ -1082,7 +1398,7 @@ export default function AdminJeenuSoniPage() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                   {socials.map((soc) => (
-                    <div key={soc.id} className="p-5 rounded-3xl bg-white/[0.02] border border-rose-500/10 space-y-4 flex flex-col justify-between">
+                    <div key={soc.id} className="p-5 rounded-3xl bg-white/[0.02] border border-rose-500/10 space-y-4 flex flex-col justify-between hover:border-rose-500/30 transition-all">
                       <div className="space-y-2">
                         <div className="flex items-center justify-between">
                           <span className="text-xs font-mono font-bold uppercase tracking-wider text-rose-300 bg-rose-950/60 px-2.5 py-1 rounded-full border border-rose-500/20">
@@ -1144,74 +1460,313 @@ export default function AdminJeenuSoniPage() {
         )}
       </div>
 
-      {/* LEAD DETAILS DRAWER / MODAL */}
+      {/* CREATE AD LEAD MODAL */}
+      {isLeadCreateModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-[#12070D] border border-rose-500/30 rounded-3xl p-6 max-w-lg w-full space-y-4 shadow-2xl">
+            <div className="flex items-center justify-between pb-3 border-b border-white/10">
+              <h3 className="text-lg font-serif font-bold text-white">Add New Ad Lead (PostgreSQL)</h3>
+              <button onClick={() => setIsLeadCreateModalOpen(false)} className="p-1 text-zinc-400 hover:text-white">
+                <X size={18} />
+              </button>
+            </div>
+            <form onSubmit={handleCreateLead} className="space-y-3 text-xs">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="font-bold text-zinc-300 block mb-1">Client Name *</label>
+                  <input
+                    type="text"
+                    value={leadFormName}
+                    onChange={(e) => setLeadFormName(e.target.value)}
+                    className="w-full p-3 rounded-xl bg-black border border-white/10 text-white"
+                    placeholder="e.g. Rajveer Singhania"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="font-bold text-zinc-300 block mb-1">Phone Number *</label>
+                  <input
+                    type="text"
+                    value={leadFormPhone}
+                    onChange={(e) => setLeadFormPhone(e.target.value)}
+                    className="w-full p-3 rounded-xl bg-black border border-white/10 text-white font-mono"
+                    placeholder="+919876543210"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="font-bold text-zinc-300 block mb-1">Location *</label>
+                  <input
+                    type="text"
+                    value={leadFormLocation}
+                    onChange={(e) => setLeadFormLocation(e.target.value)}
+                    className="w-full p-3 rounded-xl bg-black border border-white/10 text-white"
+                    placeholder="e.g. Jaipur, Rajasthan"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="font-bold text-zinc-300 block mb-1">Business Name</label>
+                  <input
+                    type="text"
+                    value={leadFormBusiness}
+                    onChange={(e) => setLeadFormBusiness(e.target.value)}
+                    className="w-full p-3 rounded-xl bg-black border border-white/10 text-white"
+                    placeholder="e.g. Royal Silks & Jewels"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="font-bold text-zinc-300 block mb-1">Ad Campaign Type</label>
+                  <select
+                    value={leadFormType}
+                    onChange={(e) => setLeadFormType(e.target.value)}
+                    className="w-full p-3 rounded-xl bg-black border border-white/10 text-white cursor-pointer"
+                  >
+                    <option value="Sponsored Reel & Story">Sponsored Reel & Story</option>
+                    <option value="Full Vlog Feature">Full Vlog Feature</option>
+                    <option value="Brand Ambassadorship">Brand Ambassadorship</option>
+                    <option value="Event Appearance">Event Appearance</option>
+                    <option value="Custom Collaboration">Custom Collaboration</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="font-bold text-zinc-300 block mb-1">Budget Range</label>
+                  <select
+                    value={leadFormBudget}
+                    onChange={(e) => setLeadFormBudget(e.target.value)}
+                    className="w-full p-3 rounded-xl bg-black border border-white/10 text-white cursor-pointer font-mono"
+                  >
+                    <option value="₹25,000 - ₹50,000">₹25,000 - ₹50,000</option>
+                    <option value="₹50,000 - ₹1,00,000">₹50,000 - ₹1,00,000</option>
+                    <option value="₹1,00,000 - ₹2,50,000">₹1,00,000 - ₹2,50,000</option>
+                    <option value="₹2,50,000+">₹2,50,000+</option>
+                    <option value="Flexible / Negotiable">Flexible / Negotiable</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="font-bold text-zinc-300 block mb-1">Campaign Brief / Message</label>
+                <textarea
+                  rows={2}
+                  value={leadFormMessage}
+                  onChange={(e) => setLeadFormMessage(e.target.value)}
+                  className="w-full p-3 rounded-xl bg-black border border-white/10 text-white"
+                  placeholder="Details about the campaign, shoot requirements..."
+                />
+              </div>
+
+              <div className="pt-3 flex gap-2">
+                <button
+                  type="submit"
+                  className="flex-1 py-3 rounded-xl bg-gradient-to-r from-rose-900 to-rose-950 text-white font-serif font-bold text-xs shadow-lg"
+                >
+                  Save Lead to PostgreSQL
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsLeadCreateModalOpen(false)}
+                  className="px-5 py-3 rounded-xl bg-white/10 text-white font-semibold text-xs"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* LEAD DETAILS / EDIT MODAL */}
       {selectedLead && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
           <div className="bg-[#12070D] border border-rose-500/30 rounded-3xl p-6 max-w-lg w-full space-y-4 shadow-2xl">
             <div className="flex items-center justify-between pb-3 border-b border-white/10">
-              <h3 className="text-lg font-serif font-bold text-white">Client Ad Lead Request</h3>
-              <button onClick={() => setSelectedLead(null)} className="p-1 text-zinc-400 hover:text-white">
+              <h3 className="text-lg font-serif font-bold text-white">
+                {editingLead ? "Edit Ad Lead (PostgreSQL)" : "Client Ad Lead Request"}
+              </h3>
+              <button
+                onClick={() => {
+                  setSelectedLead(null);
+                  setEditingLead(null);
+                }}
+                className="p-1 text-zinc-400 hover:text-white"
+              >
                 <X size={18} />
               </button>
             </div>
-            <div className="space-y-3 text-xs">
-              <div>
-                <span className="text-zinc-400 block font-mono">Client Name</span>
-                <span className="text-base font-serif font-bold text-white">{selectedLead.clientName}</span>
-              </div>
-              <div className="grid grid-cols-2 gap-2 font-mono">
+
+            {editingLead ? (
+              <form onSubmit={handleUpdateLead} className="space-y-3 text-xs">
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="font-bold text-zinc-300 block mb-1">Client Name</label>
+                    <input
+                      type="text"
+                      value={editingLead.clientName}
+                      onChange={(e) => setEditingLead({ ...editingLead, clientName: e.target.value })}
+                      className="w-full p-3 rounded-xl bg-black border border-white/10 text-white"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="font-bold text-zinc-300 block mb-1">Phone</label>
+                    <input
+                      type="text"
+                      value={editingLead.phone}
+                      onChange={(e) => setEditingLead({ ...editingLead, phone: e.target.value })}
+                      className="w-full p-3 rounded-xl bg-black border border-white/10 text-white font-mono"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="font-bold text-zinc-300 block mb-1">Location</label>
+                    <input
+                      type="text"
+                      value={editingLead.location}
+                      onChange={(e) => setEditingLead({ ...editingLead, location: e.target.value })}
+                      className="w-full p-3 rounded-xl bg-black border border-white/10 text-white"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="font-bold text-zinc-300 block mb-1">Status</label>
+                    <select
+                      value={editingLead.status}
+                      onChange={(e) => setEditingLead({ ...editingLead, status: e.target.value as any })}
+                      className="w-full p-3 rounded-xl bg-black border border-white/10 text-white"
+                    >
+                      <option value="NEW">NEW</option>
+                      <option value="CONTACTED">CONTACTED</option>
+                      <option value="IN_PROGRESS">IN_PROGRESS</option>
+                      <option value="COMPLETED">COMPLETED</option>
+                      <option value="CANCELLED">CANCELLED</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="font-bold text-zinc-300 block mb-1">Business Name</label>
+                    <input
+                      type="text"
+                      value={editingLead.businessName || ""}
+                      onChange={(e) => setEditingLead({ ...editingLead, businessName: e.target.value })}
+                      className="w-full p-3 rounded-xl bg-black border border-white/10 text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="font-bold text-zinc-300 block mb-1">Budget</label>
+                    <input
+                      type="text"
+                      value={editingLead.budget || ""}
+                      onChange={(e) => setEditingLead({ ...editingLead, budget: e.target.value })}
+                      className="w-full p-3 rounded-xl bg-black border border-white/10 text-white font-mono"
+                    />
+                  </div>
+                </div>
+
                 <div>
-                  <span className="text-zinc-400 block">Phone</span>
-                  <a href={`tel:${selectedLead.phone}`} className="text-emerald-400 font-bold hover:underline">
-                    {selectedLead.phone}
+                  <label className="font-bold text-zinc-300 block mb-1">Message / Brief</label>
+                  <textarea
+                    rows={3}
+                    value={editingLead.message || ""}
+                    onChange={(e) => setEditingLead({ ...editingLead, message: e.target.value })}
+                    className="w-full p-3 rounded-xl bg-black border border-white/10 text-white"
+                  />
+                </div>
+
+                <div className="pt-3 flex gap-2">
+                  <button
+                    type="submit"
+                    className="flex-1 py-3 rounded-xl bg-gradient-to-r from-rose-900 to-rose-950 text-white font-serif font-bold text-xs"
+                  >
+                    Save Changes
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setEditingLead(null)}
+                    className="px-5 py-3 rounded-xl bg-white/10 text-white font-semibold text-xs"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            ) : (
+              <div className="space-y-4 text-xs">
+                <div>
+                  <span className="text-zinc-400 block font-mono text-[10px]">Client Name</span>
+                  <span className="text-lg font-serif font-bold text-white">{selectedLead.clientName}</span>
+                </div>
+                <div className="grid grid-cols-2 gap-2 font-mono">
+                  <div>
+                    <span className="text-zinc-400 block text-[10px]">Phone</span>
+                    <a href={`tel:${selectedLead.phone}`} className="text-emerald-400 font-bold hover:underline">
+                      {selectedLead.phone}
+                    </a>
+                  </div>
+                  <div>
+                    <span className="text-zinc-400 block text-[10px]">Location</span>
+                    <span className="text-white">{selectedLead.location}</span>
+                  </div>
+                </div>
+                {selectedLead.businessName && (
+                  <div>
+                    <span className="text-zinc-400 block font-mono text-[10px]">Business Name</span>
+                    <span className="text-white font-semibold">{selectedLead.businessName}</span>
+                  </div>
+                )}
+                <div className="grid grid-cols-2 gap-2 font-mono">
+                  <div>
+                    <span className="text-zinc-400 block text-[10px]">Advertisement Type</span>
+                    <span className="text-rose-300 font-bold">{selectedLead.advertisementType}</span>
+                  </div>
+                  <div>
+                    <span className="text-zinc-400 block text-[10px]">Budget</span>
+                    <span className="text-[#E8C39E] font-bold">{selectedLead.budget}</span>
+                  </div>
+                </div>
+                {selectedLead.message && (
+                  <div>
+                    <span className="text-zinc-400 block font-mono text-[10px]">Message / Brief</span>
+                    <p className="p-3 rounded-xl bg-black/60 border border-white/5 text-zinc-300 font-sans leading-relaxed">
+                      {selectedLead.message}
+                    </p>
+                  </div>
+                )}
+
+                <div className="pt-2 flex flex-wrap gap-2">
+                  <button
+                    onClick={() => setEditingLead(selectedLead)}
+                    className="flex-1 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold flex items-center justify-center gap-1.5"
+                  >
+                    <Edit size={14} /> Edit Lead
+                  </button>
+                  <a
+                    href={`https://wa.me/${selectedLead.phone.replace(/[^0-9]/g, "")}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center justify-center gap-1.5"
+                  >
+                    <MessageCircle size={15} /> Chat on WhatsApp
                   </a>
-                </div>
-                <div>
-                  <span className="text-zinc-400 block">Location</span>
-                  <span className="text-white">{selectedLead.location}</span>
-                </div>
-              </div>
-              {selectedLead.businessName && (
-                <div>
-                  <span className="text-zinc-400 block font-mono">Business Name</span>
-                  <span className="text-white font-semibold">{selectedLead.businessName}</span>
-                </div>
-              )}
-              <div className="grid grid-cols-2 gap-2 font-mono">
-                <div>
-                  <span className="text-zinc-400 block">Advertisement Type</span>
-                  <span className="text-rose-300 font-bold">{selectedLead.advertisementType}</span>
-                </div>
-                <div>
-                  <span className="text-zinc-400 block">Budget</span>
-                  <span className="text-[#E8C39E] font-bold">{selectedLead.budget}</span>
+                  <button
+                    onClick={() => setSelectedLead(null)}
+                    className="px-5 py-2.5 rounded-xl bg-white/5 text-zinc-400 text-xs font-semibold"
+                  >
+                    Close
+                  </button>
                 </div>
               </div>
-              {selectedLead.message && (
-                <div>
-                  <span className="text-zinc-400 block font-mono">Message / Brief</span>
-                  <p className="p-3 rounded-xl bg-black/60 border border-white/5 text-zinc-300 font-sans leading-relaxed">
-                    {selectedLead.message}
-                  </p>
-                </div>
-              )}
-            </div>
-            <div className="pt-2 flex gap-2">
-              <a
-                href={`https://wa.me/${selectedLead.phone.replace(/[^0-9]/g, "")}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center justify-center gap-1.5"
-              >
-                <MessageCircle size={15} /> Chat on WhatsApp
-              </a>
-              <button
-                onClick={() => setSelectedLead(null)}
-                className="px-5 py-2.5 rounded-xl bg-white/10 text-white text-xs font-semibold"
-              >
-                Close
-              </button>
-            </div>
+            )}
           </div>
         </div>
       )}
@@ -1221,7 +1776,9 @@ export default function AdminJeenuSoniPage() {
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
           <div className="bg-[#12070D] border border-rose-500/30 rounded-3xl p-6 max-w-lg w-full space-y-4 shadow-2xl">
             <div className="flex items-center justify-between pb-3 border-b border-white/10">
-              <h3 className="text-lg font-serif font-bold text-white">{editingVlog ? "Edit Vlog Entry" : "Create New Vlog Entry"}</h3>
+              <h3 className="text-lg font-serif font-bold text-white">
+                {editingVlog ? "Edit Vlog Entry (PostgreSQL)" : "Create New Vlog Entry (PostgreSQL)"}
+              </h3>
               <button onClick={() => setIsVlogModalOpen(false)} className="p-1 text-zinc-400 hover:text-white">
                 <X size={18} />
               </button>
@@ -1237,14 +1794,30 @@ export default function AdminJeenuSoniPage() {
                   required
                 />
               </div>
-              <div>
-                <label className="font-bold text-zinc-300 block mb-1">Category</label>
-                <input
-                  type="text"
-                  value={vlogCategory}
-                  onChange={(e) => setVlogCategory(e.target.value)}
-                  className="w-full p-3 rounded-xl bg-black border border-white/10 text-white"
-                />
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="font-bold text-zinc-300 block mb-1">Category</label>
+                  <select
+                    value={vlogCategory}
+                    onChange={(e) => setVlogCategory(e.target.value)}
+                    className="w-full p-3 rounded-xl bg-black border border-white/10 text-white cursor-pointer"
+                  >
+                    <option value="Fashion & Style">Fashion & Style</option>
+                    <option value="Brand Collab">Brand Collab</option>
+                    <option value="Travel & Lifestyle">Travel & Lifestyle</option>
+                    <option value="Haute Couture">Haute Couture</option>
+                    <option value="Behind The Scenes">Behind The Scenes</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="font-bold text-zinc-300 block mb-1">Sort Order</label>
+                  <input
+                    type="number"
+                    value={vlogOrder}
+                    onChange={(e) => setVlogOrder(Number(e.target.value))}
+                    className="w-full p-3 rounded-xl bg-black border border-white/10 text-white font-mono"
+                  />
+                </div>
               </div>
               <div>
                 <label className="font-bold text-zinc-300 block mb-1">Thumbnail Image URL</label>
@@ -1255,7 +1828,7 @@ export default function AdminJeenuSoniPage() {
                     onChange={(e) => setVlogThumb(e.target.value)}
                     className="flex-1 p-3 rounded-xl bg-black border border-white/10 text-white font-mono text-[11px]"
                   />
-                  <label className="p-3 rounded-xl bg-rose-950 border border-rose-500/30 text-white font-bold cursor-pointer">
+                  <label className="p-3 rounded-xl bg-rose-950 border border-rose-500/30 text-white font-bold cursor-pointer hover:bg-rose-900">
                     <Upload size={14} />
                     <input
                       type="file"
@@ -1295,7 +1868,7 @@ export default function AdminJeenuSoniPage() {
                   className="accent-rose-500"
                 />
                 <label htmlFor="vlogPublishCheck" className="text-zinc-300 font-bold cursor-pointer">
-                  Publish Immediately
+                  Publish Immediately on Public Website
                 </label>
               </div>
               <div className="pt-3 flex gap-2">
@@ -1303,7 +1876,7 @@ export default function AdminJeenuSoniPage() {
                   type="submit"
                   className="flex-1 py-3 rounded-xl bg-gradient-to-r from-rose-900 to-rose-950 text-white font-serif font-bold text-xs"
                 >
-                  Save Vlog
+                  Save Vlog Entry
                 </button>
                 <button
                   type="button"
@@ -1318,19 +1891,21 @@ export default function AdminJeenuSoniPage() {
         </div>
       )}
 
-      {/* CREATE GALLERY IMAGE MODAL */}
+      {/* CREATE / EDIT GALLERY IMAGE MODAL */}
       {isGalleryModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
           <div className="bg-[#12070D] border border-rose-500/30 rounded-3xl p-6 max-w-md w-full space-y-4 shadow-2xl">
             <div className="flex items-center justify-between pb-3 border-b border-white/10">
-              <h3 className="text-lg font-serif font-bold text-white">Upload Gallery Image</h3>
+              <h3 className="text-lg font-serif font-bold text-white">
+                {editingGallery ? "Edit Gallery Image (PostgreSQL)" : "Upload Gallery Image (PostgreSQL)"}
+              </h3>
               <button onClick={() => setIsGalleryModalOpen(false)} className="p-1 text-zinc-400 hover:text-white">
                 <X size={18} />
               </button>
             </div>
             <form onSubmit={handleGallerySubmit} className="space-y-3 text-xs">
               <div>
-                <label className="font-bold text-zinc-300 block mb-1">Image URL</label>
+                <label className="font-bold text-zinc-300 block mb-1">Image URL *</label>
                 <div className="flex gap-2">
                   <input
                     type="text"
@@ -1339,7 +1914,7 @@ export default function AdminJeenuSoniPage() {
                     className="flex-1 p-3 rounded-xl bg-black border border-white/10 text-white font-mono text-[11px]"
                     required
                   />
-                  <label className="p-3 rounded-xl bg-rose-950 border border-rose-500/30 text-white font-bold cursor-pointer">
+                  <label className="p-3 rounded-xl bg-rose-950 border border-rose-500/30 text-white font-bold cursor-pointer hover:bg-rose-900">
                     <Upload size={14} />
                     <input
                       type="file"
@@ -1352,30 +1927,55 @@ export default function AdminJeenuSoniPage() {
                   </label>
                 </div>
               </div>
-              <div>
-                <label className="font-bold text-zinc-300 block mb-1">Title (Optional)</label>
-                <input
-                  type="text"
-                  value={galTitle}
-                  onChange={(e) => setGalTitle(e.target.value)}
-                  className="w-full p-3 rounded-xl bg-black border border-white/10 text-white"
-                />
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="font-bold text-zinc-300 block mb-1">Title</label>
+                  <input
+                    type="text"
+                    value={galTitle}
+                    onChange={(e) => setGalTitle(e.target.value)}
+                    className="w-full p-3 rounded-xl bg-black border border-white/10 text-white"
+                    placeholder="e.g. Royal Glam"
+                  />
+                </div>
+                <div>
+                  <label className="font-bold text-zinc-300 block mb-1">Sort Order</label>
+                  <input
+                    type="number"
+                    value={galOrder}
+                    onChange={(e) => setGalOrder(Number(e.target.value))}
+                    className="w-full p-3 rounded-xl bg-black border border-white/10 text-white font-mono"
+                  />
+                </div>
               </div>
               <div>
-                <label className="font-bold text-zinc-300 block mb-1">Caption (Optional)</label>
+                <label className="font-bold text-zinc-300 block mb-1">Caption</label>
                 <input
                   type="text"
                   value={galCaption}
                   onChange={(e) => setGalCaption(e.target.value)}
                   className="w-full p-3 rounded-xl bg-black border border-white/10 text-white"
+                  placeholder="e.g. Editorial portrait shoot"
                 />
+              </div>
+              <div className="flex items-center gap-2 pt-1">
+                <input
+                  type="checkbox"
+                  id="galPublishCheck"
+                  checked={galPublished}
+                  onChange={(e) => setGalPublished(e.target.checked)}
+                  className="accent-rose-500"
+                />
+                <label htmlFor="galPublishCheck" className="text-zinc-300 font-bold cursor-pointer">
+                  Display in Public Gallery
+                </label>
               </div>
               <div className="pt-3 flex gap-2">
                 <button
                   type="submit"
                   className="flex-1 py-3 rounded-xl bg-gradient-to-r from-rose-900 to-rose-950 text-white font-serif font-bold text-xs"
                 >
-                  Upload Image
+                  Save Gallery Image
                 </button>
                 <button
                   type="button"
@@ -1396,7 +1996,7 @@ export default function AdminJeenuSoniPage() {
           <div className="bg-[#12070D] border border-rose-500/30 rounded-3xl p-6 max-w-md w-full space-y-4 shadow-2xl">
             <div className="flex items-center justify-between pb-3 border-b border-white/10">
               <h3 className="text-lg font-serif font-bold text-white">
-                {editingSocial ? "Edit Social Link" : "Add New Social Link"}
+                {editingSocial ? "Edit Social Link (PostgreSQL)" : "Add New Social Link (PostgreSQL)"}
               </h3>
               <button onClick={() => setIsSocialModalOpen(false)} className="p-1 text-zinc-400 hover:text-white">
                 <X size={18} />

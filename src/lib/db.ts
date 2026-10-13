@@ -1,13 +1,13 @@
 import { Pool } from "pg";
 
 // Configure PG Pool with environment database URL or defaults
-const connectionString = process.env.DATABASE_URL || "postgresql://postgres:postgres@localhost:5432/cortex_db";
+const connectionString = process.env.DATABASE_URL || "postgresql://postgres:thind26ff@localhost:5432/cortex_db";
 
 let pool: Pool | null = null;
 try {
   pool = new Pool({
     connectionString,
-    connectionTimeoutMillis: 3000,
+    connectionTimeoutMillis: 5000,
     idleTimeoutMillis: 10000,
     max: 10,
   });
@@ -320,11 +320,86 @@ export async function initDb() {
           CREATE INDEX IF NOT EXISTS idx_jeenu_ad_leads_status ON jeenu_ad_leads(status);
           CREATE INDEX IF NOT EXISTS idx_jeenu_ad_leads_created_at ON jeenu_ad_leads(created_at DESC);
         `);
+
+        // Ensure Jeenu Soni data is seeded into PostgreSQL if tables are empty
+        const profCount = await client.query('SELECT COUNT(*) FROM jeenu_profiles');
+        if (parseInt(profCount.rows[0]?.count || '0') === 0) {
+          await client.query(`
+            INSERT INTO jeenu_profiles (
+              id, name, slug, bio, profile_image, cover_image, instagram_url, facebook_url, youtube_url,
+              whatsapp_number, contact_number, location, hero_title, hero_subtitle, preset, is_published, created_at, updated_at
+            ) VALUES (
+              'jeenu-prof-1', 'Jeenu Soni', 'jeenusoni',
+              'Professional Digital Creator & Design Vlogger based in Gajsinghpur. Specializing in high-end brand collaborations, fashion vlogging, visual storytelling, and creative direction.',
+              'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=1200&auto=format&fit=crop',
+              'https://images.unsplash.com/photo-1518895949257-7621c3c786d7?q=80&w=1600&auto=format&fit=crop',
+              'https://www.instagram.com/jot_soni_0_0?stkn=MXhvY29mdmlsY3JpeA==',
+              'https://facebook.com/jeenusoni.official',
+              'https://youtube.com/@jeenusoni',
+              '+919876543210', '+919876543210',
+              'Gajsinghpur, Rajasthan • Digital Creator',
+              'Jeenu Soni', 'Design Vlogs • Creative Profession • Style',
+              'luxury-love', true, NOW(), NOW()
+            ) ON CONFLICT (slug) DO NOTHING
+          `);
+        }
+
+        const vlogCount = await client.query('SELECT COUNT(*) FROM jeenu_vlogs');
+        if (parseInt(vlogCount.rows[0]?.count || '0') === 0) {
+          const vlogs = [
+            ['vlog-1', 'Jeenu Soni (@jot_soni_0_0) — Elegant Evening & Haute Couture Design Vlog', 'jeenu-soni-design-vlog-reel', 'A cinematic behind-the-scenes look into exclusive luxury tailoring, styling masterclass, and digital influencer aesthetics with Jeenu Soni.', 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1200&auto=format&fit=crop', 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', 'Fashion & Style', true, 1],
+            ['vlog-2', 'Jeenu Soni (@jot_soni_0_0) — Behind The Scenes Luxury Brand Collab', 'jeenu-soni-brand-collab-reel', 'Exclusive partnership campaign with premium jewelry, haute couture garments, and creative styling showcase.', 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=1200&auto=format&fit=crop', 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', 'Brand Collab', true, 2],
+            ['vlog-3', 'Jeenu Soni (@jot_soni_0_0) — Royal Heritage Staycation & Design Story', 'jeenu-soni-royal-staycation-reel', 'Exploring architecture, royal palettes, and timeless aesthetics on location in Rajasthan.', 'https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=1200&auto=format&fit=crop', 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', 'Travel & Lifestyle', true, 3]
+          ];
+          for (const v of vlogs) {
+            await client.query(`
+              INSERT INTO jeenu_vlogs (id, title, slug, description, thumbnail, video_url, category, published, sort_order, created_at, updated_at)
+              VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW(), NOW())
+              ON CONFLICT (slug) DO NOTHING
+            `, v);
+          }
+        }
+
+        const galCount = await client.query('SELECT COUNT(*) FROM jeenu_galleries');
+        if (parseInt(galCount.rows[0]?.count || '0') === 0) {
+          const gals = [
+            ['gal-1', 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=1200&auto=format&fit=crop', 'Royal Glam', 'Editorial portrait shoot under studio ambient lighting.', 1],
+            ['gal-2', 'https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=1200&auto=format&fit=crop', 'Golden Hour Story', 'Sun-drenched luxury couture lookbook series.', 2],
+            ['gal-3', 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?q=80&w=1200&auto=format&fit=crop', 'High-Fashion Walk', 'Runway-inspired creative visual direction.', 3],
+            ['gal-4', 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1200&auto=format&fit=crop', 'Elegance Redefined', 'Subtle beauty and effortless charm captured in frames.', 4],
+            ['gal-5', 'https://images.unsplash.com/photo-1529139574466-a303027c1d8b?q=80&w=1200&auto=format&fit=crop', 'Midnight Glamour', 'Dramatic silhouettes with haute couture evening attire.', 5],
+            ['gal-6', 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?q=80&w=1200&auto=format&fit=crop', 'City Lights Vibe', 'Urban aesthetic exploration with bold styling.', 6]
+          ];
+          for (const g of gals) {
+            await client.query(`
+              INSERT INTO jeenu_galleries (id, image_url, title, caption, sort_order, published, created_at, updated_at)
+              VALUES ($1, $2, $3, $4, $5, true, NOW(), NOW())
+              ON CONFLICT (id) DO NOTHING
+            `, g);
+          }
+        }
+
+        const socCount = await client.query('SELECT COUNT(*) FROM jeenu_social_links');
+        if (parseInt(socCount.rows[0]?.count || '0') === 0) {
+          const socs = [
+            ['soc-1', 'Instagram', 'https://www.instagram.com/jot_soni_0_0?stkn=MXhvY29mdmlsY3JpeA==', '@jot_soni_0_0', 'instagram', 1],
+            ['soc-2', 'YouTube', 'https://youtube.com/@jeenusoni', 'Jeenu Soni Vlogs', 'youtube', 2],
+            ['soc-3', 'WhatsApp', 'https://wa.me/919876543210', 'WhatsApp Collab', 'whatsapp', 3],
+            ['soc-4', 'Facebook', 'https://facebook.com/jeenusoni.official', 'Jeenu Soni Page', 'facebook', 4]
+          ];
+          for (const s of socs) {
+            await client.query(`
+              INSERT INTO jeenu_social_links (id, platform, url, label, icon, sort_order, is_active, created_at, updated_at)
+              VALUES ($1, $2, $3, $4, $5, $6, true, NOW(), NOW())
+              ON CONFLICT (id) DO NOTHING
+            `, s);
+          }
+        }
       } finally {
         client.release();
       }
     } catch (err) {
-      console.warn("PostgreSQL connection skipped, using memory database engine.");
+      console.warn("PostgreSQL connection skipped, using memory database engine:", err);
     }
   }
 
@@ -1148,7 +1223,7 @@ export async function deleteTeamMember(id: string) {
 }
 
 // -------------------------------------------------------------
-// JEENU SONI LUXURY VLOG & AD SYSTEM CRUD FUNCTIONS
+// JEENU SONI LUXURY VLOG & AD SYSTEM CRUD FUNCTIONS (POSTGRESQL-FIRST)
 // -------------------------------------------------------------
 
 export async function getJeenuProfile(slug: string = "jeenusoni"): Promise<JeenuProfileData | null> {
@@ -1175,32 +1250,29 @@ export async function getJeenuProfile(slug: string = "jeenusoni"): Promise<Jeenu
 
 export async function updateJeenuProfile(data: Partial<JeenuProfileData>, slug: string = "jeenusoni"): Promise<JeenuProfileData> {
   await initDb();
-  let current = await getJeenuProfile(slug);
-  if (!current) {
-    current = {
-      id: `prof-${Date.now()}`,
-      name: data.name || "Jeenu Soni",
-      slug,
-      bio: data.bio || "",
-      profileImage: data.profileImage || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=1200&auto=format&fit=crop",
-      coverImage: data.coverImage || "https://images.unsplash.com/photo-1518895949257-7621c3c786d7?q=80&w=1600&auto=format&fit=crop",
-      instagramUrl: data.instagramUrl || "https://www.instagram.com/jot_soni_0_0?stkn=MXhvY29mdmlsY3JpeA==",
-      facebookUrl: data.facebookUrl || "",
-      youtubeUrl: data.youtubeUrl || "",
-      whatsappNumber: data.whatsappNumber || "",
-      contactNumber: data.contactNumber || "",
-      location: data.location || "Mumbai • New Delhi • Dubai",
-      heroTitle: data.heroTitle || "Jeenu Soni",
-      heroSubtitle: data.heroSubtitle || "Moments • Stories • Style • Love",
-      preset: data.preset || "luxury-love",
-      customTheme: data.customTheme || null,
-      customHero: data.customHero || null,
-      customLayout: data.customLayout || null,
-      isPublished: data.isPublished !== undefined ? data.isPublished : true,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-  }
+  const current = (await getJeenuProfile(slug)) || {
+    id: `prof-${Date.now()}`,
+    name: "Jeenu Soni",
+    slug,
+    bio: "",
+    profileImage: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=1200&auto=format&fit=crop",
+    coverImage: "https://images.unsplash.com/photo-1518895949257-7621c3c786d7?q=80&w=1600&auto=format&fit=crop",
+    instagramUrl: "https://www.instagram.com/jot_soni_0_0?stkn=MXhvY29mdmlsY3JpeA==",
+    facebookUrl: "",
+    youtubeUrl: "",
+    whatsappNumber: "",
+    contactNumber: "",
+    location: "Gajsinghpur, Rajasthan • Digital Creator",
+    heroTitle: "Jeenu Soni",
+    heroSubtitle: "Design Vlogs • Creative Profession • Style",
+    preset: "luxury-love",
+    customTheme: null,
+    customHero: null,
+    customLayout: null,
+    isPublished: true,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
 
   const updated: JeenuProfileData = {
     ...current,
@@ -1210,8 +1282,12 @@ export async function updateJeenuProfile(data: Partial<JeenuProfileData>, slug: 
 
   if (pool) {
     try {
-      await pool.query(
-        `INSERT INTO jeenu_profiles (id, name, slug, bio, profile_image, cover_image, instagram_url, facebook_url, youtube_url, whatsapp_number, contact_number, location, hero_title, hero_subtitle, preset, custom_theme, custom_hero, custom_layout, is_published, created_at, updated_at)
+      const res = await pool.query(
+        `INSERT INTO jeenu_profiles (
+           id, name, slug, bio, profile_image, cover_image, instagram_url, facebook_url, youtube_url,
+           whatsapp_number, contact_number, location, hero_title, hero_subtitle, preset,
+           custom_theme, custom_hero, custom_layout, is_published, created_at, updated_at
+         )
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, NOW(), NOW())
          ON CONFLICT (slug) DO UPDATE SET
            name = EXCLUDED.name,
@@ -1231,15 +1307,61 @@ export async function updateJeenuProfile(data: Partial<JeenuProfileData>, slug: 
            custom_hero = EXCLUDED.custom_hero,
            custom_layout = EXCLUDED.custom_layout,
            is_published = EXCLUDED.is_published,
-           updated_at = NOW()`,
+           updated_at = NOW()
+         RETURNING id, name, slug, bio, profile_image AS "profileImage", cover_image AS "coverImage",
+                   instagram_url AS "instagramUrl", facebook_url AS "facebookUrl", youtube_url AS "youtubeUrl",
+                   whatsapp_number AS "whatsappNumber", contact_number AS "contactNumber", location,
+                   hero_title AS "heroTitle", hero_subtitle AS "heroSubtitle", preset,
+                   custom_theme AS "customTheme", custom_hero AS "customHero", custom_layout AS "customLayout",
+                   is_published AS "isPublished", created_at AS "createdAt", updated_at AS "updatedAt"`,
         [
-          updated.id, updated.name, slug, updated.bio, updated.profileImage, updated.coverImage, updated.instagramUrl,
-          updated.facebookUrl, updated.youtubeUrl, updated.whatsappNumber, updated.contactNumber,
-          updated.location, updated.heroTitle, updated.heroSubtitle, updated.preset,
-          JSON.stringify(updated.customTheme || {}), JSON.stringify(updated.customHero || {}), JSON.stringify(updated.customLayout || {}),
-          updated.isPublished
+          updated.id,
+          updated.name,
+          slug,
+          updated.bio,
+          updated.profileImage,
+          updated.coverImage,
+          updated.instagramUrl,
+          updated.facebookUrl,
+          updated.youtubeUrl,
+          updated.whatsappNumber,
+          updated.contactNumber,
+          updated.location,
+          updated.heroTitle,
+          updated.heroSubtitle,
+          updated.preset,
+          JSON.stringify(updated.customTheme || {}),
+          JSON.stringify(updated.customHero || {}),
+          JSON.stringify(updated.customLayout || {}),
+          updated.isPublished,
         ]
       );
+
+      // Sync social links in DB if updated has social links
+      if (updated.instagramUrl) {
+        await pool.query(
+          `INSERT INTO jeenu_social_links (id, platform, url, label, icon, sort_order, is_active, created_at, updated_at)
+           VALUES ('soc-instagram', 'Instagram', $1, '@jot_soni_0_0', 'instagram', 1, true, NOW(), NOW())
+           ON CONFLICT (id) DO UPDATE SET url = EXCLUDED.url, updated_at = NOW()`,
+          [updated.instagramUrl]
+        ).catch(() => {});
+      }
+      if (updated.youtubeUrl) {
+        await pool.query(
+          `INSERT INTO jeenu_social_links (id, platform, url, label, icon, sort_order, is_active, created_at, updated_at)
+           VALUES ('soc-youtube', 'YouTube', $1, 'Jeenu Soni Vlogs', 'youtube', 2, true, NOW(), NOW())
+           ON CONFLICT (id) DO UPDATE SET url = EXCLUDED.url, updated_at = NOW()`,
+          [updated.youtubeUrl]
+        ).catch(() => {});
+      }
+
+      if (res.rows.length > 0) {
+        const row = res.rows[0];
+        const idx = memoryJeenuProfilesStore.findIndex((p) => p.slug === slug);
+        if (idx !== -1) memoryJeenuProfilesStore[idx] = row;
+        else memoryJeenuProfilesStore.push(row);
+        return row;
+      }
     } catch (err) {
       console.warn("Postgres update error for updateJeenuProfile:", err);
     }
@@ -1248,61 +1370,11 @@ export async function updateJeenuProfile(data: Partial<JeenuProfileData>, slug: 
   const idx = memoryJeenuProfilesStore.findIndex((p) => p.slug === slug);
   if (idx !== -1) memoryJeenuProfilesStore[idx] = updated;
   else memoryJeenuProfilesStore.push(updated);
-
-  // Sync social links table/store with profile social URL fields
-  if (updated.instagramUrl || updated.facebookUrl || updated.youtubeUrl || updated.whatsappNumber) {
-    const syncs = [
-      { platform: "Instagram", url: updated.instagramUrl, label: "@jot_soni_0_0", icon: "instagram", sortOrder: 1 },
-      { platform: "YouTube", url: updated.youtubeUrl, label: "Jeenu Soni Vlogs", icon: "youtube", sortOrder: 2 },
-      { platform: "WhatsApp", url: updated.whatsappNumber ? (updated.whatsappNumber.startsWith("http") ? updated.whatsappNumber : `https://wa.me/${updated.whatsappNumber.replace(/[^0-9]/g, "")}`) : "", label: "WhatsApp Collab", icon: "whatsapp", sortOrder: 3 },
-      { platform: "Facebook", url: updated.facebookUrl, label: "Jeenu Soni Page", icon: "facebook", sortOrder: 4 },
-    ];
-
-    for (const item of syncs) {
-      if (item.url) {
-        const existing = memoryJeenuSocialLinksStore.find((s) => s.platform.toLowerCase() === item.platform.toLowerCase());
-        if (existing) {
-          existing.url = item.url;
-          existing.updatedAt = new Date().toISOString();
-          if (pool) {
-            try {
-              await pool.query(`UPDATE jeenu_social_links SET url = $1, updated_at = NOW() WHERE id = $2`, [item.url, existing.id]);
-            } catch (e) {}
-          }
-        } else {
-          const newSoc: JeenuSocialLinkData = {
-            id: `soc-${item.platform.toLowerCase()}`,
-            platform: item.platform,
-            url: item.url,
-            label: item.label,
-            icon: item.icon,
-            sortOrder: item.sortOrder,
-            isActive: true,
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-          };
-          memoryJeenuSocialLinksStore.push(newSoc);
-          if (pool) {
-            try {
-              await pool.query(
-                `INSERT INTO jeenu_social_links (id, platform, url, label, icon, sort_order, is_active, created_at, updated_at)
-                 VALUES ($1, $2, $3, $4, $5, $6, true, NOW(), NOW())
-                 ON CONFLICT (id) DO UPDATE SET url = EXCLUDED.url, updated_at = NOW()`,
-                [newSoc.id, newSoc.platform, newSoc.url, newSoc.label, newSoc.icon, newSoc.sortOrder]
-              );
-            } catch (e) {}
-          }
-        }
-      }
-    }
-  }
-
   return updated;
 }
 
 export async function getJeenuVlogs(options?: { publishedOnly?: boolean; category?: string; search?: string }): Promise<JeenuVlogData[]> {
   await initDb();
-  let vlogs: JeenuVlogData[] = [];
   if (pool) {
     try {
       let query = `SELECT id, title, slug, description, thumbnail, video_url AS "videoUrl", category, published, sort_order AS "sortOrder", created_at AS "createdAt", updated_at AS "updatedAt" FROM jeenu_vlogs WHERE 1=1`;
@@ -1313,103 +1385,123 @@ export async function getJeenuVlogs(options?: { publishedOnly?: boolean; categor
       }
       if (options?.category && options.category !== "All") {
         params.push(options.category);
-        query += ` AND category = $${params.length}`;
+        query += ` AND LOWER(category) = LOWER($${params.length})`;
+      }
+      if (options?.search) {
+        params.push(`%${options.search}%`);
+        query += ` AND (LOWER(title) LIKE LOWER($${params.length}) OR LOWER(description) LIKE LOWER($${params.length}))`;
       }
       query += ` ORDER BY sort_order ASC, created_at DESC`;
       const res = await pool.query(query, params);
-      vlogs = res.rows;
+      return res.rows;
     } catch (err) {
       console.warn("Postgres error for getJeenuVlogs, fallback to memory:", err);
     }
   }
 
-  if (vlogs.length === 0) {
-    vlogs = [...memoryJeenuVlogsStore];
-    if (options?.publishedOnly) vlogs = vlogs.filter((v) => v.published);
-    if (options?.category && options.category !== "All") vlogs = vlogs.filter((v) => v.category.toLowerCase() === options.category!.toLowerCase());
-  }
-
+  let vlogs = [...memoryJeenuVlogsStore];
+  if (options?.publishedOnly) vlogs = vlogs.filter((v) => v.published);
+  if (options?.category && options.category !== "All") vlogs = vlogs.filter((v) => v.category.toLowerCase() === options.category!.toLowerCase());
   if (options?.search) {
     const q = options.search.toLowerCase();
     vlogs = vlogs.filter((v) => v.title.toLowerCase().includes(q) || v.description.toLowerCase().includes(q));
   }
-
   return vlogs.sort((a, b) => a.sortOrder - b.sortOrder);
 }
 
 export async function createJeenuVlog(data: Partial<JeenuVlogData>): Promise<JeenuVlogData> {
   await initDb();
-  const id = `vlog-${Date.now()}`;
+  const id = data.id || `vlog-${Date.now()}`;
   const slug = data.slug || (data.title || "vlog").toLowerCase().replace(/[^a-z0-9]+/g, "-") + `-${Date.now().toString().slice(-4)}`;
-  const newVlog: JeenuVlogData = {
-    id,
-    title: data.title || "Untitled Vlog",
-    slug,
-    description: data.description || "",
-    thumbnail: data.thumbnail || "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?q=80&w=1200&auto=format&fit=crop",
-    videoUrl: data.videoUrl || "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-    category: data.category || "Lifestyle",
-    published: data.published !== undefined ? data.published : true,
-    sortOrder: data.sortOrder || memoryJeenuVlogsStore.length + 1,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  };
+  const title = data.title || "Untitled Vlog";
+  const description = data.description || "";
+  const thumbnail = data.thumbnail || "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?q=80&w=1200&auto=format&fit=crop";
+  const videoUrl = data.videoUrl || "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
+  const category = data.category || "Lifestyle";
+  const published = data.published !== undefined ? data.published : true;
+  const sortOrder = Number(data.sortOrder ?? 1);
 
   if (pool) {
     try {
-      await pool.query(
+      const res = await pool.query(
         `INSERT INTO jeenu_vlogs (id, title, slug, description, thumbnail, video_url, category, published, sort_order, created_at, updated_at)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW(), NOW())`,
-        [newVlog.id, newVlog.title, newVlog.slug, newVlog.description, newVlog.thumbnail, newVlog.videoUrl, newVlog.category, newVlog.published, newVlog.sortOrder]
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW(), NOW())
+         RETURNING id, title, slug, description, thumbnail, video_url AS "videoUrl", category, published, sort_order AS "sortOrder", created_at AS "createdAt", updated_at AS "updatedAt"`,
+        [id, title, slug, description, thumbnail, videoUrl, category, published, sortOrder]
       );
+      if (res.rows.length > 0) {
+        memoryJeenuVlogsStore.unshift(res.rows[0]);
+        return res.rows[0];
+      }
     } catch (err) {
       console.warn("Postgres create error for createJeenuVlog:", err);
     }
   }
 
+  const newVlog: JeenuVlogData = {
+    id,
+    title,
+    slug,
+    description,
+    thumbnail,
+    videoUrl,
+    category,
+    published,
+    sortOrder,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
   memoryJeenuVlogsStore.unshift(newVlog);
   return newVlog;
 }
 
 export async function updateJeenuVlog(id: string, data: Partial<JeenuVlogData>): Promise<JeenuVlogData | null> {
   await initDb();
-  let index = memoryJeenuVlogsStore.findIndex((v) => v.id === id);
-  let current = index !== -1 ? memoryJeenuVlogsStore[index] : null;
-
-  if (!current && pool) {
-    try {
-      const res = await pool.query(
-        `SELECT id, title, slug, description, thumbnail, video_url AS "videoUrl", category, published, sort_order AS "sortOrder", created_at AS "createdAt", updated_at AS "updatedAt" FROM jeenu_vlogs WHERE id = $1`,
-        [id]
-      );
-      if (res.rows.length > 0) current = res.rows[0];
-    } catch (e) {}
-  }
-
-  if (!current) return null;
-
-  const updated: JeenuVlogData = {
-    ...current,
-    ...data,
-    updatedAt: new Date().toISOString(),
-  };
-
   if (pool) {
     try {
-      await pool.query(
+      const res = await pool.query(
         `UPDATE jeenu_vlogs
-         SET title = $1, description = $2, thumbnail = $3, video_url = $4, category = $5, published = $6, sort_order = $7, updated_at = NOW()
-         WHERE id = $8`,
-        [updated.title, updated.description, updated.thumbnail, updated.videoUrl, updated.category, updated.published, updated.sortOrder, id]
+         SET title = COALESCE($1, title),
+             description = COALESCE($2, description),
+             thumbnail = COALESCE($3, thumbnail),
+             video_url = COALESCE($4, video_url),
+             category = COALESCE($5, category),
+             published = COALESCE($6, published),
+             sort_order = COALESCE($7, sort_order),
+             updated_at = NOW()
+         WHERE id = $8
+         RETURNING id, title, slug, description, thumbnail, video_url AS "videoUrl", category, published, sort_order AS "sortOrder", created_at AS "createdAt", updated_at AS "updatedAt"`,
+        [
+          data.title !== undefined ? data.title : null,
+          data.description !== undefined ? data.description : null,
+          data.thumbnail !== undefined ? data.thumbnail : null,
+          data.videoUrl !== undefined ? data.videoUrl : null,
+          data.category !== undefined ? data.category : null,
+          data.published !== undefined ? data.published : null,
+          data.sortOrder !== undefined ? Number(data.sortOrder) : null,
+          id,
+        ]
       );
+      if (res.rows.length > 0) {
+        const updated = res.rows[0];
+        const idx = memoryJeenuVlogsStore.findIndex((v) => v.id === id);
+        if (idx !== -1) memoryJeenuVlogsStore[idx] = updated;
+        else memoryJeenuVlogsStore.unshift(updated);
+        return updated;
+      }
     } catch (err) {
       console.warn("Postgres update error for updateJeenuVlog:", err);
     }
   }
 
-  if (index !== -1) memoryJeenuVlogsStore[index] = updated;
-  else memoryJeenuVlogsStore.unshift(updated);
-
+  const idx = memoryJeenuVlogsStore.findIndex((v) => v.id === id);
+  if (idx === -1) return null;
+  const updated: JeenuVlogData = {
+    ...memoryJeenuVlogsStore[idx],
+    ...data,
+    updatedAt: new Date().toISOString(),
+  };
+  memoryJeenuVlogsStore[idx] = updated;
   return updated;
 }
 
@@ -1428,79 +1520,105 @@ export async function deleteJeenuVlog(id: string): Promise<{ success: boolean }>
 
 export async function getJeenuGalleries(options?: { publishedOnly?: boolean }): Promise<JeenuGalleryData[]> {
   await initDb();
-  let gallery: JeenuGalleryData[] = [];
   if (pool) {
     try {
       let query = `SELECT id, image_url AS "imageUrl", title, caption, sort_order AS "sortOrder", published, created_at AS "createdAt", updated_at AS "updatedAt" FROM jeenu_galleries`;
       if (options?.publishedOnly) query += ` WHERE published = true`;
       query += ` ORDER BY sort_order ASC, created_at DESC`;
       const res = await pool.query(query);
-      gallery = res.rows;
+      return res.rows;
     } catch (err) {
       console.warn("Postgres error for getJeenuGalleries, fallback to memory:", err);
     }
   }
 
-  if (gallery.length === 0) {
-    gallery = [...memoryJeenuGalleriesStore];
-    if (options?.publishedOnly) gallery = gallery.filter((g) => g.published);
-  }
-
+  let gallery = [...memoryJeenuGalleriesStore];
+  if (options?.publishedOnly) gallery = gallery.filter((g) => g.published);
   return gallery.sort((a, b) => a.sortOrder - b.sortOrder);
 }
 
 export async function createJeenuGallery(data: Partial<JeenuGalleryData>): Promise<JeenuGalleryData> {
   await initDb();
-  const newItem: JeenuGalleryData = {
-    id: `gal-${Date.now()}`,
-    imageUrl: data.imageUrl || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=1200&auto=format&fit=crop",
-    title: data.title || "",
-    caption: data.caption || "",
-    sortOrder: data.sortOrder || memoryJeenuGalleriesStore.length + 1,
-    published: data.published !== undefined ? data.published : true,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  };
+  const id = data.id || `gal-${Date.now()}`;
+  const imageUrl = data.imageUrl || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=1200&auto=format&fit=crop";
+  const title = data.title || "";
+  const caption = data.caption || "";
+  const sortOrder = Number(data.sortOrder ?? 1);
+  const published = data.published !== undefined ? data.published : true;
 
   if (pool) {
     try {
-      await pool.query(
+      const res = await pool.query(
         `INSERT INTO jeenu_galleries (id, image_url, title, caption, sort_order, published, created_at, updated_at)
-         VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())`,
-        [newItem.id, newItem.imageUrl, newItem.title, newItem.caption, newItem.sortOrder, newItem.published]
+         VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())
+         RETURNING id, image_url AS "imageUrl", title, caption, sort_order AS "sortOrder", published, created_at AS "createdAt", updated_at AS "updatedAt"`,
+        [id, imageUrl, title, caption, sortOrder, published]
       );
+      if (res.rows.length > 0) {
+        memoryJeenuGalleriesStore.push(res.rows[0]);
+        return res.rows[0];
+      }
     } catch (err) {
       console.warn("Postgres create error for createJeenuGallery:", err);
     }
   }
 
+  const newItem: JeenuGalleryData = {
+    id,
+    imageUrl,
+    title,
+    caption,
+    sortOrder,
+    published,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
   memoryJeenuGalleriesStore.push(newItem);
   return newItem;
 }
 
 export async function updateJeenuGallery(id: string, data: Partial<JeenuGalleryData>): Promise<JeenuGalleryData | null> {
   await initDb();
-  const idx = memoryJeenuGalleriesStore.findIndex((g) => g.id === id);
-  if (idx === -1) return null;
-
-  const current = memoryJeenuGalleriesStore[idx];
-  const updated: JeenuGalleryData = {
-    ...current,
-    ...data,
-    updatedAt: new Date().toISOString(),
-  };
-
   if (pool) {
     try {
-      await pool.query(
-        `UPDATE jeenu_galleries SET image_url = $1, title = $2, caption = $3, sort_order = $4, published = $5, updated_at = NOW() WHERE id = $6`,
-        [updated.imageUrl, updated.title, updated.caption, updated.sortOrder, updated.published, id]
+      const res = await pool.query(
+        `UPDATE jeenu_galleries
+         SET image_url = COALESCE($1, image_url),
+             title = COALESCE($2, title),
+             caption = COALESCE($3, caption),
+             sort_order = COALESCE($4, sort_order),
+             published = COALESCE($5, published),
+             updated_at = NOW()
+         WHERE id = $6
+         RETURNING id, image_url AS "imageUrl", title, caption, sort_order AS "sortOrder", published, created_at AS "createdAt", updated_at AS "updatedAt"`,
+        [
+          data.imageUrl !== undefined ? data.imageUrl : null,
+          data.title !== undefined ? data.title : null,
+          data.caption !== undefined ? data.caption : null,
+          data.sortOrder !== undefined ? Number(data.sortOrder) : null,
+          data.published !== undefined ? data.published : null,
+          id,
+        ]
       );
+      if (res.rows.length > 0) {
+        const updated = res.rows[0];
+        const idx = memoryJeenuGalleriesStore.findIndex((g) => g.id === id);
+        if (idx !== -1) memoryJeenuGalleriesStore[idx] = updated;
+        else memoryJeenuGalleriesStore.push(updated);
+        return updated;
+      }
     } catch (err) {
       console.warn("Postgres update error for updateJeenuGallery:", err);
     }
   }
 
+  const idx = memoryJeenuGalleriesStore.findIndex((g) => g.id === id);
+  if (idx === -1) return null;
+  const updated: JeenuGalleryData = {
+    ...memoryJeenuGalleriesStore[idx],
+    ...data,
+    updatedAt: new Date().toISOString(),
+  };
   memoryJeenuGalleriesStore[idx] = updated;
   return updated;
 }
@@ -1520,80 +1638,109 @@ export async function deleteJeenuGallery(id: string): Promise<{ success: boolean
 
 export async function getJeenuSocialLinks(options?: { activeOnly?: boolean }): Promise<JeenuSocialLinkData[]> {
   await initDb();
-  let links: JeenuSocialLinkData[] = [];
   if (pool) {
     try {
       let query = `SELECT id, platform, url, label, icon, sort_order AS "sortOrder", is_active AS "isActive", created_at AS "createdAt", updated_at AS "updatedAt" FROM jeenu_social_links`;
       if (options?.activeOnly) query += ` WHERE is_active = true`;
-      query += ` ORDER BY sort_order ASC`;
+      query += ` ORDER BY sort_order ASC, created_at ASC`;
       const res = await pool.query(query);
-      links = res.rows;
+      return res.rows;
     } catch (err) {
       console.warn("Postgres error for getJeenuSocialLinks, fallback to memory:", err);
     }
   }
 
-  if (links.length === 0) {
-    links = [...memoryJeenuSocialLinksStore];
-    if (options?.activeOnly) links = links.filter((l) => l.isActive);
-  }
-
+  let links = [...memoryJeenuSocialLinksStore];
+  if (options?.activeOnly) links = links.filter((l) => l.isActive);
   return links.sort((a, b) => a.sortOrder - b.sortOrder);
 }
 
 export async function createJeenuSocialLink(data: Partial<JeenuSocialLinkData>): Promise<JeenuSocialLinkData> {
   await initDb();
-  const newItem: JeenuSocialLinkData = {
-    id: `soc-${Date.now()}`,
-    platform: data.platform || "Instagram",
-    url: data.url || "",
-    label: data.label || data.platform || "",
-    icon: data.icon || data.platform?.toLowerCase(),
-    sortOrder: data.sortOrder || memoryJeenuSocialLinksStore.length + 1,
-    isActive: data.isActive !== undefined ? data.isActive : true,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  };
+  const id = data.id || `soc-${Date.now()}`;
+  const platform = data.platform || "Instagram";
+  const url = data.url || "";
+  const label = data.label || platform;
+  const icon = data.icon || platform.toLowerCase();
+  const sortOrder = Number(data.sortOrder ?? 1);
+  const isActive = data.isActive !== undefined ? data.isActive : true;
 
   if (pool) {
     try {
-      await pool.query(
+      const res = await pool.query(
         `INSERT INTO jeenu_social_links (id, platform, url, label, icon, sort_order, is_active, created_at, updated_at)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), NOW())`,
-        [newItem.id, newItem.platform, newItem.url, newItem.label, newItem.icon, newItem.sortOrder, newItem.isActive]
+         VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), NOW())
+         RETURNING id, platform, url, label, icon, sort_order AS "sortOrder", is_active AS "isActive", created_at AS "createdAt", updated_at AS "updatedAt"`,
+        [id, platform, url, label, icon, sortOrder, isActive]
       );
+      if (res.rows.length > 0) {
+        memoryJeenuSocialLinksStore.push(res.rows[0]);
+        return res.rows[0];
+      }
     } catch (err) {
       console.warn("Postgres create error for createJeenuSocialLink:", err);
     }
   }
 
+  const newItem: JeenuSocialLinkData = {
+    id,
+    platform,
+    url,
+    label,
+    icon,
+    sortOrder,
+    isActive,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
   memoryJeenuSocialLinksStore.push(newItem);
   return newItem;
 }
 
 export async function updateJeenuSocialLink(id: string, data: Partial<JeenuSocialLinkData>): Promise<JeenuSocialLinkData | null> {
   await initDb();
-  const idx = memoryJeenuSocialLinksStore.findIndex((l) => l.id === id);
-  if (idx === -1) return null;
-
-  const current = memoryJeenuSocialLinksStore[idx];
-  const updated: JeenuSocialLinkData = {
-    ...current,
-    ...data,
-    updatedAt: new Date().toISOString(),
-  };
-
   if (pool) {
     try {
-      await pool.query(
-        `UPDATE jeenu_social_links SET platform = $1, url = $2, label = $3, icon = $4, sort_order = $5, is_active = $6, updated_at = NOW() WHERE id = $7`,
-        [updated.platform, updated.url, updated.label, updated.icon, updated.sortOrder, updated.isActive, id]
+      const res = await pool.query(
+        `UPDATE jeenu_social_links
+         SET platform = COALESCE($1, platform),
+             url = COALESCE($2, url),
+             label = COALESCE($3, label),
+             icon = COALESCE($4, icon),
+             sort_order = COALESCE($5, sort_order),
+             is_active = COALESCE($6, is_active),
+             updated_at = NOW()
+         WHERE id = $7
+         RETURNING id, platform, url, label, icon, sort_order AS "sortOrder", is_active AS "isActive", created_at AS "createdAt", updated_at AS "updatedAt"`,
+        [
+          data.platform !== undefined ? data.platform : null,
+          data.url !== undefined ? data.url : null,
+          data.label !== undefined ? data.label : null,
+          data.icon !== undefined ? data.icon : null,
+          data.sortOrder !== undefined ? Number(data.sortOrder) : null,
+          data.isActive !== undefined ? data.isActive : null,
+          id,
+        ]
       );
+      if (res.rows.length > 0) {
+        const updated = res.rows[0];
+        const idx = memoryJeenuSocialLinksStore.findIndex((l) => l.id === id);
+        if (idx !== -1) memoryJeenuSocialLinksStore[idx] = updated;
+        else memoryJeenuSocialLinksStore.push(updated);
+        return updated;
+      }
     } catch (err) {
       console.warn("Postgres update error for updateJeenuSocialLink:", err);
     }
   }
 
+  const idx = memoryJeenuSocialLinksStore.findIndex((l) => l.id === id);
+  if (idx === -1) return null;
+  const updated: JeenuSocialLinkData = {
+    ...memoryJeenuSocialLinksStore[idx],
+    ...data,
+    updatedAt: new Date().toISOString(),
+  };
   memoryJeenuSocialLinksStore[idx] = updated;
   return updated;
 }
@@ -1613,41 +1760,54 @@ export async function deleteJeenuSocialLink(id: string): Promise<{ success: bool
 
 export async function createJeenuAdLead(data: Partial<JeenuAdLeadData>): Promise<JeenuAdLeadData> {
   await initDb();
-  const id = `lead-${Date.now()}`;
-  const newLead: JeenuAdLeadData = {
-    id,
-    clientName: data.clientName || "",
-    phone: data.phone || "",
-    location: data.location || "",
-    businessName: data.businessName || "",
-    advertisementType: data.advertisementType || "General Sponsorship",
-    budget: data.budget || "Flexible",
-    message: data.message || "",
-    contactMethod: data.contactMethod || "WhatsApp",
-    status: "NEW",
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  };
+  const id = data.id || `lead-${Date.now()}`;
+  const clientName = data.clientName || "";
+  const phone = data.phone || "";
+  const location = data.location || "";
+  const businessName = data.businessName || "";
+  const advertisementType = data.advertisementType || "General Sponsorship";
+  const budget = data.budget || "Flexible";
+  const message = data.message || "";
+  const contactMethod = data.contactMethod || "WhatsApp";
+  const status = (data.status as any) || "NEW";
 
   if (pool) {
     try {
-      await pool.query(
+      const res = await pool.query(
         `INSERT INTO jeenu_ad_leads (id, client_name, phone, location, business_name, advertisement_type, budget, message, contact_method, status, created_at, updated_at)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW(), NOW())`,
-        [newLead.id, newLead.clientName, newLead.phone, newLead.location, newLead.businessName, newLead.advertisementType, newLead.budget, newLead.message, newLead.contactMethod, newLead.status]
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW(), NOW())
+         RETURNING id, client_name AS "clientName", phone, location, business_name AS "businessName", advertisement_type AS "advertisementType", budget, message, contact_method AS "contactMethod", status, created_at AS "createdAt", updated_at AS "updatedAt"`,
+        [id, clientName, phone, location, businessName, advertisementType, budget, message, contactMethod, status]
       );
+      if (res.rows.length > 0) {
+        memoryJeenuAdLeadsStore.unshift(res.rows[0]);
+        return res.rows[0];
+      }
     } catch (err) {
       console.warn("Postgres error inserting jeenu_ad_lead:", err);
     }
   }
 
+  const newLead: JeenuAdLeadData = {
+    id,
+    clientName,
+    phone,
+    location,
+    businessName,
+    advertisementType,
+    budget,
+    message,
+    contactMethod,
+    status,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
   memoryJeenuAdLeadsStore.unshift(newLead);
   return newLead;
 }
 
 export async function getJeenuAdLeads(options?: { status?: string; search?: string }): Promise<JeenuAdLeadData[]> {
   await initDb();
-  let leads: JeenuAdLeadData[] = [];
   if (pool) {
     try {
       let query = `SELECT id, client_name AS "clientName", phone, location, business_name AS "businessName", advertisement_type AS "advertisementType", budget, message, contact_method AS "contactMethod", status, created_at AS "createdAt", updated_at AS "updatedAt" FROM jeenu_ad_leads WHERE 1=1`;
@@ -1656,21 +1816,27 @@ export async function getJeenuAdLeads(options?: { status?: string; search?: stri
         params.push(options.status);
         query += ` AND status = $${params.length}`;
       }
+      if (options?.search) {
+        params.push(`%${options.search}%`);
+        query += ` AND (
+          LOWER(client_name) LIKE LOWER($${params.length}) OR
+          phone LIKE $${params.length} OR
+          LOWER(location) LIKE LOWER($${params.length}) OR
+          LOWER(COALESCE(business_name, '')) LIKE LOWER($${params.length})
+        )`;
+      }
       query += ` ORDER BY created_at DESC`;
       const res = await pool.query(query, params);
-      leads = res.rows;
+      return res.rows;
     } catch (err) {
       console.warn("Postgres error fetching jeenu_ad_leads, fallback to memory:", err);
     }
   }
 
-  if (leads.length === 0) {
-    leads = [...memoryJeenuAdLeadsStore];
-    if (options?.status && options.status !== "ALL") {
-      leads = leads.filter((l) => l.status === options.status);
-    }
+  let leads = [...memoryJeenuAdLeadsStore];
+  if (options?.status && options.status !== "ALL") {
+    leads = leads.filter((l) => l.status === options.status);
   }
-
   if (options?.search) {
     const q = options.search.toLowerCase();
     leads = leads.filter(
@@ -1681,30 +1847,98 @@ export async function getJeenuAdLeads(options?: { status?: string; search?: stri
         (l.businessName && l.businessName.toLowerCase().includes(q))
     );
   }
-
   return leads.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 }
 
-export async function updateJeenuAdLeadStatus(id: string, status: "NEW" | "CONTACTED" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED"): Promise<JeenuAdLeadData | null> {
+export async function updateJeenuAdLeadStatus(
+  id: string,
+  status: "NEW" | "CONTACTED" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED"
+): Promise<JeenuAdLeadData | null> {
   await initDb();
-  const idx = memoryJeenuAdLeadsStore.findIndex((l) => l.id === id);
-  if (idx !== -1) {
-    memoryJeenuAdLeadsStore[idx].status = status;
-    memoryJeenuAdLeadsStore[idx].updatedAt = new Date().toISOString();
-  }
-
   if (pool) {
     try {
-      await pool.query(
-        `UPDATE jeenu_ad_leads SET status = $1, updated_at = NOW() WHERE id = $2`,
+      const res = await pool.query(
+        `UPDATE jeenu_ad_leads
+         SET status = $1, updated_at = NOW()
+         WHERE id = $2
+         RETURNING id, client_name AS "clientName", phone, location, business_name AS "businessName", advertisement_type AS "advertisementType", budget, message, contact_method AS "contactMethod", status, created_at AS "createdAt", updated_at AS "updatedAt"`,
         [status, id]
       );
+      if (res.rows.length > 0) {
+        const updated = res.rows[0];
+        const idx = memoryJeenuAdLeadsStore.findIndex((l) => l.id === id);
+        if (idx !== -1) memoryJeenuAdLeadsStore[idx] = updated;
+        return updated;
+      }
     } catch (err) {
       console.warn("Postgres error updating lead status:", err);
     }
   }
 
-  return memoryJeenuAdLeadsStore.find((l) => l.id === id) || null;
+  const idx = memoryJeenuAdLeadsStore.findIndex((l) => l.id === id);
+  if (idx !== -1) {
+    memoryJeenuAdLeadsStore[idx].status = status;
+    memoryJeenuAdLeadsStore[idx].updatedAt = new Date().toISOString();
+    return memoryJeenuAdLeadsStore[idx];
+  }
+  return null;
+}
+
+export async function updateJeenuAdLead(
+  id: string,
+  data: Partial<JeenuAdLeadData>
+): Promise<JeenuAdLeadData | null> {
+  await initDb();
+  if (pool) {
+    try {
+      const res = await pool.query(
+        `UPDATE jeenu_ad_leads
+         SET client_name = COALESCE($1, client_name),
+             phone = COALESCE($2, phone),
+             location = COALESCE($3, location),
+             business_name = COALESCE($4, business_name),
+             advertisement_type = COALESCE($5, advertisement_type),
+             budget = COALESCE($6, budget),
+             message = COALESCE($7, message),
+             contact_method = COALESCE($8, contact_method),
+             status = COALESCE($9, status),
+             updated_at = NOW()
+         WHERE id = $10
+         RETURNING id, client_name AS "clientName", phone, location, business_name AS "businessName", advertisement_type AS "advertisementType", budget, message, contact_method AS "contactMethod", status, created_at AS "createdAt", updated_at AS "updatedAt"`,
+        [
+          data.clientName !== undefined ? data.clientName : null,
+          data.phone !== undefined ? data.phone : null,
+          data.location !== undefined ? data.location : null,
+          data.businessName !== undefined ? data.businessName : null,
+          data.advertisementType !== undefined ? data.advertisementType : null,
+          data.budget !== undefined ? data.budget : null,
+          data.message !== undefined ? data.message : null,
+          data.contactMethod !== undefined ? data.contactMethod : null,
+          data.status !== undefined ? data.status : null,
+          id,
+        ]
+      );
+      if (res.rows.length > 0) {
+        const updated = res.rows[0];
+        const idx = memoryJeenuAdLeadsStore.findIndex((l) => l.id === id);
+        if (idx !== -1) memoryJeenuAdLeadsStore[idx] = updated;
+        return updated;
+      }
+    } catch (err) {
+      console.warn("Postgres error updating lead:", err);
+    }
+  }
+
+  const idx = memoryJeenuAdLeadsStore.findIndex((l) => l.id === id);
+  if (idx !== -1) {
+    memoryJeenuAdLeadsStore[idx] = {
+      ...memoryJeenuAdLeadsStore[idx],
+      ...data,
+      updatedAt: new Date().toISOString(),
+    };
+    return memoryJeenuAdLeadsStore[idx];
+  }
+  return null;
 }
 
 export async function deleteJeenuAdLead(id: string): Promise<{ success: boolean }> {
@@ -1719,4 +1953,59 @@ export async function deleteJeenuAdLead(id: string): Promise<{ success: boolean 
   memoryJeenuAdLeadsStore = memoryJeenuAdLeadsStore.filter((l) => l.id !== id);
   return { success: true };
 }
+
+export async function getJeenuDbStatus(): Promise<{
+  connected: boolean;
+  database: string;
+  latencyMs: number;
+  engine: string;
+  counts: { profiles: number; vlogs: number; gallery: number; socials: number; leads: number };
+}> {
+  await initDb();
+  if (pool) {
+    try {
+      const start = Date.now();
+      const res = await pool.query(`
+        SELECT
+          (SELECT COUNT(*) FROM jeenu_profiles) as profiles_count,
+          (SELECT COUNT(*) FROM jeenu_vlogs) as vlogs_count,
+          (SELECT COUNT(*) FROM jeenu_galleries) as galleries_count,
+          (SELECT COUNT(*) FROM jeenu_social_links) as socials_count,
+          (SELECT COUNT(*) FROM jeenu_ad_leads) as leads_count
+      `);
+      const latencyMs = Date.now() - start;
+      const row = res.rows[0] || {};
+      return {
+        connected: true,
+        database: "cortex_db (PostgreSQL 18 Localhost)",
+        latencyMs,
+        engine: "PostgreSQL",
+        counts: {
+          profiles: parseInt(row.profiles_count || "0"),
+          vlogs: parseInt(row.vlogs_count || "0"),
+          gallery: parseInt(row.galleries_count || "0"),
+          socials: parseInt(row.socials_count || "0"),
+          leads: parseInt(row.leads_count || "0"),
+        },
+      };
+    } catch (err) {
+      console.warn("Database status check error:", err);
+    }
+  }
+
+  return {
+    connected: false,
+    database: "In-Memory Store (Dev Fallback)",
+    latencyMs: 0,
+    engine: "In-Memory",
+    counts: {
+      profiles: memoryJeenuProfilesStore.length,
+      vlogs: memoryJeenuVlogsStore.length,
+      gallery: memoryJeenuGalleriesStore.length,
+      socials: memoryJeenuSocialLinksStore.length,
+      leads: memoryJeenuAdLeadsStore.length,
+    },
+  };
+}
+
 
