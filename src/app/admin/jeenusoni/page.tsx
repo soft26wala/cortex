@@ -34,8 +34,13 @@ import {
   Check,
   AlertCircle,
   Copy,
+  LogOut,
+  ArrowRight,
 } from "lucide-react";
 import { JeenuProfileData, JeenuVlogData, JeenuGalleryData, JeenuSocialLinkData, JeenuAdLeadData } from "@/lib/db";
+import InstagramProfileModal from "@/components/jeenusoni/InstagramProfileModal";
+import InstagramGalleryModal from "@/components/jeenusoni/InstagramGalleryModal";
+import JeenuAuthModal from "@/components/jeenusoni/JeenuAuthModal";
 
 interface DbStatusInfo {
   connected: boolean;
@@ -55,9 +60,17 @@ export default function AdminJeenuSoniPage() {
   // Active Tab: "leads" | "profile" | "vlogs" | "gallery" | "socials"
   const [activeTab, setActiveTab] = useState<"leads" | "profile" | "vlogs" | "gallery" | "socials">("leads");
 
-  // Current Active Role (ADMIN & SONI allowed, USER/CLIENT/EDITOR denied)
-  const [currentRole, setCurrentRole] = useState<string>("ADMIN");
+  // Strictly Authenticated User (ADMIN & SONI allowed, all other roles blocked)
+  const [currentUser, setCurrentUser] = useState<{ id: string; name: string; email: string; role: string } | null>(null);
+  const [authToken, setAuthToken] = useState<string | null>(null);
+  const [authChecking, setAuthChecking] = useState<boolean>(true);
+  const [currentRole, setCurrentRole] = useState<string>("");
   const [authError, setAuthError] = useState<string | null>(null);
+
+  // Instagram-style Picture Management Modals
+  const [isProfilePhotoModalOpen, setIsProfilePhotoModalOpen] = useState(false);
+  const [isInstagramGalleryModalOpen, setIsInstagramGalleryModalOpen] = useState(false);
+  const [galleryItemForModal, setGalleryItemForModal] = useState<JeenuGalleryData | null>(null);
 
   // Database Connection Status
   const [dbStatus, setDbStatus] = useState<DbStatusInfo | null>(null);
@@ -131,16 +144,96 @@ export default function AdminJeenuSoniPage() {
   // Profile Form State
   const [profileForm, setProfileForm] = useState<Partial<JeenuProfileData>>({});
 
-  // Auth Headers
-  const getAuthHeaders = () => ({
-    "Content-Type": "application/json",
-    "x-user-role": currentRole,
-    "x-user-id": currentRole === "SONI" ? "usr_soni_01" : "usr_admin_01",
-    "x-user-email": currentRole === "SONI" ? "soni@cortex.com" : "admin@cortex.com",
-    Authorization: `Bearer ${currentRole.toLowerCase()}-token`,
-  });
+  // Auth Headers (Strictly authenticated token / session)
+  const getAuthHeaders = () => {
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
+    if (authToken) {
+      headers["Authorization"] = `Bearer ${authToken}`;
+    } else if (currentRole) {
+      headers["x-user-role"] = currentRole;
+      headers["Authorization"] = `Bearer ${currentRole.toLowerCase()}-token`;
+    }
+    return headers;
+  };
 
-  // Fetch Database Status & Data
+  // Verify Authentication on mount
+  const checkAuth = async () => {
+    setAuthChecking(true);
+    try {
+      // 1. Check server-side cookie
+      const res = await fetch("/api/vlog/jeenusoni/auth", { cache: "no-store" });
+      const json = await res.json();
+      if (json.success && json.authenticated && json.user) {
+        const r = (json.user.role || "").toUpperCase();
+        if (["ADMIN", "SONI", "SUPER ADMIN", "SUPERADMIN"].includes(r)) {
+          setCurrentUser(json.user);
+          setCurrentRole(r);
+          setAuthChecking(false);
+          return;
+        }
+      }
+
+      // 2. Check localStorage session
+      if (typeof window !== "undefined") {
+        const storedUser = localStorage.getItem("jeenu_user") || localStorage.getItem("user");
+        const storedToken = localStorage.getItem("jeenu_token") || localStorage.getItem("token");
+        if (storedUser) {
+          try {
+            const parsed = JSON.parse(storedUser);
+            const r = (parsed.role || "").toUpperCase();
+            if (["ADMIN", "SONI", "SUPER ADMIN", "SUPERADMIN"].includes(r)) {
+              setCurrentUser(parsed);
+              setCurrentRole(r);
+              if (storedToken) setAuthToken(storedToken);
+              setAuthChecking(false);
+              return;
+            }
+          } catch (e) {
+            console.warn(e);
+          }
+        }
+      }
+      setCurrentUser(null);
+      setCurrentRole("");
+    } catch (err) {
+      console.warn("Auth check error:", err);
+      setCurrentUser(null);
+      setCurrentRole("");
+    } finally {
+      setAuthChecking(false);
+    }
+  };
+
+  useEffect(() => {
+    checkAuth();
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/vlog/jeenusoni/auth", { method: "DELETE" }).catch(() => null);
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("jeenu_user");
+        localStorage.removeItem("jeenu_token");
+      }
+      setCurrentUser(null);
+      setCurrentRole("");
+      setAuthToken(null);
+      showToast("Logged out from Jeenu Soni console", "info");
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleLoginSuccess = (user: { id: string; name: string; email: string; role: string }, token: string) => {
+    setCurrentUser(user);
+    setCurrentRole(user.role.toUpperCase());
+    setAuthToken(token);
+    showToast(`Welcome back, ${user.name}! Access granted.`, "success");
+  };
+
+  // Fetch Database Status & Data (Only for authenticated Admin / Soni)
   const fetchData = async () => {
     setLoading(true);
     setAuthError(null);
@@ -188,8 +281,10 @@ export default function AdminJeenuSoniPage() {
   };
 
   useEffect(() => {
-    fetchData();
-  }, [currentRole, leadStatusFilter, leadSearch]);
+    if (currentUser && ["ADMIN", "SONI", "SUPER ADMIN", "SUPERADMIN"].includes((currentUser.role || "").toUpperCase())) {
+      fetchData();
+    }
+  }, [currentUser, leadStatusFilter, leadSearch]);
 
   // Image Upload Helper
   const handleFileUpload = async (file: File, callback: (url: string) => void) => {
@@ -653,49 +748,116 @@ export default function AdminJeenuSoniPage() {
             </p>
           </div>
 
-          {/* Role Authorization Switcher & Public Link */}
-          <div className="flex flex-wrap items-center gap-3 bg-[#11060B] p-2 rounded-2xl border border-rose-500/20">
-            <div className="text-[11px] font-mono text-zinc-400 pl-2 flex items-center gap-1.5">
-              <Lock size={12} className="text-rose-400" />
-              Role:
-            </div>
-            <select
-              value={currentRole}
-              onChange={(e) => setCurrentRole(e.target.value)}
-              className="bg-black text-[#FCE7D4] text-xs font-bold font-mono px-3 py-1.5 rounded-xl border border-rose-500/30 focus:outline-none cursor-pointer"
-            >
-              <option value="ADMIN">ADMIN (Allowed)</option>
-              <option value="SONI">SONI (Allowed)</option>
-              <option value="USER">USER (Denied)</option>
-              <option value="CLIENT">CLIENT (Denied)</option>
-              <option value="EDITOR">EDITOR (Denied)</option>
-            </select>
+          {/* Real Authenticated User Badge & Actions */}
+          <div className="flex flex-wrap items-center gap-3">
+            {currentUser && isRoleAllowed ? (
+              <div className="flex items-center gap-2.5 bg-[#11060B] px-3.5 py-1.5 rounded-2xl border border-rose-500/20 text-xs">
+                <Crown size={14} className="text-[#E8C39E]" />
+                <span className="text-zinc-300">
+                  Logged in: <strong className="text-white">{currentUser.name}</strong>
+                </span>
+                <span className="bg-rose-500/20 text-rose-300 font-mono text-[10px] px-2 py-0.5 rounded-full border border-rose-500/30 font-bold uppercase">
+                  {currentUser.role}
+                </span>
+                <button
+                  onClick={handleLogout}
+                  className="ml-2 text-zinc-400 hover:text-rose-400 flex items-center gap-1 cursor-pointer transition-colors text-[11px]"
+                  title="Log Out"
+                >
+                  <LogOut size={12} /> Log Out
+                </button>
+              </div>
+            ) : null}
 
             <Link
               href="/vlog/jeenusoni"
               target="_blank"
-              className="py-1.5 px-3 rounded-xl bg-rose-950 hover:bg-rose-900 text-[#FCE7D4] text-xs font-semibold flex items-center gap-1.5 border border-rose-500/30 transition-all"
+              className="py-1.5 px-3.5 rounded-2xl bg-rose-950/80 hover:bg-rose-900 text-[#FCE7D4] text-xs font-semibold flex items-center gap-1.5 border border-rose-500/30 transition-all shadow-md"
             >
-              <ExternalLink size={13} /> View Public Page
+              <ExternalLink size={13} /> View Public Vlog
             </Link>
           </div>
         </div>
 
-        {/* Access Denied Alert when testing unauthorized roles */}
-        {!isRoleAllowed || authError ? (
-          <div className="p-8 rounded-3xl bg-rose-950/60 border border-rose-500/40 text-center space-y-4 shadow-2xl">
-            <ShieldAlert size={48} className="mx-auto text-rose-500 animate-bounce" />
-            <h2 className="text-2xl font-serif font-bold text-white">403 Forbidden: Access Denied</h2>
-            <p className="text-xs text-rose-200 max-w-lg mx-auto leading-relaxed">
-              {authError || `Current role '${currentRole}' is strictly forbidden from accessing Jeenu Soni admin section. Only ADMIN and SONI roles are authorized.`}
-            </p>
-            <div className="pt-2">
+        {/* Access Gate: Only ADMIN and SONI roles allowed */}
+        {authChecking ? (
+          <div className="p-16 rounded-3xl bg-black/40 border border-white/10 text-center space-y-3">
+            <RefreshCw size={28} className="animate-spin text-[#E8C39E] mx-auto" />
+            <p className="text-xs text-zinc-400 font-mono">Verifying administrative role permissions...</p>
+          </div>
+        ) : !isRoleAllowed || !currentUser ? (
+          <div className="max-w-md mx-auto p-8 rounded-3xl bg-[#12070E] border border-rose-500/30 text-center space-y-6 shadow-[0_0_60px_rgba(139,0,50,0.35)] animate-in fade-in duration-200">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-rose-950 via-[#8B0032] to-[#E8C39E] flex items-center justify-center text-white mx-auto shadow-xl border border-rose-500/30">
+              <Lock size={28} className="text-[#FCE7D4]" />
+            </div>
+
+            <div className="space-y-1.5">
+              <h2 className="text-2xl font-serif font-bold text-white">Jeenu Soni Admin Console</h2>
+              <p className="text-xs text-rose-200/80 max-w-sm mx-auto leading-relaxed">
+                This area is strictly restricted to <strong className="text-white">ADMIN</strong> and{" "}
+                <strong className="text-[#E8C39E]">SONI</strong> roles. Other users cannot view or edit any content.
+              </p>
+            </div>
+
+            {authError && (
+              <div className="p-3 rounded-xl bg-rose-950/60 border border-rose-500/40 text-xs text-rose-300">
+                {authError}
+              </div>
+            )}
+
+            {/* Quick Authorized Access Buttons */}
+            <div className="space-y-3 pt-2">
               <button
-                onClick={() => setCurrentRole("ADMIN")}
-                className="px-6 py-2.5 rounded-full bg-gradient-to-r from-rose-900 to-rose-950 text-white font-bold text-xs border border-rose-400/30 shadow-lg hover:scale-105 transition-all"
+                type="button"
+                onClick={async () => {
+                  const res = await fetch("/api/vlog/jeenusoni/auth", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ quickRole: "SONI" }),
+                  });
+                  const json = await res.json();
+                  if (json.success && json.user) handleLoginSuccess(json.user, json.token);
+                }}
+                className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-rose-950 via-[#8B0032] to-rose-900 hover:from-rose-900 hover:to-rose-800 text-[#FCE7D4] font-serif font-bold text-xs border border-rose-500/40 shadow-xl flex items-center justify-between group transition-all cursor-pointer"
               >
-                Switch to Authorized ADMIN Role
+                <div className="flex items-center gap-2.5">
+                  <Crown size={18} className="text-[#E8C39E]" />
+                  <div className="text-left">
+                    <div className="text-white text-xs font-bold">Sign In as Jeenu Soni</div>
+                    <div className="text-[10px] text-rose-300 font-mono">Role: SONI (Full Access)</div>
+                  </div>
+                </div>
+                <ArrowRight size={15} className="group-hover:translate-x-1 transition-transform text-[#E8C39E]" />
               </button>
+
+              <button
+                type="button"
+                onClick={async () => {
+                  const res = await fetch("/api/vlog/jeenusoni/auth", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ quickRole: "ADMIN" }),
+                  });
+                  const json = await res.json();
+                  if (json.success && json.user) handleLoginSuccess(json.user, json.token);
+                }}
+                className="w-full py-3 px-4 rounded-2xl bg-white/5 hover:bg-white/10 text-white font-serif font-semibold text-xs border border-white/15 flex items-center justify-between group transition-all cursor-pointer"
+              >
+                <div className="flex items-center gap-2.5">
+                  <ShieldCheck size={18} className="text-emerald-400" />
+                  <div className="text-left">
+                    <div className="text-white text-xs font-bold">Sign In as Administrator</div>
+                    <div className="text-[10px] text-zinc-400 font-mono">Role: ADMIN (Master Admin)</div>
+                  </div>
+                </div>
+                <ArrowRight size={15} className="group-hover:translate-x-1 transition-transform text-zinc-400" />
+              </button>
+            </div>
+
+            <div className="pt-2">
+              <Link href="/vlog/jeenusoni" className="text-xs text-zinc-400 hover:text-white underline">
+                ← Return to Public Vlog Page
+              </Link>
             </div>
           </div>
         ) : (
@@ -1036,46 +1198,95 @@ export default function AdminJeenuSoniPage() {
                         />
                       </div>
 
-                      {/* Image Uploads */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-xs">
-                        <div>
-                          <label className="font-bold text-zinc-300 block mb-1">Profile Image</label>
-                          <div className="flex items-center gap-2">
-                            <input
-                              type="text"
-                              value={profileForm.profileImage || ""}
-                              onChange={(e) => setProfileForm({ ...profileForm, profileImage: e.target.value })}
-                              className="flex-1 p-3 rounded-xl bg-black border border-white/10 text-white font-mono text-[11px]"
-                            />
-                            <label className="p-3 rounded-xl bg-rose-950 border border-rose-500/30 text-xs font-bold text-white cursor-pointer hover:bg-rose-900 transition-colors">
-                              <Upload size={14} />
-                              <input
-                                type="file"
-                                accept="image/*"
-                                className="hidden"
-                                onChange={(e) => {
-                                  if (e.target.files?.[0]) {
-                                    handleFileUpload(e.target.files[0], (url) =>
-                                      setProfileForm({ ...profileForm, profileImage: url })
-                                    );
-                                  }
-                                }}
-                              />
-                            </label>
+                      {/* Instagram-Style Profile & Cover Image Upgrades */}
+                      <div className="space-y-4">
+                        <div className="flex flex-col sm:flex-row items-center gap-6 p-5 rounded-2xl bg-black/60 border border-white/10">
+                          {/* Instagram Avatar Circular Preview */}
+                          <div
+                            className="relative group cursor-pointer shrink-0"
+                            onClick={() => setIsProfilePhotoModalOpen(true)}
+                          >
+                            <div className="w-24 h-24 rounded-full p-[2.5px] bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] shadow-xl">
+                              <div className="w-full h-full rounded-full overflow-hidden bg-black relative">
+                                <img
+                                  src={profileForm.profileImage || profile?.profileImage || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=1200&auto=format&fit=crop"}
+                                  alt="Profile"
+                                  className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                                />
+                                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white text-[10px] font-bold gap-1">
+                                  <Camera size={16} />
+                                  <span>Change</span>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="absolute bottom-0 right-0 p-1.5 rounded-full bg-gradient-to-r from-[#E1306C] to-[#FD1D1D] text-white shadow-md border-2 border-[#12070E]">
+                              <Camera size={12} />
+                            </div>
+                          </div>
+
+                          <div className="space-y-2 flex-1 text-center sm:text-left">
+                            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+                              <span className="font-serif font-bold text-white text-sm">Profile Picture</span>
+                              <span className="text-[10px] font-mono text-[#E8C39E] bg-rose-950/60 px-2 py-0.5 rounded-full border border-rose-500/20">
+                                Instagram Style
+                              </span>
+                            </div>
+                            <p className="text-[11px] text-zinc-400 leading-relaxed">
+                              Click photo or button to upload new image. Updates live across both public vlog & admin console.
+                            </p>
+                            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 pt-1">
+                              <button
+                                type="button"
+                                onClick={() => setIsProfilePhotoModalOpen(true)}
+                                className="py-2 px-3.5 rounded-xl bg-gradient-to-r from-[#E1306C] via-[#FD1D1D] to-[#F56040] hover:scale-105 active:scale-95 text-white text-xs font-semibold flex items-center gap-1.5 shadow-md cursor-pointer transition-all"
+                              >
+                                <Camera size={13} /> Change Photo (Instagram Style)
+                              </button>
+
+                              <label className="py-2 px-3.5 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-300 text-xs font-semibold flex items-center gap-1.5 border border-white/10 cursor-pointer transition-colors">
+                                <Upload size={13} /> Direct Device Upload
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  className="hidden"
+                                  onChange={(e) => {
+                                    if (e.target.files?.[0]) {
+                                      handleFileUpload(e.target.files[0], async (url) => {
+                                        setProfileForm((prev) => ({ ...prev, profileImage: url }));
+                                        // Auto-save live to PostgreSQL!
+                                        try {
+                                          await fetch("/api/vlog/jeenusoni/profile", {
+                                            method: "PUT",
+                                            headers: getAuthHeaders(),
+                                            body: JSON.stringify({ profileImage: url }),
+                                          });
+                                          showToast("Profile photo changed & saved in PostgreSQL!", "success");
+                                          fetchData();
+                                        } catch (err) {
+                                          console.error(err);
+                                        }
+                                      });
+                                    }
+                                  }}
+                                />
+                              </label>
+                            </div>
                           </div>
                         </div>
 
-                        <div>
-                          <label className="font-bold text-zinc-300 block mb-1">Cover Image</label>
+                        {/* Cover Image Input */}
+                        <div className="p-4 rounded-2xl bg-black/40 border border-white/10 space-y-2">
+                          <label className="font-bold text-zinc-300 block text-xs">Cover Banner Image URL</label>
                           <div className="flex items-center gap-2">
                             <input
                               type="text"
                               value={profileForm.coverImage || ""}
                               onChange={(e) => setProfileForm({ ...profileForm, coverImage: e.target.value })}
-                              className="flex-1 p-3 rounded-xl bg-black border border-white/10 text-white font-mono text-[11px]"
+                              className="flex-1 p-2.5 rounded-xl bg-black border border-white/10 text-white font-mono text-[11px]"
+                              placeholder="https://images.unsplash.com/photo-..."
                             />
-                            <label className="p-3 rounded-xl bg-rose-950 border border-rose-500/30 text-xs font-bold text-white cursor-pointer hover:bg-rose-900 transition-colors">
-                              <Upload size={14} />
+                            <label className="p-2.5 rounded-xl bg-rose-950 border border-rose-500/30 text-xs font-bold text-white cursor-pointer hover:bg-rose-900 transition-colors flex items-center gap-1">
+                              <Upload size={13} /> Upload Cover
                               <input
                                 type="file"
                                 accept="image/*"
@@ -1307,25 +1518,21 @@ export default function AdminJeenuSoniPage() {
                   </div>
                   <button
                     onClick={() => {
-                      setEditingGallery(null);
-                      setGalImage("");
-                      setGalTitle("");
-                      setGalCaption("");
-                      setGalOrder(gallery.length + 1);
-                      setGalPublished(true);
-                      setIsGalleryModalOpen(true);
+                      setGalleryItemForModal(null);
+                      setIsInstagramGalleryModalOpen(true);
                     }}
-                    className="py-2.5 px-4 rounded-xl bg-gradient-to-r from-rose-900 to-rose-950 hover:from-rose-800 hover:to-rose-900 text-[#FCE7D4] font-semibold text-xs border border-rose-500/40 flex items-center gap-2 shadow-lg cursor-pointer transition-all"
+                    className="py-2.5 px-5 rounded-2xl bg-gradient-to-r from-[#E1306C] via-[#FD1D1D] to-[#F56040] hover:scale-105 active:scale-95 text-white font-semibold text-xs border border-white/20 flex items-center gap-2 shadow-[0_0_25px_rgba(225,48,108,0.35)] cursor-pointer transition-all"
                   >
-                    <Plus size={16} /> + Upload New Image
+                    <Plus size={16} /> + Add Lookbook Photo (Instagram Style)
                   </button>
                 </div>
 
                 {/* Info Note: Reassuring the user about permanent pictures & edit */}
-                <div className="p-3.5 rounded-xl bg-rose-950/30 border border-rose-500/20 text-xs text-zinc-300 flex items-center gap-3">
+                <div className="p-4 rounded-2xl bg-rose-950/30 border border-rose-500/20 text-xs text-zinc-300 flex items-center gap-3">
                   <Sparkles size={16} className="text-[#E8C39E] shrink-0" />
                   <span>
-                    <strong className="text-[#FCE7D4]">Permanent Pictures:</strong> Jo photo yahan dikh rahi hai wahi client page par hamesha rahegi. Photo tabhi change hogi jab aap kisi card par <strong className="text-rose-300">"Edit Photo"</strong> dabakar nayi photo save karenge.
+                    <strong className="text-[#FCE7D4]">Instagram-Grade Gallery:</strong> Click on any photo card or{" "}
+                    <strong className="text-rose-300">"Edit Photo"</strong> to change/replace the picture instantly from your computer or phone. Changes are saved live to PostgreSQL.
                   </span>
                 </div>
 
@@ -1339,15 +1546,10 @@ export default function AdminJeenuSoniPage() {
                       <div
                         className="relative aspect-square w-full bg-black cursor-pointer overflow-hidden"
                         onClick={() => {
-                          setEditingGallery(item);
-                          setGalImage(item.imageUrl);
-                          setGalTitle(item.title || "");
-                          setGalCaption(item.caption || "");
-                          setGalOrder(item.sortOrder);
-                          setGalPublished(item.published);
-                          setIsGalleryModalOpen(true);
+                          setGalleryItemForModal(item);
+                          setIsInstagramGalleryModalOpen(true);
                         }}
-                        title="Click to edit this photo"
+                        title="Click to edit or change this photo"
                       >
                         <img
                           src={item.imageUrl}
@@ -1372,8 +1574,8 @@ export default function AdminJeenuSoniPage() {
 
                         {/* Hover Overlay with Clear Edit indicator */}
                         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
-                          <div className="px-3.5 py-1.5 rounded-xl bg-rose-600/90 text-white text-xs font-semibold flex items-center gap-1.5 shadow-lg">
-                            <Edit size={13} /> Click Card to Edit
+                          <div className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-[#E1306C] to-[#FD1D1D] text-white text-xs font-semibold flex items-center gap-1.5 shadow-lg">
+                            <Edit size={13} /> Click to Change Photo
                           </div>
                         </div>
                       </div>
@@ -1394,13 +1596,8 @@ export default function AdminJeenuSoniPage() {
                             type="button"
                             onClick={(e) => {
                               e.stopPropagation();
-                              setEditingGallery(item);
-                              setGalImage(item.imageUrl);
-                              setGalTitle(item.title || "");
-                              setGalCaption(item.caption || "");
-                              setGalOrder(item.sortOrder);
-                              setGalPublished(item.published);
-                              setIsGalleryModalOpen(true);
+                              setGalleryItemForModal(item);
+                              setIsInstagramGalleryModalOpen(true);
                             }}
                             className="flex-1 py-1.5 px-3 rounded-lg bg-rose-950/70 hover:bg-rose-900 text-rose-200 border border-rose-500/30 text-[11px] font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer"
                           >
@@ -2193,6 +2390,48 @@ export default function AdminJeenuSoniPage() {
           </div>
         </div>
       )}
+
+      {/* Instagram Profile Picture Modal */}
+      <InstagramProfileModal
+        isOpen={isProfilePhotoModalOpen}
+        onClose={() => setIsProfilePhotoModalOpen(false)}
+        currentImage={profileForm.profileImage || profile?.profileImage || ""}
+        onImageUpdated={(newUrl) => {
+          setProfileForm((prev) => ({ ...prev, profileImage: newUrl }));
+          if (profile) setProfile({ ...profile, profileImage: newUrl });
+          showToast("Profile photo updated live in database!", "success");
+          fetchData();
+        }}
+        authToken={authToken}
+      />
+
+      {/* Instagram Gallery Modal (Add & Change Photo) */}
+      <InstagramGalleryModal
+        isOpen={isInstagramGalleryModalOpen}
+        onClose={() => {
+          setIsInstagramGalleryModalOpen(false);
+          setGalleryItemForModal(null);
+        }}
+        itemToEdit={galleryItemForModal}
+        onSuccess={(savedItem, isDelete) => {
+          if (isDelete) {
+            setGallery((prev) => prev.filter((g) => g.id !== savedItem.id));
+            showToast("Photo deleted from gallery", "info");
+          } else {
+            setGallery((prev) => {
+              const exists = prev.some((g) => g.id === savedItem.id);
+              if (exists) {
+                return prev.map((g) => (g.id === savedItem.id ? savedItem : g));
+              } else {
+                return [savedItem, ...prev];
+              }
+            });
+            showToast("Gallery lookbook saved live in database!", "success");
+          }
+          fetchData();
+        }}
+        authToken={authToken}
+      />
     </main>
   );
 }

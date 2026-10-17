@@ -25,6 +25,7 @@ export default function AboutSection({ profile }: AboutSectionProps) {
                 src={profile.coverImage || profile.profileImage || "https://images.unsplash.com/photo-1518895949257-7621c3c786d7?q=80&w=1600&auto=format&fit=crop"}
                 alt="Jeenu Soni Lifestyle"
                 fill
+                unoptimized
                 className="object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-[#0A0507] via-transparent to-transparent opacity-70" />

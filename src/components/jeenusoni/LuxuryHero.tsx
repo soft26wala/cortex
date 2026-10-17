@@ -2,16 +2,24 @@
 
 import React from "react";
 import Image from "next/image";
-import { Instagram, Sparkles, ArrowDown, Send, Play, Heart } from "lucide-react";
+import { Instagram, Sparkles, ArrowDown, Send, Play, Heart, Camera } from "lucide-react";
 import { JeenuProfileData } from "@/lib/db";
 
 interface LuxuryHeroProps {
   profile: JeenuProfileData;
   onExploreClick: () => void;
   onCollabClick: () => void;
+  canEdit?: boolean;
+  onEditProfilePic?: () => void;
 }
 
-export default function LuxuryHero({ profile, onExploreClick, onCollabClick }: LuxuryHeroProps) {
+export default function LuxuryHero({
+  profile,
+  onExploreClick,
+  onCollabClick,
+  canEdit = false,
+  onEditProfilePic,
+}: LuxuryHeroProps) {
   const instagramUrl = profile.instagramUrl?.trim();
 
   return (
@@ -99,7 +107,14 @@ export default function LuxuryHero({ profile, onExploreClick, onCollabClick }: L
 
           {/* Right Column: Female Portrait Card */}
           <div className="lg:col-span-5 flex justify-center relative">
-            <div className="relative group w-72 sm:w-80 md:w-96 aspect-[3/4] rounded-[2.5rem] overflow-hidden p-2 bg-gradient-to-b from-[#E8C39E]/30 via-rose-900/20 to-black/40 border border-[#E8C39E]/30 shadow-[0_0_50px_rgba(139,0,50,0.3)] backdrop-blur-xl">
+            <div
+              className={`relative group w-72 sm:w-80 md:w-96 aspect-[3/4] rounded-[2.5rem] overflow-hidden p-2 bg-gradient-to-b from-[#E8C39E]/30 via-rose-900/20 to-black/40 border border-[#E8C39E]/30 shadow-[0_0_50px_rgba(139,0,50,0.3)] backdrop-blur-xl ${
+                canEdit ? "cursor-pointer" : ""
+              }`}
+              onClick={() => {
+                if (canEdit && onEditProfilePic) onEditProfilePic();
+              }}
+            >
               {/* Inner Portrait Container */}
               <div className="relative w-full h-full rounded-[2.2rem] overflow-hidden bg-zinc-950">
                 <Image
@@ -107,11 +122,28 @@ export default function LuxuryHero({ profile, onExploreClick, onCollabClick }: L
                   alt={profile.name || "Jeenu Soni"}
                   fill
                   priority
+                  unoptimized
                   className="object-cover object-top group-hover:scale-105 transition-transform duration-700 ease-out"
                 />
 
                 {/* Subtle Gradient Overlay */}
                 <div className="absolute inset-0 bg-gradient-to-t from-[#0A0507] via-transparent to-transparent opacity-80" />
+
+                {/* Instagram-style Change Photo Badge (For Admin & Soni) */}
+                {canEdit && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (onEditProfilePic) onEditProfilePic();
+                    }}
+                    className="absolute top-4 right-4 z-20 flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-gradient-to-r from-[#E1306C] via-[#FD1D1D] to-[#F56040] hover:scale-105 active:scale-95 text-white text-xs font-semibold shadow-2xl border border-white/20 transition-all cursor-pointer"
+                    title="Change Profile Photo (Instagram Style)"
+                  >
+                    <Camera size={14} className="animate-pulse" />
+                    <span>Change Photo</span>
+                  </button>
+                )}
 
                 {/* Glassmorphic Floating Badge */}
                 <div className="absolute bottom-6 left-6 right-6 p-4 rounded-2xl bg-black/40 backdrop-blur-xl border border-white/10 text-white space-y-1">
