@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useSession, signOut } from "next-auth/react";
 import LuxuryHero from "@/components/jeenusoni/LuxuryHero";
 import AboutSection from "@/components/jeenusoni/AboutSection";
 import VlogSection from "@/components/jeenusoni/VlogSection";
@@ -36,6 +37,9 @@ export default function JeenuSoniClientPage({
   const [socials, setSocials] = useState<JeenuSocialLinkData[]>(initialSocials);
   const [activeVlog, setActiveVlog] = useState<JeenuVlogData | null>(null);
 
+  // Unified NextAuth Session
+  const { data: session, status: sessionStatus } = useSession();
+
   // Authentication State
   const [currentUser, setCurrentUser] = useState<{ id: string; name: string; email: string; role: string } | null>(null);
   const [authToken, setAuthToken] = useState<string | null>(null);
@@ -69,20 +73,62 @@ export default function JeenuSoniClientPage({
     return false;
   };
 
-  // Check Auth on Mount
+  // Unified Auth Sync: Shares login across cortestack.com, NextAuth Google/GitHub, and credentials
   useEffect(() => {
-    async function checkAuth() {
-      try {
-        // 1. Check server-side auth status
-        const res = await fetch("/api/vlog/jeenusoni/auth", { cache: "no-store" });
-        const json = await res.json();
+    let isMounted = true;
 
-        if (json.success && json.authenticated && json.user) {
-          setCurrentUser(json.user);
+    async function syncAuth() {
+      try {
+        // Priority 1: NextAuth Session from cookie (logged in on cortestack.com)
+        if (session?.user) {
+          const email = (session.user.email || "").toLowerCase().trim();
+          const sessionRole = ((session.user as any).role || "").toString().toUpperCase().trim();
+          const isMasterAdmin = email === "anmolsingh26ff@gmail.com" || email === "anmol@cortexwebsolutions.com";
+          const resolvedRole = isMasterAdmin ? "ADMIN" : (sessionRole || "USER");
+
+          const unifiedUser = {
+            id: (session.user as any).id || (session.user as any)._id || "usr_session",
+            name: session.user.name || (resolvedRole === "SONI" ? "Jeenu Soni" : "User"),
+            email: session.user.email || "",
+            role: resolvedRole,
+          };
+
+          if (isMounted) {
+            setCurrentUser(unifiedUser);
+            if ((session.user as any).token) setAuthToken((session.user as any).token);
+          }
+
+          if (typeof window !== "undefined") {
+            localStorage.setItem("user", JSON.stringify(unifiedUser));
+            document.cookie = `cortex_role=${resolvedRole}; path=/; max-age=2592000`;
+          }
           return;
         }
 
-        // 2. Fallback check localStorage (the / page login storage)
+        // Priority 2: Check server-side auth status (reads NextAuth cookies, jeenu_session, or bearer)
+        const res = await fetch("/api/vlog/jeenusoni/auth", { cache: "no-store" }).catch(() => null);
+        if (res && res.ok) {
+          const json = await res.json().catch(() => ({}));
+          if (json.success && json.authenticated && json.user) {
+            const resolvedRole = (json.user.role || (json.canEdit ? "ADMIN" : "USER")).toString().toUpperCase();
+            const serverUser = {
+              id: json.user.id || "usr_auth",
+              name: json.user.name || (resolvedRole === "SONI" ? "Jeenu Soni" : "User"),
+              email: json.user.email || "",
+              role: resolvedRole,
+            };
+            if (isMounted) {
+              setCurrentUser(serverUser);
+            }
+            if (typeof window !== "undefined") {
+              localStorage.setItem("user", JSON.stringify(serverUser));
+              document.cookie = `cortex_role=${resolvedRole}; path=/; max-age=2592000`;
+            }
+            return;
+          }
+        }
+
+        // Priority 3: Fallback check localStorage (the / page login storage)
         if (typeof window !== "undefined") {
           const storedUser = localStorage.getItem("user") || localStorage.getItem("jeenu_user");
           const storedToken = localStorage.getItem("token") || localStorage.getItem("jeenu_token");
@@ -90,15 +136,21 @@ export default function JeenuSoniClientPage({
           if (storedUser) {
             try {
               const parsed = JSON.parse(storedUser);
-              if (parsed) {
-                const userRole = (parsed.role || parsed.userRole || "USER").toString().toUpperCase();
-                setCurrentUser({
-                  id: parsed.id || parsed._id || "usr_auth",
-                  name: parsed.name || (userRole === "SONI" ? "Jeenu Soni" : "User"),
-                  email: parsed.email || "",
-                  role: userRole,
-                });
-                if (storedToken) setAuthToken(storedToken);
+              if (parsed && (parsed.email || parsed.name)) {
+                const email = (parsed.email || "").toLowerCase().trim();
+                const isMasterAdmin = email === "anmolsingh26ff@gmail.com" || email === "anmol@cortexwebsolutions.com";
+                const userRole = (isMasterAdmin ? "ADMIN" : (parsed.role || parsed.userRole || "USER")).toString().toUpperCase();
+
+                if (isMounted) {
+                  setCurrentUser({
+                    id: parsed.id || parsed._id || "usr_auth",
+                    name: parsed.name || (userRole === "SONI" ? "Jeenu Soni" : "User"),
+                    email: parsed.email || "",
+                    role: userRole,
+                  });
+                  if (storedToken) setAuthToken(storedToken);
+                }
+                return;
               }
             } catch (e) {
               console.warn(e);
@@ -110,9 +162,15 @@ export default function JeenuSoniClientPage({
       }
     }
 
-    checkAuth();
+    syncAuth();
 
-    // Discrete Admin/Soni access triggers (URL param ?login=true or keyboard shortcut Alt+A / Ctrl+Shift+L)
+    return () => {
+      isMounted = false;
+    };
+  }, [session, sessionStatus]);
+
+  // Keyboard shortcut listener
+  useEffect(() => {
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
       if (params.get("login") === "true" || params.get("admin") === "true") {
@@ -173,6 +231,9 @@ export default function JeenuSoniClientPage({
       }
       setCurrentUser(null);
       setAuthToken(null);
+      if (session) {
+        await signOut({ redirect: false });
+      }
       showToast("Logged out successfully", "info");
     } catch (err) {
       console.error(err);

@@ -34,15 +34,42 @@ const handler = NextAuth({
             }),
           });
           
-          if (response.ok) return true;
-          else return false;
+          if (response.ok) {
+            const json = await response.json().catch(() => ({}));
+            if (json.user) {
+              (user as any).role = json.user.role;
+              (user as any).backendToken = json.token;
+            }
+            return true;
+          } else {
+            return false;
+          }
         } catch (error) {
           console.error("DB Error:", error);
           return false;
         }
       }
       return true;
-    }
+    },
+    async jwt({ token, user }) {
+      if (user) {
+        const u = user as any;
+        const email = (user.email || "").toLowerCase().trim();
+        const isAdmin = email === "anmolsingh26ff@gmail.com" || email === "anmol@cortexwebsolutions.com";
+        token.role = u.role || (isAdmin ? "ADMIN" : "USER");
+        token.backendToken = u.backendToken;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      if (session.user) {
+        const email = (session.user.email || "").toLowerCase().trim();
+        const isAdmin = email === "anmolsingh26ff@gmail.com" || email === "anmol@cortexwebsolutions.com";
+        (session.user as any).role = (token as any).role || (isAdmin ? "ADMIN" : "USER");
+        (session.user as any).token = (token as any).backendToken;
+      }
+      return session;
+    },
   },
 
   secret: process.env.NEXTAUTH_SECRET,

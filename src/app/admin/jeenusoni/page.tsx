@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useSession, signOut } from "next-auth/react";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -158,11 +159,35 @@ export default function AdminJeenuSoniPage() {
     return headers;
   };
 
+  // Unified NextAuth session
+  const { data: session } = useSession();
+
   // Verify Authentication on mount
   const checkAuth = async () => {
     setAuthChecking(true);
     try {
-      // 1. Check server-side cookie
+      // 1. Check NextAuth unified session
+      if (session?.user) {
+        const email = (session.user.email || "").toLowerCase().trim();
+        const r = ((session.user as any).role || "").toString().toUpperCase().trim();
+        const isAdmin = email === "anmolsingh26ff@gmail.com" || email === "anmol@cortexwebsolutions.com" || r === "ADMIN";
+        const finalRole = isAdmin ? "ADMIN" : r;
+        if (["ADMIN", "SONI", "SUPER ADMIN", "SUPERADMIN"].includes(finalRole)) {
+          const userObj = {
+            id: (session.user as any).id || "usr_session",
+            name: session.user.name || (finalRole === "SONI" ? "Jeenu Soni" : "Admin"),
+            email: session.user.email || "",
+            role: finalRole,
+          };
+          setCurrentUser(userObj);
+          setCurrentRole(finalRole);
+          if ((session.user as any).token) setAuthToken((session.user as any).token);
+          setAuthChecking(false);
+          return;
+        }
+      }
+
+      // 2. Check server-side cookie
       const res = await fetch("/api/vlog/jeenusoni/auth", { cache: "no-store" });
       const json = await res.json();
       if (json.success && json.authenticated && json.user) {
@@ -175,7 +200,7 @@ export default function AdminJeenuSoniPage() {
         }
       }
 
-      // 2. Check localStorage session
+      // 3. Check localStorage session
       if (typeof window !== "undefined") {
         const storedUser = localStorage.getItem("jeenu_user") || localStorage.getItem("user");
         const storedToken = localStorage.getItem("jeenu_token") || localStorage.getItem("token");
@@ -208,7 +233,7 @@ export default function AdminJeenuSoniPage() {
 
   useEffect(() => {
     checkAuth();
-  }, []);
+  }, [session]);
 
   const handleLogout = async () => {
     try {
@@ -216,10 +241,16 @@ export default function AdminJeenuSoniPage() {
       if (typeof window !== "undefined") {
         localStorage.removeItem("jeenu_user");
         localStorage.removeItem("jeenu_token");
+        localStorage.removeItem("user");
+        localStorage.removeItem("token");
+        document.cookie = "cortex_role=; path=/; max-age=0";
       }
       setCurrentUser(null);
       setCurrentRole("");
       setAuthToken(null);
+      if (session) {
+        await signOut({ redirect: false });
+      }
       showToast("Logged out from Jeenu Soni console", "info");
     } catch (err) {
       console.error(err);

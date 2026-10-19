@@ -11,7 +11,8 @@ export async function GET(req: NextRequest) {
     const auth = await verifyJeenuAdminAuth(req);
     return NextResponse.json({
       success: true,
-      authenticated: auth.isAuthorized,
+      authenticated: auth.isAuthenticated,
+      canEdit: auth.isAuthorized,
       role: auth.role,
       user: auth.user,
     });
