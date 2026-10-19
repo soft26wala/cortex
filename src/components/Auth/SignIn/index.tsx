@@ -28,13 +28,14 @@ const Signin = ({ signInOpen }: { signInOpen?: any }) => {
     setLoading(true);
 
     try {
-      // Try local backend API first, fallback if unavailable
-      let response = await fetch(`${BACKEND_API}user/login`, {
+      // 1. Try internal same-origin proxy route first (zero CORS)
+      let response = await fetch("/api/user/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       }).catch(() => null);
 
+      // 2. Fallback to direct backend endpoints if needed
       if (!response || !response.ok) {
         response = await fetch(`https://cortex-api-htc8.onrender.com/user/login`, {
           method: "POST",
@@ -48,11 +49,34 @@ const Signin = ({ signInOpen }: { signInOpen?: any }) => {
         toast.success("Login Successful!");
         localStorage.setItem("token", result.token);
         localStorage.setItem("user", JSON.stringify(result.user));
+
+        // Sync cortex_role cookie for instant server and client recognition
+        const roleUpper = (result.user?.role || "USER").toString().trim().toUpperCase();
+        document.cookie = `cortex_role=${roleUpper}; path=/; max-age=2592000`;
+
         authDialog?.setIsSuccessDialogOpen(true);
         if (signInOpen) signInOpen(false);
 
         setTimeout(() => {
-          window.location.reload();
+          if (typeof window !== "undefined") {
+            const params = new URLSearchParams(window.location.search);
+            const redirectParam = params.get("redirect") || params.get("callbackUrl");
+            if (redirectParam) {
+              window.location.href = redirectParam;
+              return;
+            }
+            if (window.location.pathname === "/signin" || window.location.pathname === "/signup") {
+              const ref = document.referrer;
+              if (ref && !ref.includes("/signin") && !ref.includes("/signup") && ref.includes(window.location.origin)) {
+                window.location.href = ref;
+                return;
+              }
+              window.location.href = "/";
+              return;
+            }
+            // If on /vlog/jeenusoni or another page, reload right on that page!
+            window.location.reload();
+          }
         }, 800);
       } else {
         const errJson = response ? await response.json().catch(() => ({})) : {};

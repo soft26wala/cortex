@@ -11,9 +11,11 @@ import VideoModal from "@/components/jeenusoni/VideoModal";
 import InstagramProfileModal from "@/components/jeenusoni/InstagramProfileModal";
 import InstagramGalleryModal from "@/components/jeenusoni/InstagramGalleryModal";
 import JeenuAuthModal from "@/components/jeenusoni/JeenuAuthModal";
+import Signin from "@/components/Auth/SignIn";
+import SignUp from "@/components/Auth/SignUp";
 import { JeenuProfileData, JeenuVlogData, JeenuGalleryData, JeenuSocialLinkData } from "@/lib/db";
 import Link from "next/link";
-import { Crown, Sparkles, Lock, Mail, ShieldCheck, Camera, LogOut, CheckCircle2, AlertCircle } from "lucide-react";
+import { Crown, Sparkles, Lock, Mail, ShieldCheck, Camera, LogOut, CheckCircle2, AlertCircle, User, X } from "lucide-react";
 
 interface JeenuSoniClientPageProps {
   initialProfile: JeenuProfileData;
@@ -34,10 +36,12 @@ export default function JeenuSoniClientPage({
   const [socials, setSocials] = useState<JeenuSocialLinkData[]>(initialSocials);
   const [activeVlog, setActiveVlog] = useState<JeenuVlogData | null>(null);
 
-  // Authentication State (Only ADMIN & SONI roles can edit)
+  // Authentication State
   const [currentUser, setCurrentUser] = useState<{ id: string; name: string; email: string; role: string } | null>(null);
   const [authToken, setAuthToken] = useState<string | null>(null);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isSignInOpen, setIsSignInOpen] = useState(false);
+  const [isSignUpOpen, setIsSignUpOpen] = useState(false);
 
   // Instagram-style Modals
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
@@ -54,6 +58,17 @@ export default function JeenuSoniClientPage({
     }, 3500);
   };
 
+  const isAuthorizedRole = (user: any): boolean => {
+    if (!user) return false;
+    const r = (user.role || user.userRole || user.type || "").toString().trim().toUpperCase();
+    const e = (user.email || "").toString().trim().toLowerCase();
+    // Strictly allowed roles: ADMIN or SONI
+    if (["ADMIN", "SONI", "SUPER ADMIN", "SUPERADMIN"].includes(r)) return true;
+    // Explicit master admin owner email
+    if (e === "anmolsingh26ff@gmail.com" || e === "anmol@cortexwebsolutions.com") return true;
+    return false;
+  };
+
   // Check Auth on Mount
   useEffect(() => {
     async function checkAuth() {
@@ -63,24 +78,26 @@ export default function JeenuSoniClientPage({
         const json = await res.json();
 
         if (json.success && json.authenticated && json.user) {
-          const roleUpper = (json.user.role || "").toUpperCase();
-          if (["ADMIN", "SONI", "SUPER ADMIN", "SUPERADMIN"].includes(roleUpper)) {
-            setCurrentUser(json.user);
-            return;
-          }
+          setCurrentUser(json.user);
+          return;
         }
 
-        // 2. Fallback check localStorage
+        // 2. Fallback check localStorage (the / page login storage)
         if (typeof window !== "undefined") {
-          const storedUser = localStorage.getItem("jeenu_user") || localStorage.getItem("user");
-          const storedToken = localStorage.getItem("jeenu_token") || localStorage.getItem("token");
+          const storedUser = localStorage.getItem("user") || localStorage.getItem("jeenu_user");
+          const storedToken = localStorage.getItem("token") || localStorage.getItem("jeenu_token");
 
           if (storedUser) {
             try {
               const parsed = JSON.parse(storedUser);
-              const roleUpper = (parsed.role || "").toUpperCase();
-              if (["ADMIN", "SONI", "SUPER ADMIN", "SUPERADMIN"].includes(roleUpper)) {
-                setCurrentUser(parsed);
+              if (parsed) {
+                const userRole = (parsed.role || parsed.userRole || "USER").toString().toUpperCase();
+                setCurrentUser({
+                  id: parsed.id || parsed._id || "usr_auth",
+                  name: parsed.name || (userRole === "SONI" ? "Jeenu Soni" : "User"),
+                  email: parsed.email || "",
+                  role: userRole,
+                });
                 if (storedToken) setAuthToken(storedToken);
               }
             } catch (e) {
@@ -94,6 +111,24 @@ export default function JeenuSoniClientPage({
     }
 
     checkAuth();
+
+    // Discrete Admin/Soni access triggers (URL param ?login=true or keyboard shortcut Alt+A / Ctrl+Shift+L)
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("login") === "true" || params.get("admin") === "true") {
+        setIsAuthModalOpen(true);
+      }
+
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if ((e.altKey && e.key.toLowerCase() === "a") || (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "l")) {
+          e.preventDefault();
+          setIsAuthModalOpen(true);
+        }
+      };
+
+      window.addEventListener("keydown", handleKeyDown);
+      return () => window.removeEventListener("keydown", handleKeyDown);
+    }
   }, []);
 
   // Live DB sync
@@ -128,10 +163,13 @@ export default function JeenuSoniClientPage({
 
   const handleLogout = async () => {
     try {
-      await fetch("/api/vlog/jeenusoni/auth", { method: "DELETE" });
+      await fetch("/api/vlog/jeenusoni/auth", { method: "DELETE" }).catch(() => null);
       if (typeof window !== "undefined") {
         localStorage.removeItem("jeenu_token");
         localStorage.removeItem("jeenu_user");
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        document.cookie = "cortex_role=; path=/; max-age=0";
       }
       setCurrentUser(null);
       setAuthToken(null);
@@ -170,10 +208,7 @@ export default function JeenuSoniClientPage({
     }
   };
 
-  const canEdit = Boolean(
-    currentUser &&
-      ["ADMIN", "SONI", "SUPER ADMIN", "SUPERADMIN"].includes((currentUser.role || "").toUpperCase())
-  );
+  const canEdit = isAuthorizedRole(currentUser);
 
   // Determine Preset Theme Styling
   const preset = profile.preset || "luxury-love";
@@ -252,46 +287,82 @@ export default function JeenuSoniClientPage({
           canEdit ? "top-10" : "top-0"
         }`}
       >
-        <Link href="/vlog/jeenusoni" className="flex items-center gap-2 group">
+        <div
+          onDoubleClick={() => {
+            if (!canEdit) setIsAuthModalOpen(true);
+          }}
+          className="flex items-center gap-2 group cursor-pointer select-none"
+          title="Jeenu Soni Official"
+        >
           <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-rose-900 to-[#E8C39E] flex items-center justify-center text-white shadow-md">
             <Crown size={16} />
           </div>
           <span className="font-serif font-bold text-lg text-white group-hover:text-[#E8C39E] transition-colors">
             Jeenu Soni
           </span>
-        </Link>
+        </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2.5 sm:gap-4">
           <button
             onClick={() => scrollToSection("vlog-section")}
-            className="text-xs font-semibold text-zinc-300 hover:text-white hidden sm:block transition-colors"
+            className="text-xs font-semibold text-zinc-300 hover:text-white hidden sm:block transition-colors cursor-pointer"
           >
             Vlogs
           </button>
           <button
             onClick={() => scrollToSection("collab-form")}
-            className="px-4 py-2 rounded-full bg-gradient-to-r from-rose-950 to-zinc-900 text-[#FCE7D4] border border-[#E8C39E]/30 text-xs font-serif font-bold hover:scale-105 transition-all shadow-md"
+            className="px-4 py-2 rounded-full bg-gradient-to-r from-rose-950 to-zinc-900 text-[#FCE7D4] border border-[#E8C39E]/30 text-xs font-serif font-bold hover:scale-105 transition-all shadow-md cursor-pointer"
           >
             Collaborate & Ads
           </button>
 
-          {/* Admin Button: If logged in, links to admin. If not, opens login modal */}
-          {canEdit ? (
-            <Link
-              href="/admin/jeenusoni"
-              className="p-2 rounded-full bg-rose-950/80 hover:bg-rose-900 text-rose-200 border border-rose-500/40 text-xs flex items-center gap-1 shadow-md"
-              title="Open Admin Console"
-            >
-              <ShieldCheck size={14} className="text-emerald-400" />
-            </Link>
+          {/* User Auth Buttons / Profile Indicator (Matching / page) */}
+          {!currentUser ? (
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <button
+                type="button"
+                onClick={() => setIsSignInOpen(true)}
+                className="px-3 sm:px-4 py-1.5 rounded-full text-xs font-semibold text-zinc-300 hover:text-white hover:bg-white/10 transition-all cursor-pointer"
+              >
+                Sign In
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsSignUpOpen(true)}
+                className="px-3.5 sm:px-5 py-1.5 rounded-full text-xs font-bold text-white bg-gradient-to-r from-rose-900 via-[#8B0032] to-rose-950 border border-[#E8C39E]/40 hover:border-[#E8C39E] shadow-md hover:scale-105 active:scale-95 transition-all cursor-pointer"
+              >
+                Sign Up
+              </button>
+            </div>
           ) : (
-            <button
-              onClick={() => setIsAuthModalOpen(true)}
-              className="p-2 rounded-full bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-white border border-white/10 text-xs flex items-center gap-1 cursor-pointer"
-              title="Admin & Soni Login"
-            >
-              <Lock size={14} />
-            </button>
+            <div className="flex items-center gap-2">
+              {/* Admin Link: Strictly visible ONLY when logged in as ADMIN or SONI */}
+              {canEdit && (
+                <Link
+                  href="/admin/jeenusoni"
+                  className="p-2 rounded-full bg-rose-950/80 hover:bg-rose-900 text-rose-200 border border-rose-500/40 text-xs flex items-center gap-1 shadow-md"
+                  title="Open Admin Console"
+                >
+                  <ShieldCheck size={14} className="text-emerald-400" />
+                </Link>
+              )}
+
+              {/* Logged-In User Indicator Pill with Logout */}
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs">
+                <User size={13} className="text-[#E8C39E]" />
+                <span className="text-zinc-200 font-medium truncate max-w-[90px] sm:max-w-[130px]">
+                  {currentUser.name}
+                </span>
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="p-1 rounded-full text-zinc-400 hover:text-rose-400 hover:bg-white/10 transition-colors cursor-pointer"
+                  title="Log Out"
+                >
+                  <LogOut size={12} />
+                </button>
+              </div>
+            </div>
           )}
         </div>
       </header>
@@ -302,7 +373,11 @@ export default function JeenuSoniClientPage({
         onExploreClick={() => scrollToSection("vlog-section")}
         onCollabClick={() => scrollToSection("collab-form")}
         canEdit={canEdit}
+        onRequestLogin={() => setIsAuthModalOpen(true)}
         onEditProfilePic={() => setIsProfileModalOpen(true)}
+        onProfilePicUploaded={(newUrl) => handleProfileImageUpdated(newUrl)}
+        authToken={authToken}
+        currentUserRole={currentUser?.role || null}
       />
 
       {/* About Section */}
@@ -323,6 +398,9 @@ export default function JeenuSoniClientPage({
           setGalleryItemToEdit(item);
           setIsGalleryModalOpen(true);
         }}
+        onGalleryUploaded={(newItem) => handleGallerySuccess(newItem, false)}
+        authToken={authToken}
+        currentUserRole={currentUser?.role || null}
       />
 
       {/* Client Advertisement Lead Form */}
@@ -403,26 +481,34 @@ export default function JeenuSoniClientPage({
       {/* Video Modal Lightbox */}
       <VideoModal vlog={activeVlog} onClose={() => setActiveVlog(null)} />
 
-      {/* Instagram-style Profile Picture Modal */}
-      <InstagramProfileModal
-        isOpen={isProfileModalOpen}
-        onClose={() => setIsProfileModalOpen(false)}
-        currentImage={profile.profileImage}
-        onImageUpdated={handleProfileImageUpdated}
-        authToken={authToken}
-      />
+      {/* Instagram-style Profile Picture & Details Modal (Strictly for ADMIN & SONI) */}
+      {canEdit && (
+        <InstagramProfileModal
+          isOpen={isProfileModalOpen}
+          onClose={() => setIsProfileModalOpen(false)}
+          profile={profile}
+          onProfileUpdated={(updated) => {
+            setProfile((prev) => ({ ...prev, ...updated }));
+            showToast("Profile details updated successfully!", "success");
+          }}
+          authToken={authToken}
+          currentUserRole={currentUser?.role || null}
+        />
+      )}
 
-      {/* Instagram-style Gallery Modal (Add & Change Photo) */}
-      <InstagramGalleryModal
-        isOpen={isGalleryModalOpen}
-        onClose={() => {
-          setIsGalleryModalOpen(false);
-          setGalleryItemToEdit(null);
-        }}
-        itemToEdit={galleryItemToEdit}
-        onSuccess={handleGallerySuccess}
-        authToken={authToken}
-      />
+      {/* Instagram-style Gallery Modal (Add & Change Photo, Strictly for ADMIN & SONI) */}
+      {canEdit && (
+        <InstagramGalleryModal
+          isOpen={isGalleryModalOpen}
+          onClose={() => {
+            setIsGalleryModalOpen(false);
+            setGalleryItemToEdit(null);
+          }}
+          itemToEdit={galleryItemToEdit}
+          onSuccess={handleGallerySuccess}
+          authToken={authToken}
+        />
+      )}
 
       {/* Admin / Soni Login Modal */}
       <JeenuAuthModal
@@ -434,6 +520,52 @@ export default function JeenuSoniClientPage({
           showToast(`Welcome back, ${user.name}! Direct editing enabled.`, "success");
         }}
       />
+
+      {/* Standard Cortex Sign In Modal (Exact same as / page) */}
+      {isSignInOpen && (
+        <div
+          onClick={() => setIsSignInOpen(false)}
+          className="fixed inset-0 z-[999999] w-screen h-screen bg-black/85 backdrop-blur-2xl flex items-center justify-center p-4 overflow-y-auto"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="relative mx-auto my-auto w-full max-w-md max-h-[90vh] overflow-y-auto rounded-3xl bg-[#0B0B0F] border border-white/[0.12] p-7 text-center shadow-[0_20px_60px_rgba(0,0,0,0.9)]"
+          >
+            <button
+              type="button"
+              onClick={() => setIsSignInOpen(false)}
+              className="hover:bg-white/10 p-2 rounded-full absolute top-4 right-4 text-zinc-400 hover:text-white transition-colors cursor-pointer"
+              aria-label="Close Sign In Modal"
+            >
+              <X size={18} />
+            </button>
+            <Signin signInOpen={(val: boolean) => setIsSignInOpen(val)} />
+          </div>
+        </div>
+      )}
+
+      {/* Standard Cortex Sign Up Modal (Exact same as / page) */}
+      {isSignUpOpen && (
+        <div
+          onClick={() => setIsSignUpOpen(false)}
+          className="fixed inset-0 z-[999999] w-screen h-screen bg-black/85 backdrop-blur-2xl flex items-center justify-center p-4 overflow-y-auto"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="relative mx-auto my-auto w-full max-w-md max-h-[90vh] overflow-y-auto rounded-3xl bg-[#0B0B0F] border border-white/[0.12] p-7 text-center shadow-[0_20px_60px_rgba(0,0,0,0.9)]"
+          >
+            <button
+              type="button"
+              onClick={() => setIsSignUpOpen(false)}
+              className="hover:bg-white/10 p-2 rounded-full absolute top-4 right-4 text-zinc-400 hover:text-white transition-colors cursor-pointer"
+              aria-label="Close Sign Up Modal"
+            >
+              <X size={18} />
+            </button>
+            <SignUp signUpOpen={(val: boolean) => setIsSignUpOpen(val)} />
+          </div>
+        </div>
+      )}
 
       {/* Footer */}
       <footer className="py-12 px-4 bg-black border-t border-rose-500/10 text-center text-xs font-mono text-zinc-500 relative">

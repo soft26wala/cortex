@@ -730,7 +730,7 @@ function seedInitialData() {
         name: "Jeenu Soni",
         slug: "jeenusoni",
         bio: "Professional Digital Creator & Design Vlogger based in Gajsinghpur. Specializing in high-end brand collaborations, fashion vlogging, visual storytelling, and creative direction.",
-        profileImage: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=1200&auto=format&fit=crop",
+        profileImage: "",
         coverImage: "https://images.unsplash.com/photo-1518895949257-7621c3c786d7?q=80&w=1600&auto=format&fit=crop",
         instagramUrl: "https://www.instagram.com/jot_soni_0_0?stkn=MXhvY29mdmlsY3JpeA==",
         facebookUrl: "https://www.facebook.com/jeenu.soni.5",
@@ -796,48 +796,7 @@ function seedInitialData() {
   }
 
   if (memoryJeenuGalleriesStore.length === 0) {
-    memoryJeenuGalleriesStore = [
-      {
-        id: "gal-1",
-        imageUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=1200&auto=format&fit=crop",
-        title: "Golden Hour Elegance",
-        caption: "Basking in sunset light in silk and gold accents.",
-        sortOrder: 1,
-        published: true,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      },
-      {
-        id: "gal-2",
-        imageUrl: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1200&auto=format&fit=crop",
-        title: "Couture Dreams",
-        caption: "Embracing soft pink textures and timeless silhouettes.",
-        sortOrder: 2,
-        published: true,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      },
-      {
-        id: "gal-3",
-        imageUrl: "https://images.unsplash.com/photo-1529139574466-a303027c1d8b?q=80&w=1200&auto=format&fit=crop",
-        title: "Chic Urban Chic",
-        caption: "Modern street glamour in high-fashion black & rose tones.",
-        sortOrder: 3,
-        published: true,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      },
-      {
-        id: "gal-4",
-        imageUrl: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1200&auto=format&fit=crop",
-        title: "Radiant Smiles",
-        caption: "Pure joy and intimate romantic stories captured.",
-        sortOrder: 4,
-        published: true,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      },
-    ];
+    memoryJeenuGalleriesStore = [];
   }
 
   if (memoryJeenuSocialLinksStore.length === 0) {
@@ -1538,7 +1497,7 @@ export async function getJeenuGalleries(options?: { publishedOnly?: boolean }): 
 export async function createJeenuGallery(data: Partial<JeenuGalleryData>): Promise<JeenuGalleryData> {
   await initDb();
   const id = data.id || `gal-${Date.now()}`;
-  const imageUrl = data.imageUrl || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=1200&auto=format&fit=crop";
+  const imageUrl = data.imageUrl || "";
   const title = data.title || "";
   const caption = data.caption || "";
   const sortOrder = Number(data.sortOrder ?? 1);

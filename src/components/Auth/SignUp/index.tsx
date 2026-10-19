@@ -57,28 +57,91 @@ const SignUp = ({ signUpOpen }: { signUpOpen?: any }) => {
         data.append("photo", avatarFile);
       }
 
-      const response = await fetch(`${BACKEND_API}user/signup-manual`, {
-        method: "POST",
-        body: data,
-      });
+      let response: Response | null = null;
+      let lastNetworkErr: any = null;
 
-      const result = await response.json();
+      // 1. First try the local proxy route (same-origin, zero CORS issues)
+      try {
+        const localRes = await fetch("/api/user/signup", {
+          method: "POST",
+          body: data,
+        });
+        if (localRes) {
+          response = localRes;
+        }
+      } catch (err) {
+        lastNetworkErr = err;
+        console.warn("Local proxy signup failed, trying direct endpoints:", err);
+      }
 
-      if (response.ok) {
+      // 2. Fallback to direct backend endpoints if local proxy failed
+      if (!response || !response.ok) {
+        const endpoints = [
+          "https://cortex-api-htc8.onrender.com/",
+          BACKEND_API,
+        ];
+        const uniqueBases = Array.from(new Set(endpoints.map((u) => (u.endsWith("/") ? u : `${u}/`))));
+
+        for (const base of uniqueBases) {
+          try {
+            const res = await fetch(`${base}user/signup-manual`, {
+              method: "POST",
+              body: data,
+            });
+            if (res && res.ok) {
+              response = res;
+              break;
+            }
+          } catch (fetchErr) {
+            lastNetworkErr = fetchErr;
+          }
+        }
+      }
+
+      if (!response) {
+        throw new Error(lastNetworkErr?.message || "Could not reach authentication server. Please check your connection.");
+      }
+
+      const result = await response.json().catch(() => ({}));
+
+      if (response.ok && result.token) {
         toast.success("Account Created Successfully!");
         localStorage.setItem("token", result.token);
         localStorage.setItem("user", JSON.stringify(result.user));
+
+        // Sync cortex_role cookie for instant server and client recognition
+        const roleUpper = (result.user?.role || "USER").toString().trim().toUpperCase();
+        document.cookie = `cortex_role=${roleUpper}; path=/; max-age=2592000`;
+
         authDialog?.setIsUserRegistered(true);
         if (signUpOpen) signUpOpen(false);
 
         setTimeout(() => {
-          window.location.reload();
+          if (typeof window !== "undefined") {
+            const params = new URLSearchParams(window.location.search);
+            const redirectParam = params.get("redirect") || params.get("callbackUrl");
+            if (redirectParam) {
+              window.location.href = redirectParam;
+              return;
+            }
+            if (window.location.pathname === "/signin" || window.location.pathname === "/signup") {
+              const ref = document.referrer;
+              if (ref && !ref.includes("/signin") && !ref.includes("/signup") && ref.includes(window.location.origin)) {
+                window.location.href = ref;
+                return;
+              }
+              window.location.href = "/";
+              return;
+            }
+            window.location.reload();
+          }
         }, 800);
       } else {
-        toast.error(result.message || "Signup failed");
+        toast.error(result.message || result.error || "Signup failed. Please try again.");
       }
-    } catch (err) {
-      toast.error("Network error. Please try again.");
+    } catch (err: any) {
+      console.error("Signup error:", err);
+      toast.error(err.message || "Network error. Please try again.");
     } finally {
       setLoading(false);
     }

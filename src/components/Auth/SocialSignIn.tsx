@@ -2,11 +2,28 @@ import React from "react";
 import { signIn } from "next-auth/react";
 
 const SocialSignIn = () => {
+  const getCallbackUrl = () => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const redirect = params.get("redirect") || params.get("callbackUrl");
+      if (redirect) return redirect;
+      if (window.location.pathname === "/signin" || window.location.pathname === "/signup") {
+        const ref = document.referrer;
+        if (ref && !ref.includes("/signin") && !ref.includes("/signup") && ref.includes(window.location.origin)) {
+          return ref;
+        }
+        return "/";
+      }
+      return window.location.pathname + window.location.search;
+    }
+    return "/";
+  };
+
   const handleGoogleSignIn = async () => {
-    await signIn("google", { callbackUrl: "/" });
+    await signIn("google", { callbackUrl: getCallbackUrl() });
   };
   const handleGithubSignIn = async () => {
-    await signIn("github", { callbackUrl: "/" });
+    await signIn("github", { callbackUrl: getCallbackUrl() });
   };
 
   return (

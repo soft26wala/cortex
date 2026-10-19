@@ -2,11 +2,28 @@ import React from "react";
 import { signIn } from "next-auth/react";
 
 const SocialSignUp = () => {
+  const getCallbackUrl = () => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const redirect = params.get("redirect") || params.get("callbackUrl");
+      if (redirect) return redirect;
+      if (window.location.pathname === "/signin" || window.location.pathname === "/signup") {
+        const ref = document.referrer;
+        if (ref && !ref.includes("/signin") && !ref.includes("/signup") && ref.includes(window.location.origin)) {
+          return ref;
+        }
+        return "/";
+      }
+      return window.location.pathname + window.location.search;
+    }
+    return "/";
+  };
+
   return (
     <div className="flex gap-3">
       <button
         type="button"
-        onClick={() => signIn("google", { callbackUrl: "/" })}
+        onClick={() => signIn("google", { callbackUrl: getCallbackUrl() })}
         className="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-[#14141F] hover:bg-[#1C1C2B] border border-white/[0.08] text-white text-xs font-semibold transition-all hover:scale-[1.02]"
       >
         <svg width="18" height="18" viewBox="0 0 23 22" fill="none">
@@ -32,7 +49,7 @@ const SocialSignUp = () => {
 
       <button
         type="button"
-        onClick={() => signIn("github")}
+        onClick={() => signIn("github", { callbackUrl: getCallbackUrl() })}
         className="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-[#14141F] hover:bg-[#1C1C2B] border border-white/[0.08] text-white text-xs font-semibold transition-all hover:scale-[1.02]"
       >
         <svg width="18" height="18" viewBox="0 0 22 22" fill="currentColor">

@@ -20,7 +20,7 @@ export async function generateMetadata() {
       siteName: "Jeenu Soni Luxury",
       images: [
         {
-          url: profile?.profileImage || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=1200&auto=format&fit=crop",
+          url: profile?.profileImage || "/logo/logo.png",
           width: 1200,
           height: 630,
           alt: "Jeenu Soni Official",
@@ -48,7 +48,7 @@ export default async function JeenuSoniPage() {
     name: "Jeenu Soni",
     slug: "jeenusoni",
     bio: "Professional Digital Creator & Design Vlogger based in Gajsinghpur. Specializing in high-end brand collaborations, fashion vlogging, visual storytelling, and creative direction.",
-    profileImage: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=1200&auto=format&fit=crop",
+    profileImage: "",
     coverImage: "https://images.unsplash.com/photo-1518895949257-7621c3c786d7?q=80&w=1600&auto=format&fit=crop",
     instagramUrl: "https://www.instagram.com/jot_soni_0_0?stkn=MXhvY29mdmlsY3JpeA==",
     facebookUrl: "https://facebook.com/jeenusoni.official",

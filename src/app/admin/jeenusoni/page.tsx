@@ -2396,7 +2396,7 @@ export default function AdminJeenuSoniPage() {
         isOpen={isProfilePhotoModalOpen}
         onClose={() => setIsProfilePhotoModalOpen(false)}
         currentImage={profileForm.profileImage || profile?.profileImage || ""}
-        onImageUpdated={(newUrl) => {
+        onImageUpdated={(newUrl: string) => {
           setProfileForm((prev) => ({ ...prev, profileImage: newUrl }));
           if (profile) setProfile({ ...profile, profileImage: newUrl });
           showToast("Profile photo updated live in database!", "success");

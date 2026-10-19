@@ -112,7 +112,7 @@ async function init() {
         'Jeenu Soni',
         'jeenusoni',
         'Professional Digital Creator & Design Vlogger based in Gajsinghpur. Specializing in high-end brand collaborations, fashion vlogging, visual storytelling, and creative direction.',
-        'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=1200&auto=format&fit=crop',
+        '',
         'https://images.unsplash.com/photo-1518895949257-7621c3c786d7?q=80&w=1600&auto=format&fit=crop',
         'https://www.instagram.com/jot_soni_0_0?stkn=MXhvY29mdmlsY3JpeA==',
         'https://facebook.com/jeenusoni.official',
@@ -176,25 +176,7 @@ async function init() {
       }
     }
 
-    // Seed Gallery if empty
-    const galCheck = await client.query('SELECT COUNT(*) FROM jeenu_galleries');
-    if (parseInt(galCheck.rows[0].count) === 0) {
-      console.log('Seeding initial galleries...');
-      const initialGalleries = [
-        { id: 'gal-1', image_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=1200&auto=format&fit=crop', title: 'Golden Hour Elegance', caption: 'Basking in sunset light in silk and gold accents.', sort_order: 1 },
-        { id: 'gal-2', image_url: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1200&auto=format&fit=crop', title: 'Couture Dreams', caption: 'Embracing soft pink textures and timeless silhouettes.', sort_order: 2 },
-        { id: 'gal-3', image_url: 'https://images.unsplash.com/photo-1529139574466-a303027c1d8b?q=80&w=1200&auto=format&fit=crop', title: 'Chic Urban Glamour', caption: 'Modern street glamour in high-fashion black & rose tones.', sort_order: 3 },
-        { id: 'gal-4', image_url: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1200&auto=format&fit=crop', title: 'Radiant Smiles', caption: 'Pure joy and intimate romantic stories captured.', sort_order: 4 },
-      ];
-
-      for (const g of initialGalleries) {
-        await client.query(`
-          INSERT INTO jeenu_galleries (id, image_url, title, caption, sort_order, published, created_at, updated_at)
-          VALUES ($1, $2, $3, $4, $5, true, NOW(), NOW())
-          ON CONFLICT (id) DO NOTHING
-        `, [g.id, g.image_url, g.title, g.caption, g.sort_order]);
-      }
-    }
+    // Gallery starts empty for custom uploads
 
     // Seed Social Links if empty
     const socCheck = await client.query('SELECT COUNT(*) FROM jeenu_social_links');

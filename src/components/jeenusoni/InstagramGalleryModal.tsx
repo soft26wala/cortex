@@ -93,9 +93,19 @@ export default function InstagramGalleryModal({
       if (selectedFile) {
         const formData = new FormData();
         formData.append("file", selectedFile);
+        formData.append("type", "gallery");
+        formData.append("title", title.trim() || "Jeenu Soni Lookbook");
+        formData.append("caption", caption.trim());
+        formData.append("sortOrder", String(sortOrder || 1));
 
-        const uploadRes = await fetch("/api/upload", {
+        const uploadHeaders: Record<string, string> = {};
+        if (authToken) {
+          uploadHeaders["Authorization"] = `Bearer ${authToken}`;
+        }
+
+        const uploadRes = await fetch("/api/vlog/jeenusoni/upload", {
           method: "POST",
+          headers: uploadHeaders,
           body: formData,
         });
 
@@ -104,6 +114,13 @@ export default function InstagramGalleryModal({
           throw new Error(uploadJson.error || "Failed to upload image file");
         }
         finalImageUrl = uploadJson.url;
+
+        // If creating new item, the upload API already inserted it
+        if (!itemToEdit && uploadJson.data) {
+          onSuccess(uploadJson.data);
+          onClose();
+          return;
+        }
       }
 
       // 2. Prepare payload

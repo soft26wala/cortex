@@ -98,12 +98,14 @@ const Header: React.FC = () => {
 
   const handleLogout = async () => {
     const session = await getSession();
+    const currentUrl = typeof window !== "undefined" ? window.location.pathname + window.location.search : "/";
     if (session) {
-      await signOut({ redirect: true, callbackUrl: "/" });
+      await signOut({ redirect: true, callbackUrl: currentUrl });
     } else {
       localStorage.removeItem("token");
       localStorage.removeItem("user");
-      window.location.href = "/";
+      document.cookie = "cortex_role=; path=/; max-age=0";
+      window.location.reload();
     }
   };
 
