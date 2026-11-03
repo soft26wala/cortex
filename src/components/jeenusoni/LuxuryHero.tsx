@@ -71,6 +71,9 @@ export default function LuxuryHero({
       }
 
       toast.success("Profile photo uploaded & updated successfully!", { id: toastId });
+      if (typeof window !== "undefined" && json.url) {
+        localStorage.setItem("jeenu_profile_image", json.url);
+      }
       if (onProfilePicUploaded) {
         onProfilePicUploaded(json.url);
       }

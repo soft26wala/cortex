@@ -73,12 +73,9 @@ const CourseDetails = () => {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-5">
-              <button
-               className="bg-orange-600 text-white px-10 py-4 rounded-2xl font-bold text-lg shadow-xl shadow-orange-600/20 transition-all active:scale-95">
-                 <Link href={`/buy-now/${course.course_id}`} className="w-full text-center">
-             Buy Now - ₹{course.course_price}
-           </Link>
-              </button>
+              <Link href={`/buy-now/${course.course_id}`} className="inline-block text-center bg-orange-600 text-white px-10 py-4 rounded-2xl font-bold text-lg shadow-xl shadow-orange-600/20 transition-all active:scale-95 hover:bg-orange-700">
+                Buy Now - ₹{course.course_price}
+              </Link>
 
               <Link href={`https://www.notion.so/Job-Ready-Complete-Web-Development-DSA-Aptitude-Reasoning-Web3-GenAI-DevOps-AWS-2d1b62fb4b3481d9a341c1bff11afbdf?source=copy_link`}  passHref>
               <button className="flex items-center justify-center gap-2 border border-gray-300 dark:border-white/10 hover:bg-gray-100 dark:hover:bg-white/5 px-10 py-4 rounded-2xl font-bold transition-all">
@@ -134,11 +131,9 @@ const CourseDetails = () => {
 
       {/* --- FLOATING ENROLL FOR MOBILE --- */}
       <div className="lg:hidden fixed bottom-6 left-6 right-6 z-50">
-          <button className="w-full bg-orange-600 text-white py-4 rounded-2xl font-bold shadow-2xl shadow-orange-600/40 border-t border-white/20">
-           <Link href={`/buy-now/${course.course_id}`} className="w-full text-center">
+          <Link href={`/buy-now/${course.course_id}`} className="block w-full text-center bg-orange-600 text-white py-4 rounded-2xl font-bold shadow-2xl shadow-orange-600/40 border-t border-white/20 hover:bg-orange-700">
              Buy Now - ₹{course.course_price}
            </Link>
-          </button>
       </div>
 
     </div>

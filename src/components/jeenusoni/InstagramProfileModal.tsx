@@ -146,6 +146,9 @@ export default function InstagramProfileModal({
       }
 
       toast.success("Profile card updated successfully in DB!");
+      if (typeof window !== "undefined" && finalImageUrl) {
+        localStorage.setItem("jeenu_profile_image", finalImageUrl);
+      }
       if (onProfileUpdated) onProfileUpdated(payload);
       if (onImageUpdated) onImageUpdated(finalImageUrl);
       onClose();

@@ -730,7 +730,7 @@ function seedInitialData() {
         name: "Jeenu Soni",
         slug: "jeenusoni",
         bio: "Professional Digital Creator & Design Vlogger based in Gajsinghpur. Specializing in high-end brand collaborations, fashion vlogging, visual storytelling, and creative direction.",
-        profileImage: "",
+        profileImage: "https://res.cloudinary.com/devpogl5m/image/upload/v1792420810/jeenu_profile_latest.jpg",
         coverImage: "https://images.unsplash.com/photo-1518895949257-7621c3c786d7?q=80&w=1600&auto=format&fit=crop",
         instagramUrl: "https://www.instagram.com/jot_soni_0_0?stkn=MXhvY29mdmlsY3JpeA==",
         facebookUrl: "https://www.facebook.com/jeenu.soni.5",
@@ -796,7 +796,48 @@ function seedInitialData() {
   }
 
   if (memoryJeenuGalleriesStore.length === 0) {
-    memoryJeenuGalleriesStore = [];
+    memoryJeenuGalleriesStore = [
+      {
+        id: "gal-jeenu-1",
+        imageUrl: "https://res.cloudinary.com/devpogl5m/image/upload/v1792420832/jeenu_gallery_1.webp",
+        title: "Jeenu Soni Lookbook",
+        caption: "High-fashion aesthetic moment",
+        sortOrder: 1,
+        published: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+      {
+        id: "gal-2",
+        imageUrl: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1200&auto=format&fit=crop",
+        title: "Couture Dreams",
+        caption: "Embracing soft pink textures and timeless silhouettes.",
+        sortOrder: 2,
+        published: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+      {
+        id: "gal-3",
+        imageUrl: "https://images.unsplash.com/photo-1529139574466-a303027c1d8b?q=80&w=1200&auto=format&fit=crop",
+        title: "Chic Urban Glamour",
+        caption: "Modern street glamour in high-fashion black & rose tones.",
+        sortOrder: 3,
+        published: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+      {
+        id: "gal-4",
+        imageUrl: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1200&auto=format&fit=crop",
+        title: "Radiant Smiles",
+        caption: "Pure joy and intimate romantic stories captured.",
+        sortOrder: 4,
+        published: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+    ];
   }
 
   if (memoryJeenuSocialLinksStore.length === 0) {
@@ -1183,8 +1224,11 @@ export async function deleteTeamMember(id: string) {
 // JEENU SONI LUXURY VLOG & AD SYSTEM CRUD FUNCTIONS (POSTGRESQL-FIRST)
 // -------------------------------------------------------------
 
+let PERSISTED_JEENU_PROFILE_PHOTO = "https://res.cloudinary.com/devpogl5m/image/upload/v1792420810/jeenu_profile_latest.jpg";
+
 export async function getJeenuProfile(slug: string = "jeenusoni"): Promise<JeenuProfileData | null> {
   await initDb();
+  let result: JeenuProfileData | null = null;
   if (pool) {
     try {
       const res = await pool.query(
@@ -1197,12 +1241,20 @@ export async function getJeenuProfile(slug: string = "jeenusoni"): Promise<Jeenu
          FROM jeenu_profiles WHERE slug = $1 LIMIT 1`,
         [slug]
       );
-      if (res.rows.length > 0) return res.rows[0];
+      if (res.rows.length > 0) result = res.rows[0];
     } catch (err) {
       console.warn("Postgres fetch error for getJeenuProfile, fallback to memory:", err);
     }
   }
-  return memoryJeenuProfilesStore.find((p) => p.slug === slug) || memoryJeenuProfilesStore[0] || null;
+  if (!result) {
+    result = memoryJeenuProfilesStore.find((p) => p.slug === slug) || memoryJeenuProfilesStore[0] || null;
+  }
+  if (result) {
+    if (!result.profileImage || result.profileImage.trim() === "") {
+      result.profileImage = PERSISTED_JEENU_PROFILE_PHOTO;
+    }
+  }
+  return result;
 }
 
 export async function updateJeenuProfile(data: Partial<JeenuProfileData>, slug: string = "jeenusoni"): Promise<JeenuProfileData> {
@@ -1314,6 +1366,9 @@ export async function updateJeenuProfile(data: Partial<JeenuProfileData>, slug: 
 
       if (res.rows.length > 0) {
         const row = res.rows[0];
+        if (data.profileImage) {
+          PERSISTED_JEENU_PROFILE_PHOTO = data.profileImage;
+        }
         const idx = memoryJeenuProfilesStore.findIndex((p) => p.slug === slug);
         if (idx !== -1) memoryJeenuProfilesStore[idx] = row;
         else memoryJeenuProfilesStore.push(row);
@@ -1324,6 +1379,9 @@ export async function updateJeenuProfile(data: Partial<JeenuProfileData>, slug: 
     }
   }
 
+  if (data.profileImage) {
+    PERSISTED_JEENU_PROFILE_PHOTO = data.profileImage;
+  }
   const idx = memoryJeenuProfilesStore.findIndex((p) => p.slug === slug);
   if (idx !== -1) memoryJeenuProfilesStore[idx] = updated;
   else memoryJeenuProfilesStore.push(updated);

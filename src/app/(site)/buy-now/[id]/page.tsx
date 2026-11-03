@@ -94,7 +94,9 @@ const BuyNowPage = () => {
       });
       paymentObject.open();
     } catch (error) {
-      console.log(error)
+      console.log(error);
+      setBtnLoading(false);
+      alert("Failed to initiate order. Please try again.");
     }
   }
 

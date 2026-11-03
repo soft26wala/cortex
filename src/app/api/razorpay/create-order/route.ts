@@ -12,17 +12,12 @@ export async function POST(req: NextRequest) {
     const planObj = SAAS_PLANS.find(p => p.id === planId) || SAAS_PLANS[0];
     const orderData = await RazorpayService.createOrder(planId, authUser.id);
 
-    // Auto-activate subscription bound to authenticated user_id
-    const subscription = await activateUserSubscription(authUser.id, planObj.id, planObj.name, {
-      orderId: orderData.order.id,
-      amount: planObj.priceInr
-    });
+    // Note: Subscription will be activated upon verified payment confirmation in webhook/verify endpoint
 
     return NextResponse.json({
       ...orderData,
       userId: authUser.id,
-      subscription
-    });
+      });
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }

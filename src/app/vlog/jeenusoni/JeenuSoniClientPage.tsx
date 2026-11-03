@@ -73,6 +73,8 @@ export default function JeenuSoniClientPage({
     return false;
   };
 
+  const canEdit = isAuthorizedRole(currentUser);
+
   // Unified Auth Sync: Shares login across cortestack.com, NextAuth Google/GitHub, and credentials
   useEffect(() => {
     let isMounted = true;
@@ -189,7 +191,44 @@ export default function JeenuSoniClientPage({
     }
   }, []);
 
-  // Live DB sync
+  // Restore uploaded photos from localStorage cache immediately on mount
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const cachedProfileImg = localStorage.getItem("jeenu_profile_image");
+      if (cachedProfileImg && cachedProfileImg.trim() !== "") {
+        setProfile((prev) => {
+          if (!prev.profileImage || prev.profileImage.trim() === "") {
+            return { ...prev, profileImage: cachedProfileImg };
+          }
+          return prev;
+        });
+      }
+
+      const cachedGallery = localStorage.getItem("jeenu_gallery_photos");
+      if (cachedGallery) {
+        const parsed = JSON.parse(cachedGallery);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setGallery((prev) => {
+            const map = new Map<string, JeenuGalleryData>();
+            for (const item of parsed) {
+              map.set(item.id || item.imageUrl, item);
+            }
+            for (const item of prev) {
+              if (!map.has(item.id || item.imageUrl)) {
+                map.set(item.id || item.imageUrl, item);
+              }
+            }
+            return Array.from(map.values()).sort((a, b) => (a.sortOrder || 1) - (b.sortOrder || 1));
+          });
+        }
+      }
+    } catch (e) {
+      console.warn("Error reading cache:", e);
+    }
+  }, []);
+
+  // Live DB sync with reload protection (never overwrites valid uploaded photos with empty response)
   useEffect(() => {
     async function loadLiveData() {
       try {
@@ -207,9 +246,72 @@ export default function JeenuSoniClientPage({
           socRes.json(),
         ]);
 
-        if (profJson.success && profJson.data) setProfile(profJson.data);
+        if (profJson.success && profJson.data) {
+          setProfile((prev) => {
+            const cachedImg = typeof window !== "undefined" ? localStorage.getItem("jeenu_profile_image") : null;
+            const finalImg =
+              profJson.data.profileImage && profJson.data.profileImage.trim() !== ""
+                ? profJson.data.profileImage
+                : prev.profileImage || cachedImg || "";
+
+            if (typeof window !== "undefined" && finalImg) {
+              localStorage.setItem("jeenu_profile_image", finalImg);
+            }
+
+            // If server lacked the image due to serverless cold start, sync back to server in background
+            if (canEdit && (!profJson.data.profileImage || profJson.data.profileImage.trim() === "") && finalImg) {
+              fetch("/api/vlog/jeenusoni/profile", {
+                method: "PUT",
+                headers: {
+                  "Content-Type": "application/json",
+                  ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
+                  ...(currentUser?.role ? { "x-user-role": currentUser.role } : {}),
+                },
+                body: JSON.stringify({ profileImage: finalImg }),
+              }).catch(() => {});
+            }
+
+            return {
+              ...profJson.data,
+              profileImage: finalImg,
+            };
+          });
+        }
+
         if (vlogJson.success && Array.isArray(vlogJson.data)) setVlogs(vlogJson.data);
-        if (galJson.success && Array.isArray(galJson.data)) setGallery(galJson.data);
+
+        if (galJson.success && Array.isArray(galJson.data)) {
+          setGallery((prev) => {
+            const cachedGalleryRaw = typeof window !== "undefined" ? localStorage.getItem("jeenu_gallery_photos") : null;
+            let cachedList: JeenuGalleryData[] = [];
+            if (cachedGalleryRaw) {
+              try {
+                cachedList = JSON.parse(cachedGalleryRaw);
+              } catch (_) {}
+            }
+
+            const map = new Map<string, JeenuGalleryData>();
+            for (const item of galJson.data) {
+              map.set(item.id || item.imageUrl, item);
+            }
+            for (const item of cachedList) {
+              if (!map.has(item.id || item.imageUrl)) {
+                map.set(item.id || item.imageUrl, item);
+              }
+            }
+            for (const item of prev) {
+              if (!map.has(item.id || item.imageUrl)) {
+                map.set(item.id || item.imageUrl, item);
+              }
+            }
+            const merged = Array.from(map.values()).sort((a, b) => (a.sortOrder || 1) - (b.sortOrder || 1));
+            if (typeof window !== "undefined") {
+              localStorage.setItem("jeenu_gallery_photos", JSON.stringify(merged));
+            }
+            return merged;
+          });
+        }
+
         if (socJson.success && Array.isArray(socJson.data)) setSocials(socJson.data);
       } catch (err) {
         console.error("Live DB sync warning:", err);
@@ -217,7 +319,7 @@ export default function JeenuSoniClientPage({
     }
 
     loadLiveData();
-  }, []);
+  }, [canEdit, authToken, currentUser?.role]);
 
   const handleLogout = async () => {
     try {
@@ -241,22 +343,37 @@ export default function JeenuSoniClientPage({
   };
 
   const handleProfileImageUpdated = (newUrl: string) => {
-    setProfile((prev) => ({ ...prev, profileImage: newUrl }));
+    setProfile((prev) => {
+      const updated = { ...prev, profileImage: newUrl };
+      if (typeof window !== "undefined") {
+        localStorage.setItem("jeenu_profile_image", newUrl);
+        localStorage.setItem("jeenu_profile_data", JSON.stringify(updated));
+      }
+      return updated;
+    });
     showToast("Profile photo updated successfully!", "success");
   };
 
   const handleGallerySuccess = (item: JeenuGalleryData, isDelete = false) => {
     if (isDelete) {
-      setGallery((prev) => prev.filter((g) => g.id !== item.id));
+      setGallery((prev) => {
+        const filtered = prev.filter((g) => g.id !== item.id && g.imageUrl !== item.imageUrl);
+        if (typeof window !== "undefined") {
+          localStorage.setItem("jeenu_gallery_photos", JSON.stringify(filtered));
+        }
+        return filtered;
+      });
       showToast("Photo removed from gallery", "info");
     } else {
       setGallery((prev) => {
-        const exists = prev.some((g) => g.id === item.id);
-        if (exists) {
-          return prev.map((g) => (g.id === item.id ? item : g));
-        } else {
-          return [item, ...prev];
+        const exists = prev.some((g) => g.id === item.id || g.imageUrl === item.imageUrl);
+        const updated = exists
+          ? prev.map((g) => ((g.id === item.id || g.imageUrl === item.imageUrl) ? item : g))
+          : [item, ...prev];
+        if (typeof window !== "undefined") {
+          localStorage.setItem("jeenu_gallery_photos", JSON.stringify(updated));
         }
+        return updated;
       });
       showToast("Gallery lookbook updated successfully!", "success");
     }
@@ -268,8 +385,6 @@ export default function JeenuSoniClientPage({
       el.scrollIntoView({ behavior: "smooth" });
     }
   };
-
-  const canEdit = isAuthorizedRole(currentUser);
 
   // Determine Preset Theme Styling
   const preset = profile.preset || "luxury-love";

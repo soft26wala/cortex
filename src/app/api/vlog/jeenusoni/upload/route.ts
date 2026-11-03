@@ -56,16 +56,31 @@ export async function POST(req: NextRequest) {
     if (cloudName && apiKey && apiSecret) {
       try {
         const timestamp = Math.round(Date.now() / 1000);
-        const signature = crypto
-          .createHash("sha1")
-          .update(`timestamp=${timestamp}${apiSecret}`)
-          .digest("hex");
+        const params: Record<string, string> = {
+          timestamp: timestamp.toString(),
+        };
+
+        if (uploadType === "profile") {
+          params.invalidate = "true";
+          params.overwrite = "true";
+          params.public_id = "jeenu_profile_latest";
+          params.tags = "jeenu_profile,jeenusoni";
+        } else {
+          params.public_id = `jeenu_gallery_${Date.now()}`;
+          params.tags = "jeenu_gallery,jeenusoni";
+        }
+
+        const sortedKeys = Object.keys(params).sort();
+        const strToSign = sortedKeys.map((k) => `${k}=${params[k]}`).join("&") + apiSecret;
+        const signature = crypto.createHash("sha1").update(strToSign).digest("hex");
 
         const cData = new FormData();
         const fileBlob = new Blob([buffer], { type: file.type || "image/jpeg" });
         cData.append("file", fileBlob, file.name);
         cData.append("api_key", apiKey);
-        cData.append("timestamp", timestamp.toString());
+        for (const [k, v] of Object.entries(params)) {
+          cData.append(k, v);
+        }
         cData.append("signature", signature);
 
         const cRes = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {

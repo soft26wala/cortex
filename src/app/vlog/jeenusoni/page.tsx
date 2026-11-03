@@ -1,5 +1,5 @@
 import Metadata from "next";
-import { getJeenuProfile, getJeenuVlogs, getJeenuGalleries, getJeenuSocialLinks } from "@/lib/db";
+import { getJeenuProfile, getJeenuVlogs, getJeenuGalleries, getJeenuSocialLinks, JeenuProfileData } from "@/lib/db";
 import JeenuSoniClientPage from "./JeenuSoniClientPage";
 
 export const revalidate = 0; // Dynamic server rendering for fresh database content
@@ -43,12 +43,14 @@ export default async function JeenuSoniPage() {
     getJeenuSocialLinks({ activeOnly: true }),
   ]);
 
-  const defaultProfile = profile || {
+  const fallbackProfileImage = "https://res.cloudinary.com/devpogl5m/image/upload/v1792420810/jeenu_profile_latest.jpg";
+
+  const defaultProfile = {
     id: "prof-default",
     name: "Jeenu Soni",
     slug: "jeenusoni",
     bio: "Professional Digital Creator & Design Vlogger based in Gajsinghpur. Specializing in high-end brand collaborations, fashion vlogging, visual storytelling, and creative direction.",
-    profileImage: "",
+    profileImage: fallbackProfileImage,
     coverImage: "https://images.unsplash.com/photo-1518895949257-7621c3c786d7?q=80&w=1600&auto=format&fit=crop",
     instagramUrl: "https://www.instagram.com/jot_soni_0_0?stkn=MXhvY29mdmlsY3JpeA==",
     facebookUrl: "https://facebook.com/jeenusoni.official",
@@ -64,9 +66,17 @@ export default async function JeenuSoniPage() {
     updatedAt: new Date().toISOString(),
   };
 
+  const resolvedProfile: JeenuProfileData = {
+    ...defaultProfile,
+    ...(profile || {}),
+    profileImage: (profile?.profileImage && profile.profileImage.trim() !== "")
+      ? profile.profileImage
+      : fallbackProfileImage,
+  };
+
   return (
     <JeenuSoniClientPage
-      initialProfile={defaultProfile}
+      initialProfile={resolvedProfile}
       initialVlogs={vlogs || []}
       initialGallery={gallery || []}
       initialSocials={socials || []}

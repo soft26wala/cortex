@@ -150,12 +150,6 @@ export async function verifyJeenuAdminAuth(req?: NextRequest): Promise<AuthCheck
           email = verified.user.email;
           name = verified.user.name;
           isAuthenticated = true;
-        } else if (token === "soni-token" || token === "admin-token" || token === "demo-dev-token") {
-          role = token === "soni-token" ? "SONI" : "ADMIN";
-          userId = role === "SONI" ? "usr_soni_01" : "usr_admin_01";
-          email = role === "SONI" ? "soni@cortex.com" : "admin@cortex.com";
-          name = role === "SONI" ? "Jeenu Soni" : "Cortex Admin";
-          isAuthenticated = true;
         }
       }
     }
