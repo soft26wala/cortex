@@ -3,6 +3,9 @@ import BlogList from "@/components/Blog/BlogList";
 import HeroSub from "@/components/SharedComponent/HeroSub";
 import { Metadata } from "next";
 import TicketSection from "@/components/Home/TicketSection";
+
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Blog | Cortex Web Solutions",
   description:

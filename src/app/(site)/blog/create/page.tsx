@@ -1,22 +1,23 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
 import {
-  Sparkles,
   Plus,
   Trash2,
   Eye,
   Edit3,
   ArrowLeft,
-  Image as ImageIcon,
+  UploadCloud,
   CheckCircle2,
   Calendar,
   User,
-  Tag,
   BookOpen,
+  FileCheck,
+  RefreshCw,
+  RotateCcw,
+  Tag,
 } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -25,23 +26,19 @@ interface SubtitleSection {
   content: string;
 }
 
-const SAMPLE_PRESETS = [
-  {
-    name: "AI & Neural Networks",
-    url: "https://images.unsplash.com/photo-1677442136019-21780efad99a?q=80&w=1200&auto=format&fit=crop",
-  },
-  {
-    name: "Cloud & DevSecOps",
-    url: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1200&auto=format&fit=crop",
-  },
-  {
-    name: "Modern Web Solutions",
-    url: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=1200&auto=format&fit=crop",
-  },
-  {
-    name: "Modern Workstation",
-    url: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=1200&auto=format&fit=crop",
-  },
+const BLOG_CATEGORIES = [
+  "IT & Software",
+  "Share Market & Trading",
+  "Marketing & Digital Growth",
+  "AI & Automation",
+  "Web & App Development",
+  "Finance & Investment",
+  "Business & Startups",
+  "SEO & Social Media",
+  "Cybersecurity & Cloud",
+  "Design & UI/UX",
+  "Education & Career",
+  "News & Trends",
 ];
 
 export default function CreateBlogPage() {
@@ -49,46 +46,96 @@ export default function CreateBlogPage() {
   const [activeTab, setActiveTab] = useState<"edit" | "preview">("edit");
   const [loading, setLoading] = useState(false);
 
-  // Form State
+  // Form State - 100% empty on initial load (Zero demo data / Zero auto-selected images)
   const [title, setTitle] = useState("");
   const [excerpt, setExcerpt] = useState("");
-  const [category, setCategory] = useState("Web Architecture");
-  const [author, setAuthor] = useState("Cortex Web Solutions");
+  const [category, setCategory] = useState("");
+  const [isCustomCategory, setIsCustomCategory] = useState(false);
+  const [author, setAuthor] = useState("");
 
-  // 2-3 Images State
-  const [coverImage, setCoverImage] = useState(
-    "https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=1200&auto=format&fit=crop"
-  );
-  const [image2, setImage2] = useState(
-    "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1200&auto=format&fit=crop"
-  );
-  const [image3, setImage3] = useState(
-    "https://images.unsplash.com/photo-1677442136019-21780efad99a?q=80&w=1200&auto=format&fit=crop"
-  );
+  // Step 2: 2-3 Image Files State (Starts completely empty - User picks own images)
+  const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [coverPreview, setCoverPreview] = useState<string>("");
 
-  // 3-4 Subtitles State
+  const [image2File, setImage2File] = useState<File | null>(null);
+  const [image2Preview, setImage2Preview] = useState<string>("");
+
+  const [image3File, setImage3File] = useState<File | null>(null);
+  const [image3Preview, setImage3Preview] = useState<string>("");
+
+  // Refs for file inputs
+  const coverInputRef = useRef<HTMLInputElement>(null);
+  const image2InputRef = useRef<HTMLInputElement>(null);
+  const image3InputRef = useRef<HTMLInputElement>(null);
+
+  // Step 3: Subtitles State - Starts completely empty (3 clean slots ready to type)
   const [subtitles, setSubtitles] = useState<SubtitleSection[]>([
-    {
-      title: "1. Modern Architecture Paradigm",
-      content:
-        "Building scalable enterprise applications requires decoupling the UI layer from underlying microservices. By combining Next.js 15, edge runtimes, and real-time streaming, teams can achieve sub-100ms response times worldwide.",
-    },
-    {
-      title: "2. Database Resilience and Distributed Caching",
-      content:
-        "Data persistence is the foundation of high-availability solutions. Utilizing PostgreSQL with connection pooling and intelligent read replicas ensures transaction safety without throughput bottlenecks.",
-    },
-    {
-      title: "3. Integrating AI Workflows & Automation Agents",
-      content:
-        "Autonomous agents empower businesses to process customer requests, handle webhooks, and trigger background tasks autonomously. Implementing deterministic guardrails guarantees reliability.",
-    },
-    {
-      title: "4. Deployment, Security & Production Readiness",
-      content:
-        "Rigorous QA testing, automated static analysis, and zero-trust authentication form the final pillar before production release. Always verify cryptographic signatures on third-party webhooks.",
-    },
+    { title: "", content: "" },
+    { title: "", content: "" },
+    { title: "", content: "" },
   ]);
+
+  const handleCategorySelect = (val: string) => {
+    if (val === "__CUSTOM__") {
+      setIsCustomCategory(true);
+      setCategory("");
+    } else {
+      setIsCustomCategory(false);
+      setCategory(val);
+    }
+  };
+
+  // File selection handlers
+  const handleFileChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    type: "cover" | "image2" | "image3"
+  ) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select a valid image file (PNG, JPG, WEBP).");
+      return;
+    }
+
+    const previewUrl = URL.createObjectURL(file);
+
+    if (type === "cover") {
+      if (coverPreview) URL.revokeObjectURL(coverPreview);
+      setCoverFile(file);
+      setCoverPreview(previewUrl);
+      toast.success(`Image 1 selected: ${file.name}`);
+    } else if (type === "image2") {
+      if (image2Preview) URL.revokeObjectURL(image2Preview);
+      setImage2File(file);
+      setImage2Preview(previewUrl);
+      toast.success(`Image 2 selected: ${file.name}`);
+    } else if (type === "image3") {
+      if (image3Preview) URL.revokeObjectURL(image3Preview);
+      setImage3File(file);
+      setImage3Preview(previewUrl);
+      toast.success(`Image 3 selected: ${file.name}`);
+    }
+  };
+
+  const removeFile = (type: "cover" | "image2" | "image3") => {
+    if (type === "cover") {
+      if (coverPreview) URL.revokeObjectURL(coverPreview);
+      setCoverFile(null);
+      setCoverPreview("");
+      if (coverInputRef.current) coverInputRef.current.value = "";
+    } else if (type === "image2") {
+      if (image2Preview) URL.revokeObjectURL(image2Preview);
+      setImage2File(null);
+      setImage2Preview("");
+      if (image2InputRef.current) image2InputRef.current.value = "";
+    } else if (type === "image3") {
+      if (image3Preview) URL.revokeObjectURL(image3Preview);
+      setImage3File(null);
+      setImage3Preview("");
+      if (image3InputRef.current) image3InputRef.current.value = "";
+    }
+  };
 
   const handleSubtitleChange = (
     index: number,
@@ -103,40 +150,33 @@ export default function CreateBlogPage() {
   };
 
   const addSubtitle = () => {
-    setSubtitles((prev) => [
-      ...prev,
-      {
-        title: `${prev.length + 1}. New Subtitle Section`,
-        content: "Write detailed content for this section...",
-      },
-    ]);
+    setSubtitles((prev) => [...prev, { title: "", content: "" }]);
   };
 
   const removeSubtitle = (index: number) => {
     if (subtitles.length <= 1) {
-      toast.error("At least one subtitle section is required.");
+      toast.error("Kam se kam 1 subtitle section hona zaroori hai.");
       return;
     }
     setSubtitles((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const handleFillSample = () => {
-    setTitle("Architecting Next-Generation Web Platforms for 2026 and Beyond");
-    setExcerpt(
-      "A comprehensive guide exploring modern web development, intelligent agentic workflows, distributed databases, and high-performance user experiences."
-    );
-    setCategory("Engineering & AI");
-    setAuthor("Cortex Architecture Team");
-    setCoverImage(
-      "https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=1200&auto=format&fit=crop"
-    );
-    setImage2(
-      "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1200&auto=format&fit=crop"
-    );
-    setImage3(
-      "https://images.unsplash.com/photo-1677442136019-21780efad99a?q=80&w=1200&auto=format&fit=crop"
-    );
-    toast.success("Sample blog data populated!");
+  // Reset form to completely empty state
+  const handleResetForm = () => {
+    setTitle("");
+    setExcerpt("");
+    setCategory("");
+    setIsCustomCategory(false);
+    setAuthor("");
+    removeFile("cover");
+    removeFile("image2");
+    removeFile("image3");
+    setSubtitles([
+      { title: "", content: "" },
+      { title: "", content: "" },
+      { title: "", content: "" },
+    ]);
+    toast.success("Form completely clear kar diya gaya hai!");
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -147,8 +187,13 @@ export default function CreateBlogPage() {
       return;
     }
 
-    if (!coverImage.trim()) {
-      toast.error("Please provide at least the main cover image (Image 1).");
+    if (!category.trim()) {
+      toast.error("Please select a blog category (e.g. IT, Share Market, Marketing).");
+      return;
+    }
+
+    if (!coverFile) {
+      toast.error("Please upload Image 1 (Main Cover Image file).");
       return;
     }
 
@@ -156,58 +201,56 @@ export default function CreateBlogPage() {
       (s) => s.title.trim() && s.content.trim()
     );
 
-    if (filledSubtitles.length < 2) {
-      toast.error("Please provide at least 2 to 3 subtitle sections with content.");
+    if (filledSubtitles.length < 1) {
+      toast.error("Please fill at least 1-2 subtitle sections with title and content.");
       return;
     }
 
     setLoading(true);
 
     try {
-      const payload = {
-        title: title.trim(),
-        excerpt: excerpt.trim() || title.trim(),
-        category,
-        author: author.trim() || "Cortex Engineering",
-        coverImage: coverImage.trim(),
-        image2: image2.trim() || undefined,
-        image3: image3.trim() || undefined,
-        subtitles: filledSubtitles,
-      };
+      const formData = new FormData();
+      formData.append("title", title.trim());
+      formData.append("excerpt", excerpt.trim() || title.trim());
+      formData.append("category", category.trim());
+      formData.append("author", author.trim() || "Author");
+      formData.append("subtitles", JSON.stringify(filledSubtitles));
+
+      formData.append("coverImageFile", coverFile);
+      if (image2File) formData.append("image2File", image2File);
+      if (image3File) formData.append("image3File", image3File);
 
       const res = await fetch("/api/blogs", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: formData,
       });
 
       const data = await res.json();
 
       if (data.success) {
-        toast.success("Blog published successfully!");
-        // Store in localStorage for immediate client sync
+        toast.success("Aapka naya blog successfully publish ho gaya!");
+        // Cache in localStorage for instant rendering across serverless instances
         try {
-          const current = JSON.parse(
+          const existing = JSON.parse(
             localStorage.getItem("cortex_custom_blogs_cache") || "[]"
           );
-          current.unshift({
-            ...payload,
-            slug: data.slug,
-            date: new Date().toISOString(),
-          });
-          localStorage.setItem(
-            "cortex_custom_blogs_cache",
-            JSON.stringify(current)
-          );
-        } catch (e) {
-          // ignore
+          const filtered = existing.filter((b: any) => b.slug !== data.slug);
+          if (data.blog) {
+            filtered.unshift(data.blog);
+            localStorage.setItem(
+              "cortex_custom_blogs_cache",
+              JSON.stringify(filtered.slice(0, 30))
+            );
+          }
+        } catch {
+          // ignore storage quota errors
         }
 
         setTimeout(() => {
           router.push(`/blog/${data.slug}`);
         }, 600);
       } else {
-        toast.error(data.error || "Failed to publish blog.");
+        toast.error(data.error || "Blog publish karne mein issue aaya.");
       }
     } catch (err: any) {
       toast.error("Network error while publishing blog.");
@@ -234,18 +277,19 @@ export default function CreateBlogPage() {
               Create New <span className="text-orange-600">Blog Post</span>
             </h1>
             <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
-              Add title, 2-3 images, and 3-4 subtitles to share your knowledge.
+              Apna blog title, category, images aur subtitles likhein aur publish karein.
             </p>
           </div>
 
           <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={handleFillSample}
-              className="px-3.5 py-2 text-xs font-semibold rounded-xl border border-zinc-300 dark:border-white/10 hover:bg-zinc-100 dark:hover:bg-white/5 transition flex items-center gap-1.5"
+              onClick={handleResetForm}
+              className="px-3.5 py-2 text-xs font-semibold rounded-xl border border-zinc-300 dark:border-white/10 hover:bg-zinc-100 dark:hover:bg-white/5 transition flex items-center gap-1.5 text-zinc-600 dark:text-zinc-400"
+              title="Form ko khali karein"
             >
-              <Sparkles className="w-3.5 h-3.5 text-orange-500" />
-              Fill Sample
+              <RotateCcw className="w-3.5 h-3.5" />
+              Clear Form
             </button>
 
             {/* Tab Switcher */}
@@ -280,12 +324,12 @@ export default function CreateBlogPage() {
 
         {/* ===================== TAB 1: FORM EDITOR ===================== */}
         {activeTab === "edit" ? (
-          <form onSubmit={handleSubmit} className="space-y-8">
-            {/* 1. Main Details Card */}
+          <form onSubmit={handleSubmit} autoComplete="off" className="space-y-8">
+            {/* Step 1: Blog Overview */}
             <div className="bg-white dark:bg-[#0E0E12] border border-zinc-200 dark:border-white/5 rounded-3xl p-6 sm:p-8 shadow-sm">
               <div className="flex items-center gap-2 text-orange-600 font-bold text-sm mb-4">
                 <BookOpen className="w-4 h-4" />
-                <span>Step 1: Blog Overview</span>
+                <span>Step 1: Blog Overview & Category</span>
               </div>
 
               <div className="space-y-5">
@@ -295,40 +339,114 @@ export default function CreateBlogPage() {
                   </label>
                   <input
                     type="text"
+                    name="blog_title_field"
+                    autoComplete="off"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                    placeholder="e.g. Master Modern Web Architecture with Microservices"
+                    placeholder="Apna blog title yahan likhein..."
                     className="w-full px-4 py-3 rounded-2xl bg-zinc-50 dark:bg-white/[0.03] border border-zinc-300 dark:border-white/10 text-base font-semibold focus:outline-none focus:ring-2 focus:ring-orange-500"
                     required
                   />
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-zinc-500 mb-2">
-                      Category
-                    </label>
-                    <input
-                      type="text"
-                      value={category}
-                      onChange={(e) => setCategory(e.target.value)}
-                      placeholder="e.g. Web Development, AI, Cloud"
-                      className="w-full px-4 py-3 rounded-2xl bg-zinc-50 dark:bg-white/[0.03] border border-zinc-300 dark:border-white/10 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
-                    />
+                {/* Category Selection (IT, Share Market, Marketing, etc.) */}
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-zinc-500 mb-2">
+                    Category <span className="text-red-500">*</span>
+                  </label>
+
+                  {/* Quick Category Pills */}
+                  <div className="flex flex-wrap gap-2 mb-3">
+                    {BLOG_CATEGORIES.map((cat) => {
+                      const active = !isCustomCategory && category === cat;
+                      return (
+                        <button
+                          key={cat}
+                          type="button"
+                          onClick={() => handleCategorySelect(cat)}
+                          className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all border ${
+                            active
+                              ? "bg-orange-600 text-white border-orange-600 shadow-md shadow-orange-600/20"
+                              : "bg-zinc-50 dark:bg-white/[0.03] text-zinc-700 dark:text-zinc-300 border-zinc-200 dark:border-white/10 hover:border-orange-500 hover:text-orange-600"
+                          }`}
+                        >
+                          {cat}
+                        </button>
+                      );
+                    })}
+                    <button
+                      type="button"
+                      onClick={() => handleCategorySelect("__CUSTOM__")}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all border ${
+                        isCustomCategory
+                          ? "bg-orange-600 text-white border-orange-600 shadow-md shadow-orange-600/20"
+                          : "bg-zinc-50 dark:bg-white/[0.03] text-zinc-700 dark:text-zinc-300 border-zinc-200 dark:border-white/10 hover:border-orange-500 hover:text-orange-600"
+                      }`}
+                    >
+                      + Custom Category
+                    </button>
                   </div>
 
-                  <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-zinc-500 mb-2">
-                      Author Name
-                    </label>
-                    <input
-                      type="text"
-                      value={author}
-                      onChange={(e) => setAuthor(e.target.value)}
-                      placeholder="e.g. Cortex Team"
-                      className="w-full px-4 py-3 rounded-2xl bg-zinc-50 dark:bg-white/[0.03] border border-zinc-300 dark:border-white/10 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
-                    />
+                  {/* Dropdown Fallback + Custom Input */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="relative">
+                      <select
+                        value={isCustomCategory ? "__CUSTOM__" : category}
+                        onChange={(e) => handleCategorySelect(e.target.value)}
+                        className="w-full px-4 py-3 rounded-2xl bg-zinc-50 dark:bg-[#14141a] border border-zinc-300 dark:border-white/10 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-orange-500"
+                        required={!isCustomCategory}
+                      >
+                        <option value="" disabled>
+                          -- Select Category (IT, Share Market, Marketing...) --
+                        </option>
+                        {BLOG_CATEGORIES.map((cat) => (
+                          <option key={cat} value={cat}>
+                            {cat}
+                          </option>
+                        ))}
+                        <option value="__CUSTOM__">Other (Type Custom Category)</option>
+                      </select>
+                    </div>
+
+                    {isCustomCategory ? (
+                      <input
+                        type="text"
+                        autoComplete="off"
+                        value={category}
+                        onChange={(e) => setCategory(e.target.value)}
+                        placeholder="Apni custom category likhein..."
+                        className="w-full px-4 py-3 rounded-2xl bg-zinc-50 dark:bg-white/[0.03] border border-orange-500 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                        required
+                      />
+                    ) : (
+                      <input
+                        type="text"
+                        name="blog_author_field"
+                        autoComplete="off"
+                        value={author}
+                        onChange={(e) => setAuthor(e.target.value)}
+                        placeholder="Author Name (e.g. Aapka Naam)"
+                        className="w-full px-4 py-3 rounded-2xl bg-zinc-50 dark:bg-white/[0.03] border border-zinc-300 dark:border-white/10 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                      />
+                    )}
                   </div>
+
+                  {isCustomCategory && (
+                    <div className="mt-4">
+                      <label className="block text-xs font-bold uppercase tracking-wider text-zinc-500 mb-2">
+                        Author Name
+                      </label>
+                      <input
+                        type="text"
+                        name="blog_author_field"
+                        autoComplete="off"
+                        value={author}
+                        onChange={(e) => setAuthor(e.target.value)}
+                        placeholder="Author Name (e.g. Aapka Naam)"
+                        className="w-full px-4 py-3 rounded-2xl bg-zinc-50 dark:bg-white/[0.03] border border-zinc-300 dark:border-white/10 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                      />
+                    </div>
+                  )}
                 </div>
 
                 <div>
@@ -339,145 +457,280 @@ export default function CreateBlogPage() {
                     rows={3}
                     value={excerpt}
                     onChange={(e) => setExcerpt(e.target.value)}
-                    placeholder="Provide a compelling 1-2 sentence introduction..."
+                    placeholder="Blog ka chhota summary ya introduction yahan likhein..."
                     className="w-full px-4 py-3 rounded-2xl bg-zinc-50 dark:bg-white/[0.03] border border-zinc-300 dark:border-white/10 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
                   />
                 </div>
               </div>
             </div>
 
-            {/* 2. Visual Media Section (2-3 Images) */}
+            {/* Step 2: Blog Images (File Uploads 2-3 Images - ZERO pre-selected images) */}
             <div className="bg-white dark:bg-[#0E0E12] border border-zinc-200 dark:border-white/5 rounded-3xl p-6 sm:p-8 shadow-sm">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2 text-orange-600 font-bold text-sm">
-                  <ImageIcon className="w-4 h-4" />
-                  <span>Step 2: Blog Images (2 to 3 Images)</span>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-6">
+                <div>
+                  <div className="flex items-center gap-2 text-orange-600 font-bold text-sm">
+                    <UploadCloud className="w-4 h-4" />
+                    <span>Step 2: Upload Blog Images (2 to 3 Image Files)</span>
+                  </div>
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
+                    Koi image auto-select nahi hai — apne blog ke hisaab se apni device se image files select karein.
+                  </p>
                 </div>
-                <span className="text-xs text-zinc-400">
-                  Provide URLs or click presets below
+                <span className="text-xs font-bold text-orange-600 bg-orange-500/10 px-3 py-1 rounded-full w-fit">
+                  Device File Upload
                 </span>
-              </div>
-
-              {/* Sample Presets Quick Select */}
-              <div className="mb-6 flex flex-wrap gap-2">
-                <span className="text-xs font-medium text-zinc-400 self-center mr-1">
-                  Quick Presets:
-                </span>
-                {SAMPLE_PRESETS.map((preset, idx) => (
-                  <button
-                    key={idx}
-                    type="button"
-                    onClick={() => {
-                      if (!coverImage) setCoverImage(preset.url);
-                      else if (!image2) setImage2(preset.url);
-                      else setImage3(preset.url);
-                      toast.success(`Loaded: ${preset.name}`);
-                    }}
-                    className="px-2.5 py-1 text-xs rounded-lg bg-zinc-100 dark:bg-white/5 hover:bg-orange-500/10 hover:text-orange-500 transition border border-zinc-200 dark:border-white/5"
-                  >
-                    {preset.name}
-                  </button>
-                ))}
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {/* Image 1: Main Cover */}
-                <div className="space-y-3">
-                  <label className="block text-xs font-bold uppercase tracking-wider text-zinc-500">
-                    Image 1: Main Cover <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="url"
-                    value={coverImage}
-                    onChange={(e) => setCoverImage(e.target.value)}
-                    placeholder="https://..."
-                    className="w-full px-3.5 py-2.5 text-xs rounded-xl bg-zinc-50 dark:bg-white/[0.03] border border-zinc-300 dark:border-white/10 focus:outline-none focus:ring-2 focus:ring-orange-500"
-                    required
-                  />
-                  <div className="relative aspect-video rounded-xl overflow-hidden bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-white/10">
-                    {coverImage ? (
-                      <img
-                        src={coverImage}
-                        alt="Cover preview"
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          (e.target as any).src =
-                            "https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=1200&auto=format&fit=crop";
-                        }}
-                      />
-                    ) : (
-                      <div className="flex items-center justify-center h-full text-xs text-zinc-400">
-                        Cover Preview
+                {/* 1. Image 1: Main Cover File */}
+                <div className="flex flex-col justify-between p-4 rounded-2xl bg-zinc-50 dark:bg-white/[0.02] border border-zinc-200 dark:border-white/10">
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs font-bold uppercase tracking-wider text-zinc-700 dark:text-zinc-300">
+                        Image 1: Main Cover <span className="text-red-500">*</span>
+                      </span>
+                      {coverPreview && (
+                        <span className="text-[10px] font-bold text-emerald-600 bg-emerald-500/10 px-2 py-0.5 rounded-full flex items-center gap-1">
+                          <CheckCircle2 className="w-3 h-3" /> Selected
+                        </span>
+                      )}
+                    </div>
+
+                    <input
+                      ref={coverInputRef}
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      id="coverImageUpload"
+                      onChange={(e) => handleFileChange(e, "cover")}
+                    />
+
+                    {coverPreview ? (
+                      <div className="relative aspect-video rounded-xl overflow-hidden border border-zinc-300 dark:border-white/10 group mb-3">
+                        <img
+                          src={coverPreview}
+                          alt="Cover preview"
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                          <label
+                            htmlFor="coverImageUpload"
+                            className="p-2 rounded-lg bg-white/20 backdrop-blur hover:bg-white/40 text-white cursor-pointer transition"
+                            title="Change Image"
+                          >
+                            <RefreshCw className="w-4 h-4" />
+                          </label>
+                          <button
+                            type="button"
+                            onClick={() => removeFile("cover")}
+                            className="p-2 rounded-lg bg-red-600/80 hover:bg-red-600 text-white transition"
+                            title="Remove Image"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
                       </div>
+                    ) : (
+                      <label
+                        htmlFor="coverImageUpload"
+                        className="flex flex-col items-center justify-center aspect-video rounded-xl border-2 border-dashed border-zinc-300 dark:border-white/15 hover:border-orange-500 dark:hover:border-orange-500 bg-white dark:bg-zinc-900/50 cursor-pointer transition-all group mb-3 p-4 text-center"
+                      >
+                        <UploadCloud className="w-8 h-8 text-zinc-400 group-hover:text-orange-500 transition-colors mb-2" />
+                        <span className="text-xs font-bold text-zinc-700 dark:text-zinc-300 group-hover:text-orange-600">
+                          Choose Cover File
+                        </span>
+                        <span className="text-[10px] text-zinc-400 mt-0.5">
+                          No image selected yet
+                        </span>
+                      </label>
+                    )}
+                  </div>
+
+                  <div className="text-[11px] text-zinc-500 truncate flex items-center justify-between">
+                    <span>
+                      {coverFile
+                        ? `${coverFile.name} (${(coverFile.size / 1024 / 1024).toFixed(1)} MB)`
+                        : "Required for header"}
+                    </span>
+                    {coverPreview && (
+                      <button
+                        type="button"
+                        onClick={() => removeFile("cover")}
+                        className="text-red-500 hover:underline text-[10px] ml-2"
+                      >
+                        Remove
+                      </button>
                     )}
                   </div>
                 </div>
 
-                {/* Image 2: Section Image */}
-                <div className="space-y-3">
-                  <label className="block text-xs font-bold uppercase tracking-wider text-zinc-500">
-                    Image 2: Section Visual <span className="text-orange-500">*</span>
-                  </label>
-                  <input
-                    type="url"
-                    value={image2}
-                    onChange={(e) => setImage2(e.target.value)}
-                    placeholder="https://..."
-                    className="w-full px-3.5 py-2.5 text-xs rounded-xl bg-zinc-50 dark:bg-white/[0.03] border border-zinc-300 dark:border-white/10 focus:outline-none focus:ring-2 focus:ring-orange-500"
-                  />
-                  <div className="relative aspect-video rounded-xl overflow-hidden bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-white/10">
-                    {image2 ? (
-                      <img
-                        src={image2}
-                        alt="Section preview"
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          (e.target as any).src =
-                            "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1200&auto=format&fit=crop";
-                        }}
-                      />
-                    ) : (
-                      <div className="flex items-center justify-center h-full text-xs text-zinc-400">
-                        Section Preview
+                {/* 2. Image 2: Section Visual File */}
+                <div className="flex flex-col justify-between p-4 rounded-2xl bg-zinc-50 dark:bg-white/[0.02] border border-zinc-200 dark:border-white/10">
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs font-bold uppercase tracking-wider text-zinc-700 dark:text-zinc-300">
+                        Image 2: Section Visual
+                      </span>
+                      {image2Preview && (
+                        <span className="text-[10px] font-bold text-emerald-600 bg-emerald-500/10 px-2 py-0.5 rounded-full flex items-center gap-1">
+                          <CheckCircle2 className="w-3 h-3" /> Selected
+                        </span>
+                      )}
+                    </div>
+
+                    <input
+                      ref={image2InputRef}
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      id="image2Upload"
+                      onChange={(e) => handleFileChange(e, "image2")}
+                    />
+
+                    {image2Preview ? (
+                      <div className="relative aspect-video rounded-xl overflow-hidden border border-zinc-300 dark:border-white/10 group mb-3">
+                        <img
+                          src={image2Preview}
+                          alt="Section preview"
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                          <label
+                            htmlFor="image2Upload"
+                            className="p-2 rounded-lg bg-white/20 backdrop-blur hover:bg-white/40 text-white cursor-pointer transition"
+                            title="Change Image"
+                          >
+                            <RefreshCw className="w-4 h-4" />
+                          </label>
+                          <button
+                            type="button"
+                            onClick={() => removeFile("image2")}
+                            className="p-2 rounded-lg bg-red-600/80 hover:bg-red-600 text-white transition"
+                            title="Remove Image"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
                       </div>
+                    ) : (
+                      <label
+                        htmlFor="image2Upload"
+                        className="flex flex-col items-center justify-center aspect-video rounded-xl border-2 border-dashed border-zinc-300 dark:border-white/15 hover:border-orange-500 dark:hover:border-orange-500 bg-white dark:bg-zinc-900/50 cursor-pointer transition-all group mb-3 p-4 text-center"
+                      >
+                        <UploadCloud className="w-8 h-8 text-zinc-400 group-hover:text-orange-500 transition-colors mb-2" />
+                        <span className="text-xs font-bold text-zinc-700 dark:text-zinc-300 group-hover:text-orange-600">
+                          Choose Image 2 File
+                        </span>
+                        <span className="text-[10px] text-zinc-400 mt-0.5">
+                          Shows after Subtitle 1
+                        </span>
+                      </label>
+                    )}
+                  </div>
+
+                  <div className="text-[11px] text-zinc-500 truncate flex items-center justify-between">
+                    <span>
+                      {image2File
+                        ? `${image2File.name} (${(image2File.size / 1024 / 1024).toFixed(1)} MB)`
+                        : "No image selected"}
+                    </span>
+                    {image2Preview && (
+                      <button
+                        type="button"
+                        onClick={() => removeFile("image2")}
+                        className="text-red-500 hover:underline text-[10px] ml-2"
+                      >
+                        Remove
+                      </button>
                     )}
                   </div>
                 </div>
 
-                {/* Image 3: Gallery / Supporting */}
-                <div className="space-y-3">
-                  <label className="block text-xs font-bold uppercase tracking-wider text-zinc-500">
-                    Image 3: Closing Visual (Optional)
-                  </label>
-                  <input
-                    type="url"
-                    value={image3}
-                    onChange={(e) => setImage3(e.target.value)}
-                    placeholder="https://..."
-                    className="w-full px-3.5 py-2.5 text-xs rounded-xl bg-zinc-50 dark:bg-white/[0.03] border border-zinc-300 dark:border-white/10 focus:outline-none focus:ring-2 focus:ring-orange-500"
-                  />
-                  <div className="relative aspect-video rounded-xl overflow-hidden bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-white/10">
-                    {image3 ? (
-                      <img
-                        src={image3}
-                        alt="Gallery preview"
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          (e.target as any).src =
-                            "https://images.unsplash.com/photo-1677442136019-21780efad99a?q=80&w=1200&auto=format&fit=crop";
-                        }}
-                      />
-                    ) : (
-                      <div className="flex items-center justify-center h-full text-xs text-zinc-400">
-                        Image 3 Preview
+                {/* 3. Image 3: Supporting Visual File */}
+                <div className="flex flex-col justify-between p-4 rounded-2xl bg-zinc-50 dark:bg-white/[0.02] border border-zinc-200 dark:border-white/10">
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs font-bold uppercase tracking-wider text-zinc-700 dark:text-zinc-300">
+                        Image 3: Supporting <span className="text-zinc-400">(Optional)</span>
+                      </span>
+                      {image3Preview && (
+                        <span className="text-[10px] font-bold text-emerald-600 bg-emerald-500/10 px-2 py-0.5 rounded-full flex items-center gap-1">
+                          <CheckCircle2 className="w-3 h-3" /> Selected
+                        </span>
+                      )}
+                    </div>
+
+                    <input
+                      ref={image3InputRef}
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      id="image3Upload"
+                      onChange={(e) => handleFileChange(e, "image3")}
+                    />
+
+                    {image3Preview ? (
+                      <div className="relative aspect-video rounded-xl overflow-hidden border border-zinc-300 dark:border-white/10 group mb-3">
+                        <img
+                          src={image3Preview}
+                          alt="Supporting preview"
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                          <label
+                            htmlFor="image3Upload"
+                            className="p-2 rounded-lg bg-white/20 backdrop-blur hover:bg-white/40 text-white cursor-pointer transition"
+                            title="Change Image"
+                          >
+                            <RefreshCw className="w-4 h-4" />
+                          </label>
+                          <button
+                            type="button"
+                            onClick={() => removeFile("image3")}
+                            className="p-2 rounded-lg bg-red-600/80 hover:bg-red-600 text-white transition"
+                            title="Remove Image"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
                       </div>
+                    ) : (
+                      <label
+                        htmlFor="image3Upload"
+                        className="flex flex-col items-center justify-center aspect-video rounded-xl border-2 border-dashed border-zinc-300 dark:border-white/15 hover:border-orange-500 dark:hover:border-orange-500 bg-white dark:bg-zinc-900/50 cursor-pointer transition-all group mb-3 p-4 text-center"
+                      >
+                        <UploadCloud className="w-8 h-8 text-zinc-400 group-hover:text-orange-500 transition-colors mb-2" />
+                        <span className="text-xs font-bold text-zinc-700 dark:text-zinc-300 group-hover:text-orange-600">
+                          Choose Image 3 File
+                        </span>
+                        <span className="text-[10px] text-zinc-400 mt-0.5">
+                          Shows after Subtitle 2
+                        </span>
+                      </label>
+                    )}
+                  </div>
+
+                  <div className="text-[11px] text-zinc-500 truncate flex items-center justify-between">
+                    <span>
+                      {image3File
+                        ? `${image3File.name} (${(image3File.size / 1024 / 1024).toFixed(1)} MB)`
+                        : "Optional visual"}
+                    </span>
+                    {image3Preview && (
+                      <button
+                        type="button"
+                        onClick={() => removeFile("image3")}
+                        className="text-red-500 hover:underline text-[10px] ml-2"
+                      >
+                        Remove
+                      </button>
                     )}
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* 3. Subtitles & Content (3-4 Subtitles) */}
+            {/* Step 3: Subtitles & Sections (Clean Empty Slots Ready to Type) */}
             <div className="bg-white dark:bg-[#0E0E12] border border-zinc-200 dark:border-white/5 rounded-3xl p-6 sm:p-8 shadow-sm">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2 text-orange-600 font-bold text-sm">
@@ -491,12 +744,12 @@ export default function CreateBlogPage() {
                   className="px-3 py-1.5 text-xs font-bold rounded-xl bg-orange-600/10 text-orange-600 hover:bg-orange-600 hover:text-white transition flex items-center gap-1.5"
                 >
                   <Plus className="w-3.5 h-3.5" />
-                  Add Another Subtitle
+                  Add Subtitle Section
                 </button>
               </div>
 
               <p className="text-xs text-zinc-400 mb-6">
-                Divide your blog into 3 to 4 clear subtitles with comprehensive explanations.
+                Har section ka apna subtitle heading aur content likhein (3-4 sections recommended).
               </p>
 
               <div className="space-y-6">
@@ -514,7 +767,7 @@ export default function CreateBlogPage() {
                           type="button"
                           onClick={() => removeSubtitle(idx)}
                           className="text-zinc-400 hover:text-red-500 p-1 transition"
-                          title="Delete this section"
+                          title="Is section ko delete karein"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -524,11 +777,12 @@ export default function CreateBlogPage() {
                     <div className="space-y-3">
                       <input
                         type="text"
+                        autoComplete="off"
                         value={sub.title}
                         onChange={(e) =>
                           handleSubtitleChange(idx, "title", e.target.value)
                         }
-                        placeholder={`Enter Subtitle ${idx + 1} Heading...`}
+                        placeholder={`Subtitle ${idx + 1} ka title likhein...`}
                         className="w-full px-3.5 py-2 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-white/10 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-orange-500"
                         required
                       />
@@ -539,7 +793,7 @@ export default function CreateBlogPage() {
                         onChange={(e) =>
                           handleSubtitleChange(idx, "content", e.target.value)
                         }
-                        placeholder={`Write in-depth content for subtitle ${idx + 1}...`}
+                        placeholder={`Subtitle ${idx + 1} ki detail aur paragraph content yahan likhein...`}
                         className="w-full px-3.5 py-2 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-white/10 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 leading-relaxed"
                         required
                       />
@@ -566,11 +820,11 @@ export default function CreateBlogPage() {
                 {loading ? (
                   <>
                     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    Publishing Blog...
+                    Publishing...
                   </>
                 ) : (
                   <>
-                    <Sparkles className="w-4 h-4" />
+                    <FileCheck className="w-4 h-4" />
                     Publish Blog Post
                   </>
                 )}
@@ -582,8 +836,9 @@ export default function CreateBlogPage() {
           <div className="bg-white dark:bg-[#0E0E12] border border-zinc-200 dark:border-white/5 rounded-3xl p-6 sm:p-10 shadow-xl space-y-8">
             <div className="border-b border-zinc-200 dark:border-white/5 pb-6">
               <div className="flex items-center gap-3 text-xs text-zinc-500 mb-3">
-                <span className="px-3 py-1 rounded-full bg-orange-500/10 text-orange-600 font-bold uppercase">
-                  {category || "Category"}
+                <span className="px-3 py-1 rounded-full bg-orange-500/10 text-orange-600 font-bold uppercase flex items-center gap-1">
+                  <Tag className="w-3 h-3" />
+                  {category || "Category Not Selected"}
                 </span>
                 <span className="flex items-center gap-1">
                   <Calendar className="w-3.5 h-3.5" />
@@ -596,26 +851,24 @@ export default function CreateBlogPage() {
               </div>
 
               <h1 className="text-3xl sm:text-5xl font-black tracking-tight leading-tight mb-4">
-                {title || "Your Blog Title Appears Here"}
+                {title || "Aapka Blog Title yahan dikhega"}
               </h1>
 
               <p className="text-lg text-zinc-600 dark:text-zinc-400 leading-relaxed font-medium">
-                {excerpt || "Your blog excerpt/introduction will appear here..."}
+                {excerpt || "Aapka blog excerpt/summary yahan dikhega..."}
               </p>
             </div>
 
-            {/* Main Cover Image Preview */}
-            {coverImage && (
+            {coverPreview && (
               <div className="rounded-3xl overflow-hidden border border-zinc-200 dark:border-white/10 shadow-2xl">
                 <img
-                  src={coverImage}
+                  src={coverPreview}
                   alt={title || "Cover"}
                   className="w-full object-cover max-h-[500px]"
                 />
               </div>
             )}
 
-            {/* Subtitles & Embedded Visuals */}
             <div className="space-y-10 pt-4 max-w-3xl mx-auto">
               {subtitles.map((sub, index) => (
                 <div key={index} className="space-y-4">
@@ -624,41 +877,32 @@ export default function CreateBlogPage() {
                   </h2>
 
                   <p className="text-base sm:text-lg text-zinc-700 dark:text-zinc-300 leading-relaxed whitespace-pre-line">
-                    {sub.content || "Content paragraph..."}
+                    {sub.content || "Is section ka content yahan dikhega..."}
                   </p>
 
-                  {/* Section Image after Subtitle 1 */}
-                  {index === 0 && image2 && (
+                  {index === 0 && image2Preview && (
                     <div className="my-8 rounded-2xl overflow-hidden border border-zinc-200 dark:border-white/10 shadow-lg">
                       <img
-                        src={image2}
+                        src={image2Preview}
                         alt="Section Visual"
                         className="w-full max-h-[420px] object-cover"
                       />
-                      <p className="text-xs text-center text-zinc-400 py-2 bg-zinc-50 dark:bg-zinc-900">
-                        Section Visual & Analysis
-                      </p>
                     </div>
                   )}
 
-                  {/* Closing Image after Subtitle 2 */}
-                  {index === 1 && image3 && (
+                  {index === 1 && image3Preview && (
                     <div className="my-8 rounded-2xl overflow-hidden border border-zinc-200 dark:border-white/10 shadow-lg">
                       <img
-                        src={image3}
+                        src={image3Preview}
                         alt="Supporting Visual"
                         className="w-full max-h-[420px] object-cover"
                       />
-                      <p className="text-xs text-center text-zinc-400 py-2 bg-zinc-50 dark:bg-zinc-900">
-                        Key Architecture Highlights
-                      </p>
                     </div>
                   )}
                 </div>
               ))}
             </div>
 
-            {/* Preview Action Bar */}
             <div className="border-t border-zinc-200 dark:border-white/5 pt-6 flex justify-between items-center">
               <button
                 type="button"
@@ -684,4 +928,3 @@ export default function CreateBlogPage() {
     </div>
   );
 }
-

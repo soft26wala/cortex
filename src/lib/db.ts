@@ -112,8 +112,25 @@ export interface JeenuAdLeadData {
   updatedAt: string;
 }
 
+export interface CustomBlogData {
+  id: string;
+  slug: string;
+  title: string;
+  excerpt: string;
+  category: string;
+  author: string;
+  authorImage?: string;
+  coverImage: string;
+  image2?: string;
+  image3?: string;
+  subtitles: Array<{ title: string; content: string }>;
+  date: string;
+  createdAt: string;
+}
+
 // In-Memory persistent store fallback to guarantee real database-like behavior in dev
 let memoryNewsStore: any[] = [];
+let memoryCustomBlogsStore: CustomBlogData[] = [];
 let memoryUsersStore: any[] = [];
 let memoryCoursesStore: any[] = [];
 let memoryLessonsStore: any[] = [];
@@ -319,6 +336,25 @@ export async function initDb() {
           CREATE INDEX IF NOT EXISTS idx_jeenu_galleries_sort_order ON jeenu_galleries(sort_order);
           CREATE INDEX IF NOT EXISTS idx_jeenu_ad_leads_status ON jeenu_ad_leads(status);
           CREATE INDEX IF NOT EXISTS idx_jeenu_ad_leads_created_at ON jeenu_ad_leads(created_at DESC);
+
+          CREATE TABLE IF NOT EXISTS custom_blogs (
+            id TEXT PRIMARY KEY,
+            slug TEXT UNIQUE NOT NULL,
+            title TEXT NOT NULL,
+            excerpt TEXT NOT NULL DEFAULT '',
+            category TEXT NOT NULL DEFAULT 'IT & Software',
+            author TEXT NOT NULL DEFAULT 'Cortex Author',
+            author_image TEXT DEFAULT '/images/blogdetail-page/silicaman.png',
+            cover_image TEXT NOT NULL,
+            image2 TEXT DEFAULT '',
+            image3 TEXT DEFAULT '',
+            subtitles_json JSONB NOT NULL DEFAULT '[]'::jsonb,
+            published_date TEXT NOT NULL,
+            created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+          );
+
+          CREATE INDEX IF NOT EXISTS idx_custom_blogs_slug ON custom_blogs(slug);
+          CREATE INDEX IF NOT EXISTS idx_custom_blogs_category ON custom_blogs(category);
         `);
 
         // Ensure Jeenu Soni data is seeded into PostgreSQL if tables are empty
@@ -2022,5 +2058,144 @@ export async function getJeenuDbStatus(): Promise<{
     },
   };
 }
+
+// =========================================================================
+// CUSTOM BLOGS STORAGE (PostgreSQL + In-Memory Fallback)
+// =========================================================================
+
+function mapDbRowToBlog(row: any): CustomBlogData {
+  let subs: Array<{ title: string; content: string }> = [];
+  if (Array.isArray(row.subtitles_json)) {
+    subs = row.subtitles_json;
+  } else if (typeof row.subtitles_json === "string") {
+    try {
+      subs = JSON.parse(row.subtitles_json);
+    } catch {
+      subs = [];
+    }
+  }
+  return {
+    id: row.id,
+    slug: row.slug,
+    title: row.title,
+    excerpt: row.excerpt || "",
+    category: row.category || "General",
+    author: row.author || "Author",
+    authorImage: row.author_image || "/images/blogdetail-page/silicaman.png",
+    coverImage: row.cover_image,
+    image2: row.image2 || "",
+    image3: row.image3 || "",
+    subtitles: subs,
+    date: row.published_date || new Date().toISOString().split("T")[0],
+    createdAt: row.created_at ? new Date(row.created_at).toISOString() : new Date().toISOString(),
+  };
+}
+
+export async function getAllCustomBlogs(): Promise<CustomBlogData[]> {
+  await initDb();
+  if (pool) {
+    try {
+      const res = await pool.query(
+        `SELECT * FROM custom_blogs ORDER BY created_at DESC`
+      );
+      return res.rows.map(mapDbRowToBlog);
+    } catch (err) {
+      console.warn("Postgres error fetching custom_blogs:", err);
+    }
+  }
+  return [...memoryCustomBlogsStore];
+}
+
+export async function getCustomBlogBySlug(slug: string): Promise<CustomBlogData | null> {
+  await initDb();
+  if (pool) {
+    try {
+      const res = await pool.query(
+        `SELECT * FROM custom_blogs WHERE slug = $1 LIMIT 1`,
+        [slug]
+      );
+      if (res.rows.length > 0) {
+        return mapDbRowToBlog(res.rows[0]);
+      }
+    } catch (err) {
+      console.warn("Postgres error fetching custom_blog by slug:", err);
+    }
+  }
+  return memoryCustomBlogsStore.find((b) => b.slug === slug) || null;
+}
+
+export async function createCustomBlog(data: {
+  slug: string;
+  title: string;
+  excerpt: string;
+  category: string;
+  author: string;
+  coverImage: string;
+  image2?: string;
+  image3?: string;
+  subtitles: Array<{ title: string; content: string }>;
+  date: string;
+}): Promise<CustomBlogData> {
+  await initDb();
+  const id = `blog_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+  const item: CustomBlogData = {
+    id,
+    slug: data.slug,
+    title: data.title,
+    excerpt: data.excerpt,
+    category: data.category,
+    author: data.author,
+    authorImage: "/images/blogdetail-page/silicaman.png",
+    coverImage: data.coverImage,
+    image2: data.image2 || "",
+    image3: data.image3 || "",
+    subtitles: data.subtitles || [],
+    date: data.date,
+    createdAt: new Date().toISOString(),
+  };
+
+  if (pool) {
+    try {
+      const res = await pool.query(
+        `INSERT INTO custom_blogs (id, slug, title, excerpt, category, author, author_image, cover_image, image2, image3, subtitles_json, published_date, created_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11::jsonb, $12, NOW())
+         ON CONFLICT (slug) DO UPDATE SET
+           title = EXCLUDED.title,
+           excerpt = EXCLUDED.excerpt,
+           category = EXCLUDED.category,
+           cover_image = EXCLUDED.cover_image,
+           image2 = EXCLUDED.image2,
+           image3 = EXCLUDED.image3,
+           subtitles_json = EXCLUDED.subtitles_json
+         RETURNING *`,
+        [
+          item.id,
+          item.slug,
+          item.title,
+          item.excerpt,
+          item.category,
+          item.author,
+          item.authorImage,
+          item.coverImage,
+          item.image2,
+          item.image3,
+          JSON.stringify(item.subtitles),
+          item.date,
+        ]
+      );
+      if (res.rows.length > 0) {
+        const saved = mapDbRowToBlog(res.rows[0]);
+        memoryCustomBlogsStore.unshift(saved);
+        return saved;
+      }
+    } catch (err) {
+      console.warn("Postgres error inserting custom_blog, falling back to memory:", err);
+    }
+  }
+
+  memoryCustomBlogsStore.unshift(item);
+  return item;
+}
+
 
 
